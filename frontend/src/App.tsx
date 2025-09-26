@@ -1,4 +1,5 @@
 import './App.css';
+import Map from './components/Map';
 
 function App() {
     return (
@@ -22,7 +23,9 @@ function App() {
         <div className="main-column">
             <div className="stops">Stops</div>
             <div className="map-section">
-                <div className="map">Map</div>
+                <div className="map">
+                    <Map/>
+                </div>
                 <div className="directions">Directions</div>
             </div>
             <div className="emissions-info">Emissions Info</div>
