@@ -1,8 +1,8 @@
 import { useState } from "react";
-import "./App.css";
-import Map from "./components/Map";
+import "./HomePage.css";
+import Map from "../components/Map";
 
-function App() {
+function HomePage() {
   const [menuOpen, setMenuOpen] = useState(false);
   const [savedOpen, setSavedOpen] = useState(false);
   const [loginOpen, setLoginOpen] = useState(false);
@@ -96,4 +96,4 @@ function App() {
   );
 }
 
-export default App;
+export default HomePage;
