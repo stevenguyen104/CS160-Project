@@ -1,0 +1,46 @@
+#icon{
+    left: 0;
+    position: absolute;
+}
+
+#login-btn{
+    right: 0;
+    position: absolute
+}
+
+#title{
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding-top: 10%;
+}
+
+#desc{
+    padding: 5px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin: 0 auto;
+    width: 50%
+}
+
+.page{
+    height: 100%;
+}
+
+.navbar{
+    height: 10%;  
+    width: auto;
+    background-color: green;
+}
+
+.main{
+    background-color: darkgreen;
+    height: 60%;
+}
+
+.cards{
+    height:30%;
+    background-color: brown;
+}
+
