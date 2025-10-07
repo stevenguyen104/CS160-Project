@@ -1,13 +1,24 @@
 import { useState } from "react";
+import { useJsApiLoader } from "@react-google-maps/api";
 import "./HomePage.css";
 import Map from "../components/Map";
+import SearchPanel from "../components/SearchPanel";
 
 function HomePage() {
-  const [menuOpen, setMenuOpen] = useState(false);
-  const [savedOpen, setSavedOpen] = useState(false);
-  const [loginOpen, setLoginOpen] = useState(false);
+    const [menuOpen, setMenuOpen] = useState(false);
+    const [savedOpen, setSavedOpen] = useState(false);
+    const [loginOpen, setLoginOpen] = useState(false);
+    const [selectedPlace, setSelectedPlace] = useState<google.maps.LatLngLiteral | null>(null);
 
-  return (
+    // Load Google Maps API once
+    const { isLoaded } = useJsApiLoader({
+        googleMapsApiKey: import.meta.env.VITE_GOOGLE_MAPS_KEY,
+        libraries: ["places"],
+    });
+
+    if (!isLoaded) return <div>Loading Map...</div>;
+
+    return (
     <div className="app-container">
         {/* First Column */}
         {/* Sidebar */}
@@ -73,12 +84,20 @@ function HomePage() {
         )}
 
         {/* Second Column */}
-        {/* Search/Alerts Column */}
-        <div className="left-column">
-            <div className="search-bar">Search Bar</div>
-            <div className="search-results">Search Results</div>
-            <div className="alerts">Alerts</div>
-        </div>
+        {/* Search/Alerts Panel */}
+        <SearchPanel
+            google={window.google}
+            onSelectPlace={(place) => {
+                if (place.geometry?.location) {
+                    const location = {
+                        lat: place.geometry.location.lat(),
+                        lng: place.geometry.location.lng(),
+                    };
+                    setSelectedPlace(location);
+                }
+            }}
+        />
+
 
         {/* Third Column */}
         {/* Stops, Map, Directions, Emissions Column */}
@@ -86,14 +105,14 @@ function HomePage() {
             <div className="stops">Stops</div>
             <div className="map-section">
             <div className="map">
-                <Map/>
+                <Map selectedPlace={selectedPlace} />
             </div>
             <div className="directions">Directions</div>
             </div>
             <div className="emissions-info">Emissions Info</div>
         </div>
     </div>
-  );
+    );
 }
 
 export default HomePage;
