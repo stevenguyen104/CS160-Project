@@ -1,29 +1,24 @@
-import { GoogleMap, LoadScript, Marker } from "@react-google-maps/api"
+import { GoogleMap, Marker } from "@react-google-maps/api";
 
 const containerStyle = {
-  width: "100%",
-  height: "75vh",
+    width: "100%",
+    height: "75vh"
+};
+const defaultCenter = {
+    lat: 40.7128,
+    lng: -74.006
 };
 
-const center = {
-  lat: 40.7128,
-  lng: -74.006,
-};
+interface MapProps {
+    selectedPlace?: { lat: number; lng: number } | null;
+}
 
-export default function Map(){
+export default function Map({ selectedPlace }: MapProps) {
+    const center = selectedPlace || defaultCenter;
 
-    const apiKey = import.meta.env.VITE_GOOGLE_MAPS_KEY;
     return (
-        <>
-
-            <LoadScript googleMapsApiKey={apiKey}>
-                <GoogleMap
-                    mapContainerStyle={containerStyle}
-                    center={center}
-                    zoom={12}>
-                        <Marker position={center} />
-                    </GoogleMap>
-            </LoadScript>
-        </>
-    )
+        <GoogleMap mapContainerStyle={containerStyle} center={center} zoom={12}>
+            {selectedPlace && <Marker position={selectedPlace} />}
+        </GoogleMap>
+    );
 }
