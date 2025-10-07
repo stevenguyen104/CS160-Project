@@ -1,3 +1,6 @@
+import StopComponent from "./StopComponent";
+import "./StopBar.css"
+
 interface Places{
     placeLocations: any[];
 }
@@ -5,14 +8,16 @@ interface Places{
 export default function StopBar({placeLocations}: Places){
     return(
         <>
-            <div>
-                Stops
+        <div className="stopbar">
+            Stops 
+            <div className="stopbarCards">
+                <br/>
                 {placeLocations.map((place, index) => (
-                    <p key={index}>
-                        {place.name}
-                    </p>
+                    <StopComponent key={index} name={place.name} address={place.adddress}/>
                 ))}
             </div>
+        </div>
+           
         </>
     )
 }
