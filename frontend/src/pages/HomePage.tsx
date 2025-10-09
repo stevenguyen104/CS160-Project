@@ -5,6 +5,8 @@ import Map from "../components/Map";
 import SearchPanel from "../components/SearchPanel";
 import StopBar from "../components/StopBar/StopBar";
 
+const libraries: ("places")[] = ["places"];
+
 function HomePage() {
     const [menuOpen, setMenuOpen] = useState(false);
     const [savedOpen, setSavedOpen] = useState(false);
@@ -15,7 +17,7 @@ function HomePage() {
     // Load Google Maps API once
     const { isLoaded } = useJsApiLoader({
         googleMapsApiKey: import.meta.env.VITE_GOOGLE_MAPS_KEY,
-        libraries: ["places"],
+        libraries,
     });
 
 
