@@ -7,6 +7,16 @@
     width: 150px;
     min-width: 0;
     text-align: center;
+    z-index: 9;
+    flex: 0 0 auto;
+    user-select: none;
+
+}
+
+
+.placeDiv.dragging{
+    opacity: 0.6;
+    transform: scale(1.02);
 }
 
 #placeName{
