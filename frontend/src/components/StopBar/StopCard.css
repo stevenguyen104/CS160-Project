@@ -1,0 +1,26 @@
+.placeDiv{
+    background-color: gray;
+    border-radius: 5px;
+    border-color: black;
+    border-width: 1px;
+    border-style: solid;
+    width: 150px;
+    min-width: 0;
+    text-align: center;
+    z-index: 9;
+    flex: 0 0 auto;
+    user-select: none;
+
+}
+
+
+.placeDiv.dragging{
+    opacity: 0.6;
+    transform: scale(1.02);
+}
+
+#placeName{
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}

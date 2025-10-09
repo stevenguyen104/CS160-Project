@@ -3,18 +3,21 @@ import { useJsApiLoader } from "@react-google-maps/api";
 import "./HomePage.css";
 import Map from "../components/Map";
 import SearchPanel from "../components/SearchPanel";
+import StopBar from "../components/StopBar/StopBar";
 
 function HomePage() {
     const [menuOpen, setMenuOpen] = useState(false);
     const [savedOpen, setSavedOpen] = useState(false);
     const [loginOpen, setLoginOpen] = useState(false);
     const [selectedPlace, setSelectedPlace] = useState<google.maps.LatLngLiteral | null>(null);
+    const [places, setPlaces] = useState<any[]>([]);
 
     // Load Google Maps API once
     const { isLoaded } = useJsApiLoader({
         googleMapsApiKey: import.meta.env.VITE_GOOGLE_MAPS_KEY,
         libraries: ["places"],
     });
+
 
     if (!isLoaded) return <div>Loading Map...</div>;
 
@@ -94,6 +97,11 @@ function HomePage() {
                         lng: place.geometry.location.lng(),
                     };
                     setSelectedPlace(location);
+                    const placeText = {
+                        name: place.name,
+                        adddress: place.formatted_address,
+                    }
+                    setPlaces(prev => [...prev, placeText]);
                 }
             }}
         />
@@ -102,7 +110,12 @@ function HomePage() {
         {/* Third Column */}
         {/* Stops, Map, Directions, Emissions Column */}
         <div className="main-column">
-            <div className="stops">Stops</div>
+            {/* <div className="stops">
+                Stops
+
+
+            </div> */}
+            <StopBar placeLocations={places}/>
             <div className="map-section">
             <div className="map">
                 <Map selectedPlace={selectedPlace} />
