@@ -115,7 +115,10 @@ function HomePage() {
 
 
             </div> */}
-            <StopBar placeLocations={places}/>
+            <StopBar 
+                placeLocations={places}
+                onItemsChange={(updatedItems) => setPlaces(updatedItems)}
+            />
             <div className="map-section">
             <div className="map">
                 <Map selectedPlace={selectedPlace} />
