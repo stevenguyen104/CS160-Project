@@ -4,9 +4,12 @@ import "./HomePage.css";
 import Map from "../components/Map";
 import SearchPanel from "../components/SearchPanel";
 import StopBar from "../components/StopBar/StopBar";
+
+
 import Sidebar from "../components/SideBar/SideBar";
 import { Window, WindowHeader, WindowContent, Button, Frame, TextInput } from "react95";
 import { Awfxex32Info, Settings, Wab321016 } from "@react95/icons";
+const libraries: ("places")[] = ["places"];
 
 function HomePage() {
     const [menuOpen, setMenuOpen] = useState(false);
@@ -21,7 +24,7 @@ function HomePage() {
     // Load Google Maps API once
     const { isLoaded } = useJsApiLoader({
         googleMapsApiKey: import.meta.env.VITE_GOOGLE_MAPS_KEY,
-        libraries: ["places"],
+        libraries,
     });
 
 
@@ -140,7 +143,10 @@ function HomePage() {
                     <Map selectedPlace={selectedPlace} />
                 </Frame>
 
-                <StopBar placeLocations={places} />
+                <StopBar 
+                    placeLocations={places}
+                    onItemsChange={(updatedItems) => setPlaces(updatedItems)}
+                />
 
                 {/* Start Route button */}
                 <div className="start-route-button">

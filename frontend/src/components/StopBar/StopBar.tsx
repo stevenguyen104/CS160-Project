@@ -5,10 +5,12 @@ import { useRef, useState, useEffect } from "react";
 
 interface Places{
     placeLocations: any[];
+    onItemsChange?: (updatedItems: any[]) => void;
+
 }
 
 
-export default function StopBar({placeLocations}: Places){
+export default function StopBar({placeLocations, onItemsChange}: Places){
 
     const [items, setItems] = useState<any[]>(placeLocations || []);
     useEffect(() => {
@@ -102,6 +104,7 @@ export default function StopBar({placeLocations}: Places){
             if (originalIndex < placeIdx) insertAt = placeIdx - 1;
             newItems.splice(insertAt, 0, moved);
             setItems(newItems);
+            onItemsChange?.(newItems);
         }
         draggingIndexRef.current = null;
         placeholderIndexRef.current = null;
@@ -116,22 +119,20 @@ export default function StopBar({placeLocations}: Places){
         const target = e.currentTarget as HTMLElement;
         target.setPointerCapture(e.pointerId);
 
-    const rect = target.getBoundingClientRect();
+        const rect = target.getBoundingClientRect();
 
-    const offsetX = e.clientX - rect.left;
-    const offsetY = e.clientY - rect.top;
+        const offsetX = e.clientX - rect.left;
+        const offsetY = e.clientY - rect.top;
 
-    draggingIndexRef.current = index;
+        draggingIndexRef.current = index;
 
-    dragOffsetRef.current = { x: offsetX, y: offsetY };
+        dragOffsetRef.current = { x: offsetX, y: offsetY };
 
-    draggedRectRef.current = rect;
-    draggedElemRef.current = target;
-    target.classList.add("dragging");
-    placeholderIndexRef.current = index;
-    setPlaceholderIndex(index);
-        console.log(index)
-        console.log(placeLocations[index])
+        draggedRectRef.current = rect;
+        draggedElemRef.current = target;
+        target.classList.add("dragging");
+        placeholderIndexRef.current = index;
+        setPlaceholderIndex(index);
 
         window.addEventListener("pointermove", onPointerMove);
         window.addEventListener("pointerup", onPointerUp);
