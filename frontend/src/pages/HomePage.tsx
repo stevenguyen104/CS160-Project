@@ -143,7 +143,10 @@ function HomePage() {
                     <Map selectedPlace={selectedPlace} />
                 </Frame>
 
-                <StopBar placeLocations={places} />
+                <StopBar 
+                    placeLocations={places}
+                    onItemsChange={(updatedItems) => setPlaces(updatedItems)}
+                />
 
                 {/* Start Route button */}
                 <div className="start-route-button">
