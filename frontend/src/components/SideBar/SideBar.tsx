@@ -18,7 +18,7 @@ export default function SideBar({
         <Frame className="sidebar-panel">
             <div className="sidebar-buttons">
                 <Button style={{ width: "80%" }} onClick={onMenuToggle}>
-                    <Logo />
+                    <Logo variant="32x32_4"/>
                 </Button>
 
                 <Button style={{ width: "80%" }} onClick={onSavedOpen}>
