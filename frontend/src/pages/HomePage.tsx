@@ -4,6 +4,8 @@ import "./HomePage.css";
 import Map from "../components/Map";
 import SearchPanel from "../components/SearchPanel";
 import StopBar from "../components/StopBar/StopBar";
+
+
 import Sidebar from "../components/SideBar/SideBar";
 import { Window, WindowHeader, WindowContent, Button, Frame, TextInput, Tooltip } from "react95";
 import { Awfxex32Info, Settings, Wab321016, Mute, Unmute } from "@react95/icons";

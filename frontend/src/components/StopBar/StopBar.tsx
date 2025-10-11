@@ -11,7 +11,7 @@ interface Places{
 }
 
 
-export default function StopBar({placeLocations}: Places){
+export default function StopBar({placeLocations, onItemsChange}: Places){
 
     const [items, setItems] = useState<any[]>(placeLocations || []);
     useEffect(() => {
