@@ -1,10 +1,13 @@
 import React from "react";
 import StopComponent from "./StopComponent";
 import "./StopBar.css"
+import { ScrollView } from "react95";
 import { useRef, useState, useEffect } from "react";
 
 interface Places{
     placeLocations: any[];
+    onItemsChange?: (updatedItems: any[]) => void;
+
 }
 
 
@@ -102,6 +105,7 @@ export default function StopBar({placeLocations}: Places){
             if (originalIndex < placeIdx) insertAt = placeIdx - 1;
             newItems.splice(insertAt, 0, moved);
             setItems(newItems);
+            onItemsChange?.(newItems);
         }
         draggingIndexRef.current = null;
         placeholderIndexRef.current = null;
@@ -116,22 +120,20 @@ export default function StopBar({placeLocations}: Places){
         const target = e.currentTarget as HTMLElement;
         target.setPointerCapture(e.pointerId);
 
-    const rect = target.getBoundingClientRect();
+        const rect = target.getBoundingClientRect();
 
-    const offsetX = e.clientX - rect.left;
-    const offsetY = e.clientY - rect.top;
+        const offsetX = e.clientX - rect.left;
+        const offsetY = e.clientY - rect.top;
 
-    draggingIndexRef.current = index;
+        draggingIndexRef.current = index;
 
-    dragOffsetRef.current = { x: offsetX, y: offsetY };
+        dragOffsetRef.current = { x: offsetX, y: offsetY };
 
-    draggedRectRef.current = rect;
-    draggedElemRef.current = target;
-    target.classList.add("dragging");
-    placeholderIndexRef.current = index;
-    setPlaceholderIndex(index);
-        console.log(index)
-        console.log(placeLocations[index])
+        draggedRectRef.current = rect;
+        draggedElemRef.current = target;
+        target.classList.add("dragging");
+        placeholderIndexRef.current = index;
+        setPlaceholderIndex(index);
 
         window.addEventListener("pointermove", onPointerMove);
         window.addEventListener("pointerup", onPointerUp);
@@ -141,35 +143,44 @@ export default function StopBar({placeLocations}: Places){
     return(
         <>
         <div className="stopbar">
-            <div className="stopbarScrollContainer" ref={containerRef}>
+            <ScrollView
+            style={{
+            width: "100%",
+            height: "100%",
+            overflowX: "auto",
+            overflowY: "hidden",
+            whiteSpace: "nowrap",
+            }}>
+                <div className="stopbarScrollContainer" ref={containerRef}>
                 {items.map((place, index) => (
-                <React.Fragment key={index}>
+                    <React.Fragment key={index}>
                     {placeholderIndexRef.current === index && (
-                    <div
+                        <div
                         className="placeholder"
                         style={{
                             width: draggedRectRef.current?.width || 150,
-                            height: draggedRectRef.current?.height || 50
+                            height: draggedRectRef.current?.height || 50,
                         }}
-                    />
+                        />
                     )}
                     <StopComponent
-                    name={place.name}
-                    address={place.adddress}
-                    onPointerDown={(e) => handlePointerDown(e, index)}
+                        name={place.name}
+                        address={place.adddress}
+                        onPointerDown={(e) => handlePointerDown(e, index)}
                     />
-                </React.Fragment>
+                    </React.Fragment>
                 ))}
                 {placeholderIndexRef.current === items.length && (
-                <div
+                    <div
                     className="placeholder"
                     style={{
                         width: draggedRectRef.current?.width || 150,
-                        height: draggedRectRef.current?.height || 50
+                        height: draggedRectRef.current?.height || 50,
                     }}
-                />
+                    />
                 )}
-            </div>
+                </div>
+            </ScrollView>
         </div>
         </>
     )

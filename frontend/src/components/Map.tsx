@@ -25,7 +25,7 @@ export default function Map({ selectedPlace }: MapProps) {
                 mapTypeControl: false,
                 streetViewControl: false,
                 fullscreenControl: false,
-                zoomControl: true
+                zoomControl: false
             }}
         >
             {selectedPlace && <Marker position={selectedPlace} />}

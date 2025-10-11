@@ -1,27 +1,51 @@
-import { useState } from "react";
+import { useState, useRef, useEffect } from "react";
 import { useJsApiLoader } from "@react-google-maps/api";
 import "./HomePage.css";
 import Map from "../components/Map";
 import SearchPanel from "../components/SearchPanel";
 import StopBar from "../components/StopBar/StopBar";
 import Sidebar from "../components/SideBar/SideBar";
-import { Window, WindowHeader, WindowContent, Button, Frame, TextInput } from "react95";
-import { Awfxex32Info, Settings, Wab321016 } from "@react95/icons";
+import { Window, WindowHeader, WindowContent, Button, Frame, TextInput, Tooltip } from "react95";
+import { Awfxex32Info, Settings, Wab321016, Mute, Unmute } from "@react95/icons";
+const libraries: ("places")[] = ["places"];
 
 function HomePage() {
     const [menuOpen, setMenuOpen] = useState(false);
     const [savedOpen, setSavedOpen] = useState(false);
     const [loginOpen, setLoginOpen] = useState(false);
+    const [volumeOpen, setVolumeOpen] = useState(false);
+    const [settingsOpen, setSettingsOpen] = useState(false);
+    const [infoOpen, setInfoOpen] = useState(false);
     const [selectedPlace, setSelectedPlace] = useState<google.maps.LatLngLiteral | null>(null);
     const [places, setPlaces] = useState<any[]>([]);
     const [searchResults, setSearchResults] = useState<google.maps.places.PlaceResult[]>([]);
     const [showSearchResults, setShowSearchResults] = useState(false);
     const [showConfirmRoute, setShowConfirmRoute] = useState(false);
+    const [volume, setVolume] = useState(50);
+    const [muted, setMuted] = useState(false);
+    const audioRef = useRef<HTMLAudioElement>(null);
+    useEffect(() => {
+        if (audioRef.current) {
+            audioRef.current.volume = volume / 100;
+            audioRef.current.muted = muted;
+        }
+    }, [volume, muted]);
+
+    // play on action
+    useEffect(() => {
+        const startAudio = () => {
+            audioRef.current?.play().catch(console.log);
+            window.removeEventListener("click", startAudio);
+        };
+
+        window.addEventListener("click", startAudio);
+        return () => window.removeEventListener("click", startAudio);
+    }, []);
 
     // Load Google Maps API once
     const { isLoaded } = useJsApiLoader({
         googleMapsApiKey: import.meta.env.VITE_GOOGLE_MAPS_KEY,
-        libraries: ["places"],
+        libraries,
     });
 
 
@@ -29,6 +53,8 @@ function HomePage() {
 
     return (
     <>
+
+    <audio ref={audioRef} src="/soundtrack.mp3" autoPlay loop />
 
     <div className="animated-bg" >
         <div className="bg-layer" />
@@ -43,6 +69,7 @@ function HomePage() {
         onMenuToggle={() => setMenuOpen((prev) => !prev)}
         onSavedOpen={() => setSavedOpen(true)}
         onLoginOpen={() => setLoginOpen(true)}
+        onVolumeOpen={() => setVolumeOpen(true)}
         />
 
         {/* Menu Window */}
@@ -61,10 +88,63 @@ function HomePage() {
                 </Button>
             </WindowHeader>
             <WindowContent>
-                <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
-                <Button> <Settings /> </Button>
-                <Button> <Awfxex32Info /> </Button>
+                <div style={{ alignItems: "center", display: "flex", flexDirection: "column", gap: 10 }}>
+                <Tooltip text='Settings' style={{ zIndex: 20 }} enterDelay={100} leaveDelay={100} position="right">
+                    <Button style={{ width: 150 }} onClick={() => setSettingsOpen(true)}>
+                        <Settings />
+                    </Button>
+                </Tooltip>
+
+                <Tooltip text='Help' style={{ zIndex: 20 }} enterDelay={100} leaveDelay={100} position="right">
+                    <Button style={{ width: 150 }} onClick={() => setInfoOpen(true)}>
+                        <Awfxex32Info />
+                    </Button>
+                </Tooltip>
                 </div>
+            </WindowContent>
+            </Window>
+        </div>
+        )}
+
+        {/* Settings Window */}
+        {settingsOpen && (
+        <div className="overlay-backdrop" onClick={() => setSettingsOpen(false)}>
+            <Window style={{ width: 500, height: 500, position: "relative" }} onClick={(e) => e.stopPropagation()}>
+            <WindowHeader>
+                <span>Settings</span>
+                <Button
+                square
+                size="sm"
+                onClick={() => setSettingsOpen(false)}
+                style={{ position: "absolute", top: 5, right: 5 }}
+                >
+                ✕
+                </Button>
+            </WindowHeader>
+            <WindowContent>
+                {/* todo */}
+            </WindowContent>
+            </Window>
+        </div>
+        )}
+
+        {/* Info Window */}
+        {infoOpen && (
+        <div className="overlay-backdrop" onClick={() => setInfoOpen(false)}>
+            <Window style={{ width: 500, height: 500, position: "relative" }} onClick={(e) => e.stopPropagation()}>
+            <WindowHeader>
+                <span>Info</span>
+                <Button
+                square
+                size="sm"
+                onClick={() => setInfoOpen(false)}
+                style={{ position: "absolute", top: 5, right: 5 }}
+                >
+                ✕
+                </Button>
+            </WindowHeader>
+            <WindowContent>
+                {/* todo */}
             </WindowContent>
             </Window>
         </div>
@@ -90,6 +170,42 @@ function HomePage() {
             </WindowContent>
             </Window>
         </div>
+        )}
+
+        {/* Volume Window */}
+        {volumeOpen && (
+            <div className="overlay-backdrop" onClick={() => setVolumeOpen(false)}>
+                <Window
+                    style={{ width: 400, position: "relative" }}
+                    onClick={(e) => e.stopPropagation()}
+                >
+                    <WindowHeader>
+                        <span>Volume</span>
+                        <Button
+                            square
+                            size="sm"
+                            onClick={() => setVolumeOpen(false)}
+                            style={{ position: "absolute", top: 5, right: 5 }}
+                        >
+                            ✕
+                        </Button>
+                    </WindowHeader>
+                    <WindowContent style={{ display: "flex", alignItems: "center", gap: 10 }}>
+                        <Button onClick={() => setMuted(prev => !prev)}>
+                            {muted ? <Mute /> : <Unmute />}
+                        </Button>
+                        <input
+                            type="range"
+                            min={0}
+                            max={100}
+                            value={muted ? 0 : volume}
+                            onChange={(e) => setVolume(Number(e.target.value))}
+                            style={{ flex: 1 }}
+                            className="volume-slider"
+                        />
+                    </WindowContent>
+                </Window>
+            </div>
         )}
 
         {/* Login Window */}
@@ -140,11 +256,16 @@ function HomePage() {
                     <Map selectedPlace={selectedPlace} />
                 </Frame>
 
-                <StopBar placeLocations={places} />
+                <StopBar 
+                    placeLocations={places}
+                    onItemsChange={(updatedItems) => setPlaces(updatedItems)}
+                />
 
                 {/* Start Route button */}
                 <div className="start-route-button">
-                    <Button onClick={() => setShowConfirmRoute(true)}> <Wab321016 /> </Button>
+                    <Tooltip text='Start Route' style={{ zIndex: 20 }} enterDelay={100} leaveDelay={100} position="right">
+                        <Button onClick={() => setShowConfirmRoute(true)}> <Wab321016 /> </Button>
+                    </Tooltip>
                 </div>
 
                 {/* Confirm Route Window */}
