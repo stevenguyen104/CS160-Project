@@ -1,15 +1,8 @@
 /* Global Base */
 :root {
-    --primary: #4caf50;
-    --primary-dark: #388e3c;
-    --accent: #2196f3;
-    --background: #f5f7fa;
-    --surface: #ffffff;
-    --text: #222;
-    --border: #ddd;
-    --radius: 8px;
-    --font-family: 'Inter', 'Roboto', sans-serif;
+    --background: transparent;
 }
+
 
 *,
 *::before,
@@ -21,23 +14,13 @@
 
 html, body, #root {
     height: 100%;
-    background: var(--background);
-    color: var(--text);
-    font-family: var(--font-family);
 }
 
 .app-container {
     display: flex;
     height: 100vh;
     width: 100vw;
-}
-
-input, textarea {
-    font-family: inherit;
-    width: 100%;
-    padding: 10px 12px;
-    border: 1px solid var(--border);
-    border-radius: var(--radius);
+    background: transparent;
 }
 
 /* Global overlay */
@@ -118,4 +101,20 @@ input, textarea {
     bottom: 120px;
     left: 5px;
     z-index: 20;
+}
+
+.animated-bg {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: url('/Summer2.png') repeat;
+  animation: scroll 10s linear infinite;
+  z-index: -1;
+}
+
+@keyframes scroll {
+  0% { background-position: 0 0; }
+  100% { background-position: -64px 0; }
 }

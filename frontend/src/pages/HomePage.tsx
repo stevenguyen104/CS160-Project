@@ -28,6 +28,10 @@ function HomePage() {
     if (!isLoaded) return <div>Loading Map...</div>;
 
     return (
+    <>
+
+    <div className="animated-bg" />
+
     <div className="app-container">
         {/* First Column */}
         <Sidebar
@@ -203,6 +207,7 @@ function HomePage() {
             </div>
         </div>
     </div>
+    </>
     );
 }
 
