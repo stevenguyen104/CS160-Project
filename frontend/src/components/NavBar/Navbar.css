@@ -1,0 +1,14 @@
+.navToolbar{
+    justify-content: space-between;
+    margin-left: 2rem;
+}
+
+.grouped{
+    position: relative;
+    display: inline-block;
+}
+
+.groupTwo{
+    display: flex;
+    gap: 1rem;
+}

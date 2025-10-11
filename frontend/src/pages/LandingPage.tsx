@@ -1,3 +1,4 @@
+import Navbar from "../components/NavBar/Navbar";
 import "./LandingPage.css";
  
 
@@ -5,15 +6,9 @@ export default function LandingPage(){
     return (
         <>
             <div className="page">
+                
                 <div className= "navbar">
-                    <h3 id="icon">
-                        cool ass icon
-                    </h3>
-
-                    <button id="login-btn">
-                        LOG IN
-                    </button>
-
+                    <Navbar/>
                 </div>
                 <div className="main">
                     <div id="title">
