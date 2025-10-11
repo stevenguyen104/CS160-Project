@@ -30,7 +30,12 @@ function HomePage() {
     return (
     <>
 
-    <div className="animated-bg" />
+    <div className="animated-bg" >
+        <div className="bg-layer" />
+        <div className="bg-layer mirrored" />
+        <div className="bg-layer" />
+        <div className="bg-layer mirrored" />
+    </div>
 
     <div className="app-container">
         {/* First Column */}

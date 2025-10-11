@@ -104,17 +104,28 @@ html, body, #root {
 }
 
 .animated-bg {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100vw;
-  height: 100vh;
-  background: url('/Summer2.png') repeat;
-  animation: scroll 10s linear infinite;
-  z-index: -1;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 400%;
+    height: 100%;
+    display: flex;
+    z-index: -1;
+    overflow: hidden;
+    animation: scroll 120s linear infinite;
+    will-change: transform;
+}
+
+.bg-layer {
+    flex: 1;
+    background: url('/Summer2.png') center center / cover no-repeat;
+}
+
+.bg-layer.mirrored {
+    transform: scaleX(-1);
 }
 
 @keyframes scroll {
-  0% { background-position: 0 0; }
-  100% { background-position: -64px 0; }
+    0% { transform: translateX(0); }
+    100% { transform: translateX(-50%); }
 }
