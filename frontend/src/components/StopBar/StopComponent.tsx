@@ -9,7 +9,7 @@ interface StopDetails{
 
 export default function StopComponent({ name, address, onPointerDown }: StopDetails) {
     return (
-        <div onPointerDown={onPointerDown} style={{ flex: '0 0 auto', cursor: 'grab' }}>
+        <div className="placeDiv" onPointerDown={onPointerDown} style={{ flex: '0 0 auto', cursor: 'grab' }}>
             <Window style={{ width: 150, minHeight: 50 }}>
                 <WindowHeader className="stopWindowHeader">{name}</WindowHeader>
                 <WindowContent className="stopWindowContent">

@@ -38,7 +38,7 @@ export default function SearchPanel({ google, onSearch, onSelectPlace }: SearchP
         setShowResults(false);
     };
 
-    // Optional: close results if clicked outside
+    // close results if clicked outside
     useEffect(() => {
         const handleClickOutside = (e: MouseEvent) => {
             if (containerRef.current && !containerRef.current.contains(e.target as Node)) {
@@ -54,7 +54,7 @@ export default function SearchPanel({ google, onSearch, onSelectPlace }: SearchP
         {/* Search bar */}
         <Frame>
             <form
-                style={{ display: "flex", gap: "4px" }}
+                style={{ display: "flex" }}
                 onSubmit={(e) => {
                     e.preventDefault();
                     handleSearch();
