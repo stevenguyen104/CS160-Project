@@ -35,11 +35,11 @@ export default function StopBar({placeLocations}: Places){
         const newTop = e.clientY - dragOffsetRef.current.y;
 
 
-        elem.style.position = "absolute";
+        elem.style.position = "fixed";
         elem.style.left = `${newLeft}px`;
         elem.style.top = `${newTop}px`;
         elem.style.zIndex = "1000";
-        elem.style.pointerEvents = "none"; 
+        elem.style.pointerEvents = "none";
 
         const container = containerRef.current;
         if (!container) 
@@ -141,26 +141,36 @@ export default function StopBar({placeLocations}: Places){
     return(
         <>
         <div className="stopbar">
-            Stops 
-            <div className="stopbarCardContainer" ref={containerRef}>
+            <div className="stopbarScrollContainer" ref={containerRef}>
                 {items.map((place, index) => (
-                    <React.Fragment key={index}>
-                        {placeholderIndexRef.current === index && (
-                            <div className="placeholder" style={{width: draggedRectRef.current?.width || 150, height: draggedRectRef.current?.height || 40}} />
-                        )}
-                        <StopComponent 
-                            name={place.name} 
-                            address={place.adddress}
-                            onPointerDown={(e) => handlePointerDown(e, index)}
-                        />
-                    </React.Fragment>
+                <React.Fragment key={index}>
+                    {placeholderIndexRef.current === index && (
+                    <div
+                        className="placeholder"
+                        style={{
+                            width: draggedRectRef.current?.width || 150,
+                            height: draggedRectRef.current?.height || 50
+                        }}
+                    />
+                    )}
+                    <StopComponent
+                    name={place.name}
+                    address={place.adddress}
+                    onPointerDown={(e) => handlePointerDown(e, index)}
+                    />
+                </React.Fragment>
                 ))}
                 {placeholderIndexRef.current === items.length && (
-                    <div className="placeholder" style={{width: draggedRectRef.current?.width || 150, height: draggedRectRef.current?.height || 40}} />
+                <div
+                    className="placeholder"
+                    style={{
+                        width: draggedRectRef.current?.width || 150,
+                        height: draggedRectRef.current?.height || 50
+                    }}
+                />
                 )}
             </div>
         </div>
-           
         </>
     )
 }
