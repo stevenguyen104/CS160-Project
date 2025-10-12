@@ -1,4 +1,4 @@
-import { AppBar, Button, Handle, Toolbar } from 'react95';
+import { AppBar, Button, Frame, Toolbar } from 'react95';
 import "./Navbar.css"
 
 export default function Navbar() {
@@ -6,8 +6,10 @@ export default function Navbar() {
     <AppBar>
         <Toolbar className="navToolbar">
             <div className="grouped">
+                <Frame className='logo'>
+                    Carbon Compass
+                </Frame>
                 
-                Carbon Compass
             </div>
             <div className="groupTwo">
                 <Button>

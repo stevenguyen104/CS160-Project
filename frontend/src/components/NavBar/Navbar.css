@@ -3,6 +3,10 @@
     margin-left: 2rem;
 }
 
+.logo{
+    padding: 5px;
+}
+
 .grouped{
     position: relative;
     display: inline-block;
