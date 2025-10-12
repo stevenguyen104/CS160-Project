@@ -110,6 +110,7 @@ export default function StopBar({placeLocations, onItemsChange}: Places){
         draggingIndexRef.current = null;
         placeholderIndexRef.current = null;
         setPlaceholderIndex(null);
+        window.dispatchEvent(new Event("custom-drag-end"));
     };
 
     const handlePointerDown = (
@@ -134,9 +135,12 @@ export default function StopBar({placeLocations, onItemsChange}: Places){
         target.classList.add("dragging");
         placeholderIndexRef.current = index;
         setPlaceholderIndex(index);
-
+        
         window.addEventListener("pointermove", onPointerMove);
         window.addEventListener("pointerup", onPointerUp);
+        requestAnimationFrame(() => {
+            window.dispatchEvent(new Event("custom-drag-start"));
+        });
     };
 
 

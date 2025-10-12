@@ -4,9 +4,8 @@ import "./HomePage.css";
 import Map from "../components/Map";
 import SearchPanel from "../components/SearchPanel";
 import StopBar from "../components/StopBar/StopBar";
-
-
 import Sidebar from "../components/SideBar/SideBar";
+import CustomCursor from "../components/CustomCursor/CustomCursor";
 import { Window, WindowHeader, WindowContent, Button, Frame, TextInput, Tooltip } from "react95";
 import { Awfxex32Info, Settings, Wab321016, Mute, Unmute } from "@react95/icons";
 const libraries: ("places")[] = ["places"];
@@ -55,6 +54,8 @@ function HomePage() {
 
     return (
     <>
+
+    <CustomCursor />
 
     <audio ref={audioRef} src="/soundtrack.mp3" autoPlay loop />
 
@@ -202,6 +203,8 @@ function HomePage() {
                             max={100}
                             value={muted ? 0 : volume}
                             onChange={(e) => setVolume(Number(e.target.value))}
+                            onMouseDown={() => window.dispatchEvent(new Event("slider-drag-start"))}
+                            onMouseUp={() => window.dispatchEvent(new Event("slider-drag-end"))}
                             style={{ flex: 1 }}
                             className="volume-slider"
                         />

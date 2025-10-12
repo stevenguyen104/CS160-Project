@@ -133,7 +133,7 @@ html, body, #root {
 .volume-slider {
   -webkit-appearance: none;
   width: 100%;
-  cursor: pointer;
+  cursor: none;
   margin: 0;
 }
 
@@ -172,7 +172,7 @@ html, body, #root {
               inset -1px 0 0 #404040,
               inset 0 1px 0 #c0c0c0,
               inset 1px 0 0 #c0c0c0;
-  cursor: pointer;
+  cursor: none;
   margin-top: -14px;
 }
 
@@ -181,5 +181,5 @@ html, body, #root {
   height: 32px;
   background-color: #c0c0c0;
   border: 1px solid #ffffff;
-  cursor: pointer;
+  cursor: none;
 }
