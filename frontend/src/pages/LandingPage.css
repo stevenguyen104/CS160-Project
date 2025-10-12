@@ -11,8 +11,6 @@
 
 .main {
     height: 70vh;
-    width: 100vw;
-    min-width: 100vw;
     background-image: url('../public/Summer2.png'); 
     background-size: cover;
     background-repeat: no-repeat;
@@ -32,7 +30,9 @@
 
 
 .cards{
+    margin: 10px;
     height:30%;
-    background-color: brown;
+    display: flex;
+    justify-content: space-between;
 }
 

@@ -1,5 +1,7 @@
+import FeatureCard from "../components/FeatureCard";
 import Navbar from "../components/NavBar/Navbar";
 import "./LandingPage.css";
+import placeHolder from '../../public/placeholder.png'
 
 export default function LandingPage(){
     return (
@@ -18,9 +20,21 @@ export default function LandingPage(){
                 </div>
 
                 <div className="cards">
-                    <div>
-
-                    </div>
+                    <FeatureCard 
+                        name="Card1"
+                        image={placeHolder}
+                        desc="Hehe"
+                    />
+                    <FeatureCard 
+                        name="Card2"
+                        image={placeHolder}
+                        desc="Hehe"
+                    />
+                    <FeatureCard 
+                        name="Card3"
+                        image={placeHolder}
+                        desc="Hehe"
+                    />
                 </div>
 
 
