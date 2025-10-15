@@ -1,40 +1,45 @@
-from ..supabase_client import supabase
+from supabase import Client
 
 class StopRepository:
-    @staticmethod
-    def add_stop(trip_id: int, latitude: int, longitude: int, name: str, position: int):
-        response = (supabase.table("Stops")
+    def __init__(self, supabase_client: Client):
+        """
+        Initialize the user repository with a Supabase client.
+
+        :param supabase_client: Supabase client instance
+        :type supabase_client: Client
+        """
+        self.supabase = supabase_client
+
+    def add_stop(self, trip_id: int, latitude: float, longitude: float, name: str, stop_order: int = None):
+        response = (self.supabase.table("stops")
                     .insert({
-                        "TripID": trip_id,
-                        "Latitude": latitude,
-                        "Longitude": longitude,
-                        "Name": name,
-                        "Position": position
+                        "trip_id": trip_id,
+                        "latitude": latitude,
+                        "longitude": longitude,
+                        "name": name,
+                        "stop_order": stop_order
                     }).execute())
         return response.data
 
-    @staticmethod
-    def get_stops_for_trip(trip_id: int):
-        response = (supabase.table("Stops")
+    def get_stops_for_trip(self, trip_id: int):
+        response = (self.supabase.table("stops")
                     .select("*")
-                    .eq("TripID", trip_id)
-                    .order("Position")
+                    .eq("trip_id", trip_id)
+                    .order("stop_order")
                     .execute())
         return response.data
 
-    @staticmethod
-    def delete_stop(stop_id: int):
-        (supabase.table("Stops")
-         .delete()
-         .eq("StopID", stop_id)
-         .execute())
-        return True
+    def delete_stop(self, stop_id: int):
+        response = (self.supabase.table("stops")
+             .delete()
+             .eq("stop_id", stop_id)
+             .execute())
+        return response.data
 
-    @staticmethod
-    def update_stop_position(stop_id: int, new_position: int):
-        response = (supabase.table("Stops")
+    def update_stop_order(self, stop_id: int, new_order: int):
+        response = (self.supabase.table("stops")
                     .update({
-                        "Position": new_position
-                    }).eq("StopID", stop_id)
+                        "stop_order": new_order
+                    }).eq("stop_id", stop_id)
                     .execute())
         return response.data

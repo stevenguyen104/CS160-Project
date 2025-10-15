@@ -1,15 +1,14 @@
 from flask import Flask, jsonify, request
 from flask_cors import CORS
-from db.repositories.user_repository import UserRepository
+from db.supabase_client import supabase
 from db.repositories.trip_repository import TripRepository
 from db.repositories.stop_repository import StopRepository
 
 app = Flask(__name__)
-CORS(app)
+CORS(app, supports_credentials=True)
 
-user_repo = UserRepository()
-trip_repo = TripRepository()
-stop_repo = StopRepository()
+trip_repo = TripRepository(supabase_client=supabase)
+stop_repo = StopRepository(supabase_client=supabase)
 
 # -----------------------------
 # USER ROUTES
@@ -17,37 +16,42 @@ stop_repo = StopRepository()
 @app.route("/users", methods=["POST"])
 def create_user():
     data = request.json
-    username = data.get("username")
+    # username = data.get("username")
     email = data.get("email")
     password = data.get("password")
-    cookie = data.get("cookie")
 
-    if not all([username, email, password]):
-        return jsonify({"error": "Missing required fields"}), 400
+    res = supabase.auth.sign_up({"email": email, "password": password})
 
-    user = user_repo.create_user(username, email, password, cookie)
-    return jsonify(user), 201
+    if res.user is None:
+        return jsonify({"error": res.error.message}), 400
 
+    return jsonify({"user_id": res.user.id, "email": res.user.email})
 
-@app.route("/users/<int:user_id>", methods=["GET"])
-def get_user_by_id(user_id):
-    user = user_repo.get_user_by_id(user_id)
-    if not user:
-        return jsonify({"error": "User not found"}), 404
-    return jsonify(user), 200
+@app.route("/users/login", methods=["POST"])
+def login_user():
+    data = request.json
+    username = data.get("username")
+    password = data.get("password")
 
+    res = supabase.auth.sign_in({"email": username, "password": password})
 
-@app.route("/users/by-email", methods=["GET"])
-def get_user_by_email():
-    email = request.args.get("email")
-    if not email:
-        return jsonify({"error": "Email is required"}), 400
+    if res.user is None:
+        return jsonify({"error": "Invalid credentials"}), 401
 
-    user = user_repo.get_user_by_email(email)
-    if not user:
-        return jsonify({"error": "User not found"}), 404
-    return jsonify(user), 200
+    return jsonify({"access_token": res.session.access_token, "user_id": res.user.id})
 
+@app.route("/users/about", methods=["GET"])
+def get_current_user():
+    auth_header = request.headers.get("Authorization")
+    if not auth_header:
+        return jsonify({"error": "Missing access token"}), 401
+
+    token = auth_header.split("Bearer ")[-1]
+    res = supabase.auth.get_user(token)
+    if res.user is None:
+        return jsonify({"error": "Invalid access token"}), 401
+
+    return jsonify({"user_id": res.user.id, "email": res.user.email, "created_at": res.user.created_at})
 
 # -----------------------------
 # TRIP ROUTES
@@ -135,7 +139,7 @@ def update_stop_position(stop_id):
     if new_position is None:
         return jsonify({"error": "New position is required"}), 400
 
-    success = stop_repo.update_stop_position(stop_id, new_position)
+    success = None # stop_repo.update_stop_position(stop_id, new_position)
     if not success:
         return jsonify({"error": "Stop not found"}), 404
 
