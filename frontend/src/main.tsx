@@ -1,9 +1,14 @@
-import { StrictMode } from 'react'
-import { createRoot } from 'react-dom/client'
+import { StrictMode } from 'react';
+import { createRoot } from 'react-dom/client';
 import { createBrowserRouter, RouterProvider } from 'react-router-dom';
-import './index.css'
-import HomePage from './pages/HomePage.tsx';
-import LandingPage from './pages/LandingPage.tsx';
+import { createGlobalStyle, ThemeProvider } from 'styled-components';
+import { styleReset } from 'react95';
+import original from 'react95/dist/themes/original';
+import '@react95/icons/icons.css';
+import './index.css';
+
+import HomePage from './pages/HomePage';
+import LandingPage from './pages/LandingPage';
 
 const router = createBrowserRouter([
   {
@@ -16,8 +21,21 @@ const router = createBrowserRouter([
   }
 ])
 
+// Reset + font setup
+const GlobalStyles = createGlobalStyle`
+  ${styleReset}
+
+  body {
+    font-family: 'ms_sans_serif';
+    background: teal;
+  }
+`;
+
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
-    <RouterProvider router={router} />
+    <ThemeProvider theme={original}>
+      <GlobalStyles />
+      <RouterProvider router={router} />
+    </ThemeProvider>
   </StrictMode>,
-)
+);

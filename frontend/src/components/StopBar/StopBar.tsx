@@ -1,6 +1,7 @@
 import React from "react";
 import StopComponent from "./StopComponent";
 import "./StopBar.css"
+import { ScrollView } from "react95";
 import { useRef, useState, useEffect } from "react";
 
 interface Places{
@@ -37,11 +38,11 @@ export default function StopBar({placeLocations, onItemsChange}: Places){
         const newTop = e.clientY - dragOffsetRef.current.y;
 
 
-        elem.style.position = "absolute";
+        elem.style.position = "fixed";
         elem.style.left = `${newLeft}px`;
         elem.style.top = `${newTop}px`;
         elem.style.zIndex = "1000";
-        elem.style.pointerEvents = "none"; 
+        elem.style.pointerEvents = "none";
 
         const container = containerRef.current;
         if (!container) 
@@ -109,6 +110,7 @@ export default function StopBar({placeLocations, onItemsChange}: Places){
         draggingIndexRef.current = null;
         placeholderIndexRef.current = null;
         setPlaceholderIndex(null);
+        window.dispatchEvent(new Event("custom-drag-end"));
     };
 
     const handlePointerDown = (
@@ -133,35 +135,57 @@ export default function StopBar({placeLocations, onItemsChange}: Places){
         target.classList.add("dragging");
         placeholderIndexRef.current = index;
         setPlaceholderIndex(index);
-
+        
         window.addEventListener("pointermove", onPointerMove);
         window.addEventListener("pointerup", onPointerUp);
+        requestAnimationFrame(() => {
+            window.dispatchEvent(new Event("custom-drag-start"));
+        });
     };
 
 
     return(
         <>
         <div className="stopbar">
-            Stops 
-            <div className="stopbarCardContainer" ref={containerRef}>
+            <ScrollView
+            style={{
+            width: "100%",
+            height: "100%",
+            overflowX: "auto",
+            overflowY: "hidden",
+            whiteSpace: "nowrap",
+            }}>
+                <div className="stopbarScrollContainer" ref={containerRef}>
                 {items.map((place, index) => (
                     <React.Fragment key={index}>
-                        {placeholderIndexRef.current === index && (
-                            <div className="placeholder" style={{width: draggedRectRef.current?.width || 150, height: draggedRectRef.current?.height || 40}} />
-                        )}
-                        <StopComponent 
-                            name={place.name} 
-                            address={place.adddress}
-                            onPointerDown={(e) => handlePointerDown(e, index)}
+                    {placeholderIndexRef.current === index && (
+                        <div
+                        className="placeholder"
+                        style={{
+                            width: draggedRectRef.current?.width || 150,
+                            height: draggedRectRef.current?.height || 50,
+                        }}
                         />
+                    )}
+                    <StopComponent
+                        name={place.name}
+                        address={place.adddress}
+                        onPointerDown={(e) => handlePointerDown(e, index)}
+                    />
                     </React.Fragment>
                 ))}
                 {placeholderIndexRef.current === items.length && (
-                    <div className="placeholder" style={{width: draggedRectRef.current?.width || 150, height: draggedRectRef.current?.height || 40}} />
+                    <div
+                    className="placeholder"
+                    style={{
+                        width: draggedRectRef.current?.width || 150,
+                        height: draggedRectRef.current?.height || 50,
+                    }}
+                    />
                 )}
-            </div>
+                </div>
+            </ScrollView>
         </div>
-           
         </>
     )
 }

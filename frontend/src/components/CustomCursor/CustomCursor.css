@@ -1,0 +1,25 @@
+* {
+	cursor: none !important;
+}
+
+.custom-cursor {
+	position: fixed;
+	pointer-events: none;
+	width: 24px;
+	height: 24px;
+	background-size: cover;
+	transform: translate(-50%, -50%);
+	z-index: 9999;
+}
+
+.custom-cursor.default {
+	background-image: url('/cursor-default.cur');
+}
+
+.custom-cursor.pointer {
+	background-image: url('/cursor-pointer.cur');
+}
+
+.custom-cursor.grab {
+	background-image: url('/cursor-grab.cur');
+}

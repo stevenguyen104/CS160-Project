@@ -1,66 +1,112 @@
-import { useState } from "react";
+import { useState, useRef, useEffect } from "react";
+import { TextInput, Button, Frame } from "react95";
+import { Mshtml32528 } from "@react95/icons";
 
 interface SearchPanelProps {
-    onSelectPlace?: (place: google.maps.places.PlaceResult) => void;
     google: typeof window.google;
+    onSearch?: (results: google.maps.places.PlaceResult[]) => void;
+    onSelectPlace?: (place: google.maps.places.PlaceResult) => void;
 }
 
-export default function SearchPanel({ onSelectPlace, google }: SearchPanelProps) {
+export default function SearchPanel({ google, onSearch, onSelectPlace }: SearchPanelProps) {
     const [searchQuery, setSearchQuery] = useState("");
     const [searchResults, setSearchResults] = useState<google.maps.places.PlaceResult[]>([]);
+    const [showResults, setShowResults] = useState(false);
+    const containerRef = useRef<HTMLDivElement>(null);
 
     const handleSearch = () => {
         if (!searchQuery.trim() || !google) return;
 
         const service = new google.maps.places.PlacesService(document.createElement("div"));
-        const request: google.maps.places.TextSearchRequest = {
-            query: searchQuery,
-        };
+        const request: google.maps.places.TextSearchRequest = { query: searchQuery };
 
         service.textSearch(request, (results, status) => {
-            if (status === google.maps.places.PlacesServiceStatus.OK && results) {
-                setSearchResults(results);
-            } else {
-                setSearchResults([]);
-            }
+        if (status === google.maps.places.PlacesServiceStatus.OK && results) {
+            setSearchResults(results);
+            setShowResults(true);
+            if (onSearch) onSearch(results);
+        } else {
+            setSearchResults([]);
+            setShowResults(false);
+            if (onSearch) onSearch([]);
+        }
         });
     };
 
     const handleSelect = (place: google.maps.places.PlaceResult) => {
         if (onSelectPlace) onSelectPlace(place);
+        setShowResults(false);
     };
 
-    return (
-        <div className="left-column">
-            <form className="search-bar" onSubmit={(e) => {e.preventDefault(); handleSearch();}}>
-                <input type="text"
-                placeholder="Search for a place..."
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                />
-                <button type="submit">🔍</button>
-            </form>
+    // close results if clicked outside
+    useEffect(() => {
+        const handleClickOutside = (e: MouseEvent) => {
+            if (containerRef.current && !containerRef.current.contains(e.target as Node)) {
+                setShowResults(false);
+            }
+        };
+        document.addEventListener("mousedown", handleClickOutside);
+        return () => document.removeEventListener("mousedown", handleClickOutside);
+    }, []);
 
-            <div className="search-results">
-                {searchResults.length > 0 ? (
-                <ul>
-                    {searchResults.map((r, i) => (
-                    <li key={i} onClick={() => handleSelect(r)}>
+    return (
+    <div ref={containerRef} style={{ position: "absolute", top: 20, left: 20, width: 300, zIndex: 20 }}>
+        {/* Search bar */}
+        <Frame>
+            <form
+                style={{ display: "flex" }}
+                onSubmit={(e) => {
+                    e.preventDefault();
+                    handleSearch();
+                }}
+            >
+                <TextInput
+                    placeholder="Search for a place..."
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                    fullWidth
+                />
+                <Button type="submit">
+                    <Mshtml32528 style={{ width: 16, height: 16 }} />
+                </Button>
+            </form>
+        </Frame>
+
+        {/* Search results overlay */}
+        {showResults && searchResults.length > 0 && (
+        <Frame
+            style={{
+                marginTop: 4,
+                maxHeight: 400,
+                overflowY: "auto",
+                background: "white",
+                width: "100%",
+                padding: "6px",
+            }}
+        >
+            <ul style={{ listStyle: "none", padding: 0, margin: 0 }}>
+                {searchResults.map((r, i) => (
+                    <li
+                    key={i}
+                    onClick={() => handleSelect(r)}
+                    style={{
+                        padding: "6px 4px",
+                        borderRadius: 4,
+                        cursor: "pointer",
+                        transition: "background 0.2s",
+                    }}
+                    onMouseOver={(e) => (e.currentTarget.style.background = "#e0e0e0")}
+                    onMouseOut={(e) => (e.currentTarget.style.background = "transparent")}
+                    >
                         <strong>{r.name}</strong>
                         {r.formatted_address && (
-                        <div style={{ fontSize: "0.8em", color: "#616161ff" }}>
-                            {r.formatted_address}
-                        </div>
+                            <div style={{ fontSize: "0.8em", color: "#555" }}>{r.formatted_address}</div>
                         )}
                     </li>
-                    ))}
-                </ul>
-                ) : (
-                <p style={{ color: "#888888ff" }}>No results yet</p>
-                )}
-            </div>
-
-            <div className="alerts">Alerts</div>
-        </div>
+                ))}
+            </ul>
+        </Frame>
+        )}
+    </div>
     );
 }
