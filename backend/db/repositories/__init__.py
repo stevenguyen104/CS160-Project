@@ -1,4 +1,4 @@
-from backend.db.repositories.stop_repository import StopRepository
-from backend.db.repositories.trip_repository import TripRepository
+from .stop_repository import StopRepository
+from .trip_repository import TripRepository
 
 __all__ = ["StopRepository", "TripRepository"]

@@ -1,7 +1,10 @@
-from flask import Blueprint, jsonify, request, current_app
+from flask import Blueprint, jsonify, request
+
+from ..db.repositories.stop_repository import StopRepository
+from ..db.supabase_client import supabase
 
 stops_bp = Blueprint("stops", __name__, url_prefix="/trips/<int:trip_id>/stops")
-stop_repo = current_app.config["stop_repo"]
+stop_repo = StopRepository(supabase_client=supabase)
 
 
 @stops_bp.route("/", methods=["GET"])

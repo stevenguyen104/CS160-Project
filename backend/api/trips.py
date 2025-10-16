@@ -1,11 +1,12 @@
 import uuid
 
-from flask import Blueprint, jsonify, request, current_app
+from flask import Blueprint, jsonify, request
 
-from backend.db.supabase_client import supabase
+from ..db.repositories.trip_repository import TripRepository
+from ..db.supabase_client import supabase
 
 trips_bp = Blueprint("trips", __name__, url_prefix="/trips")
-trip_repo = current_app.config["trip_repo"]
+trip_repo = TripRepository(supabase_client=supabase)
 
 
 @trips_bp.route("/", methods=["GET"])
