@@ -1,6 +1,6 @@
-from .stops import stops_bp
-from .trips import trips_bp
-from .users import users_bp
+from backend.api.stops import stops_bp
+from backend.api.trips import trips_bp
+from backend.api.users import users_bp
 
 from dotenv import load_dotenv
 load_dotenv()

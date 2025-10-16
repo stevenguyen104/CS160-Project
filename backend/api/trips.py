@@ -1,3 +1,5 @@
+import uuid
+
 from flask import Blueprint, jsonify, request, current_app
 from backend.db.supabase_client import supabase
 
@@ -15,7 +17,7 @@ def get_trips():
         }), 401
 
     user_id = user.id
-    trips = trip_repo.get_tripsr(user_id)
+    trips = trip_repo.get_trips(uuid.UUID(user_id))
 
     return jsonify({
         "success": True,
@@ -50,7 +52,7 @@ def create_trip():
     # TODO configure how emissions are calculated
     emissions = data.get("emissions")
 
-    trip = trip_repo.create_trip(user_id, emissions)
+    trip = trip_repo.create_trip(uuid.UUID(user_id), emissions)
     return jsonify({
         "success": True,
         "trip": trip

@@ -25,7 +25,7 @@ class TripRepository:
         """
         response = (self.supabase.table("trips")
                     .insert({
-                        "user_id": user_id,
+                        "user_id": str(user_id),
                         "emissions": emissions or [0.0]
                     }).execute())
         return response.data
@@ -55,7 +55,7 @@ class TripRepository:
         """
         response = (self.supabase.table("trips")
                     .select("*")
-                    .eq("user_id", user_id)
+                    .eq("user_id", str(user_id))
                     .execute())
         return response.data
 
