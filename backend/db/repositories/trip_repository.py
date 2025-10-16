@@ -29,7 +29,7 @@ class TripRepository:
                     }).execute())
         return response.data
 
-    def get_trip_by_id(self, trip_id: int) -> dict:
+    def get_trip(self, trip_id: int) -> dict:
         """
         Get a trip by its ID.
         :param trip_id: Trip ID
@@ -43,7 +43,7 @@ class TripRepository:
                     .execute())
         return response.data[0] if response.data else None
 
-    def get_trips_for_user(self, user_id: uuid.UUID):
+    def get_trips(self, user_id: uuid.UUID):
         """
         Get all trips for a user.
 
@@ -58,9 +58,9 @@ class TripRepository:
                     .execute())
         return response.data
 
-    def update_trip_emissions(self, trip_id: int, emissions: list[float] = None) -> dict:
+    def update_trip(self, trip_id: int, emissions: list[float] = None) -> dict:
         """
-        Update emissions for a trip.
+        Update trip attributes (emissions).
 
         :param trip_id: Trip ID
         :type trip_id: int
