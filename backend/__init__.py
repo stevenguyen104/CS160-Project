@@ -14,11 +14,26 @@ load_dotenv()
 
 
 def create_app(origins: list[str] = None) -> Flask:
-    app = Flask(__name__)
+    """
+    Creates and configures a Flask application with CORS, blueprints, and repositories.
+
+    :param origins: A list of allowed origins for CORS. If None, no restriction is applied.
+    :type origins: list[str] or None
+
+    :returns: The configured Flask application instance.
+    :rtype: Flask
+    """
+    app: Flask = Flask(__name__)
     CORS(app, origins=origins, supports_credentials=True)
 
     @app.route("/ping")
     def ping():
+        """
+        A simple health check endpoint.
+
+        :return: A JSON response with status 'ok' and HTTP 200 OK status code.
+        :rtype: flask.Response
+        """
         return jsonify({"status": "ok"}), 200
 
     app.config["stop_repo"] = StopRepository(supabase_client=supabase)

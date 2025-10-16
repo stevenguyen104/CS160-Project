@@ -9,7 +9,6 @@ def register_user():
     data = request.get_json()
     email = data.get("email")
     password = data.get("password")
-
     response = supabase.auth.sign_up({
         "email": email,
         "password": password
@@ -23,7 +22,8 @@ def register_user():
 
     return jsonify({
         "success": True,
-        "user": response.user
+        "user": response.user,
+        "message": "User successfully registered"
     }), 201
 
 
@@ -32,7 +32,6 @@ def login_user():
     data = request.get_json()
     email = data.get("email")
     password = data.get("password")
-
     response = supabase.auth.sign_in_with_password({
         "email": email,
         "password": password
@@ -46,7 +45,8 @@ def login_user():
 
     return jsonify({
         "success": True,
-        "user": response.user
+        "user": response.user,
+        "message": "User successfully logged in"
     }), 200
 
 
@@ -78,7 +78,8 @@ def get_current_user():
 
     return jsonify({
         "success": True,
-        "user": response.user
+        "user": response.user,
+        "message": "User successfully obtained"
     }), 200
 
 
@@ -86,7 +87,7 @@ def get_current_user():
 def delete_user():
     user = supabase.auth.get_user()
     user_id = user.id
-    response = supabase.auth.delete_user(user_id)
+    response = supabase.auth.admin.delete_user(user_id)
 
     if response.get("error"):
         return jsonify({
@@ -96,5 +97,5 @@ def delete_user():
 
     return jsonify({
         "success": True,
-        "message": "User account deleted"
+        "message": "User account successfully deleted"
     }), 200

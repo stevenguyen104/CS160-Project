@@ -5,12 +5,12 @@ from supabase import Client
 class TripRepository:
     def __init__(self, supabase_client: Client):
         """
-        Initialize the user repository with a Supabase client.
+        Initialize the trip repository with a Supabase client.
 
         :param supabase_client: Supabase client instance
         :type supabase_client: Client
         """
-        self.supabase = supabase_client
+        self.supabase: Client = supabase_client
 
     def create_trip(self, user_id: uuid.UUID, emissions: list[float] = None) -> dict:
         """
@@ -20,19 +20,23 @@ class TripRepository:
         :type user_id: UUID
         :param emissions: Emissions to add to the trip, stored individually between two stops
         :type emissions: list[float]
-        :return: Trip data
+        :return: The newly created trip data
         :rtype: dict
         """
+        data = {
+            "user_id": str(user_id),
+            "emissions": emissions or [0.0]
+        }
+
         response = (self.supabase.table("trips")
-                    .insert({
-                        "user_id": str(user_id),
-                        "emissions": emissions or [0.0]
-                    }).execute())
-        return response.data
+                    .insert(data)
+                    .execute())
+        return response.data[0] if response.data else None
 
     def get_trip(self, trip_id: int) -> dict:
         """
         Get a trip by its ID.
+
         :param trip_id: Trip ID
         :type trip_id: int
         :return: Trip data
@@ -41,17 +45,19 @@ class TripRepository:
         response = (self.supabase.table("trips")
                     .select("*")
                     .eq("trip_id", trip_id)
+                    .limit(1)
+                    .single()
                     .execute())
-        return response.data[0] if response.data else None
+        return response.data
 
-    def get_trips(self, user_id: uuid.UUID):
+    def get_trips(self, user_id: uuid.UUID) -> list[dict]:
         """
         Get all trips for a user.
 
         :param user_id: User ID
         :type user_id: UUID
-        :return: All trips for a user with the specified ID
-        :rtype: dict
+        :return: All trips belonging to a user
+        :rtype: list[dict]
         """
         response = (self.supabase.table("trips")
                     .select("*")
@@ -61,33 +67,36 @@ class TripRepository:
 
     def update_trip(self, trip_id: int, emissions: list[float] = None) -> dict:
         """
-        Update trip attributes (emissions).
+        Update trip attributes (emissions in this case).
 
         :param trip_id: Trip ID
         :type trip_id: int
         :param emissions: Emissions to add to the trip, stored individually between two stops
         :type emissions: list[float]
-        :return: Trip data
+        :return: The updated trip data
         :rtype: dict
         """
-        response = (self.supabase.table("trips")
-                    .update({
-                        "emissions": emissions or [0.0]
-                    }).eq("trip_id", trip_id)
-                    .execute())
-        return response.data
+        new_data = {
+            "emissions": emissions or [0.0]
+        }
 
-    def delete_trip(self, trip_id: int) -> bool:
+        response = (self.supabase.table("trips")
+                    .update(new_data)
+                    .eq("trip_id", trip_id)
+                    .execute())
+        return response.data[0] if response.data else None
+
+    def delete_trip(self, trip_id: int) -> dict:
         """
         Delete a trip by its ID.
 
         :param trip_id: Trip ID
         :type trip_id: int
-        :return: True if the trip was deleted successfully, False otherwise.
-        :rtype: bool
+        :return: The trip that was deleted.
+        :rtype: dict
         """
         response = (self.supabase.table("trips")
                     .delete()
                     .eq("trip_id", trip_id)
                     .execute())
-        return response.error is None and bool(response.data)
+        return response.data[0] if response.data else None
