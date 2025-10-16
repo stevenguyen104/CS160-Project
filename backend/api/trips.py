@@ -3,6 +3,7 @@ from backend.db.supabase_client import supabase
 
 trips_bp = Blueprint("trips", __name__, url_prefix="/trips")
 
+
 @trips_bp.route("/", methods=["GET"])
 def get_trips():
     trip_repo = current_app.config["trip_repo"]

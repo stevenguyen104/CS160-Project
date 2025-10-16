@@ -1,6 +1,7 @@
 import uuid
 from supabase import Client
 
+
 class TripRepository:
     def __init__(self, supabase_client: Client):
         """
@@ -16,7 +17,7 @@ class TripRepository:
         Create a new trip.
 
         :param user_id: User ID
-        :type user_id: uuid.UUID
+        :type user_id: UUID
         :param emissions: Emissions to add to the trip, stored individually between two stops
         :type emissions: list[float]
         :return: Trip data
@@ -48,7 +49,7 @@ class TripRepository:
         Get all trips for a user.
 
         :param user_id: User ID
-        :type user_id: uuid.UUID
+        :type user_id: UUID
         :return: All trips for a user with the specified ID
         :rtype: dict
         """

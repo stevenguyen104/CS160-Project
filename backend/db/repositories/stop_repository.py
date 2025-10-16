@@ -1,5 +1,6 @@
 from supabase import Client
 
+
 class StopRepository:
     def __init__(self, supabase_client: Client):
         """
@@ -22,7 +23,7 @@ class StopRepository:
         :type longitude: float
         :param name: Name of the location.
         :type name: str
-        :param stop_order: The order in which the stop would be placed. 1 means the starting point, 2 means first destination, etc.
+        :param stop_order: The order in which the stop would be placed. Lower numbers first.
         :type stop_order: int
         :return: None
         """

@@ -3,6 +3,7 @@ from backend.db.supabase_client import supabase
 
 users_bp = Blueprint("users", __name__, url_prefix="/users")
 
+
 @users_bp.route("/register", methods=["POST"])
 def register_user():
     data = request.get_json()

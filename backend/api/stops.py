@@ -2,6 +2,7 @@ from flask import Blueprint, jsonify, request, current_app
 
 stops_bp = Blueprint("stops", __name__, url_prefix="/trips/<int:trip_id>/stops")
 
+
 @stops_bp.route("/", methods=["GET"])
 def get_stops(trip_id: int):
     stop_repo = current_app.config["stop_repo"]
