@@ -18,6 +18,10 @@ export default function StopBar({placeLocations, onItemsChange}: Places){
         setItems(placeLocations || []);
     }, [placeLocations]);
 
+    useEffect(() => {
+        onItemsChange?.(items);
+    }, [items]);
+
     const containerRef = useRef<HTMLDivElement | null>(null);
     const placeholderIndexRef = useRef<number | null>(null);
     const setPlaceholderIndex = (i: number | null) => {
@@ -143,6 +147,12 @@ export default function StopBar({placeLocations, onItemsChange}: Places){
         });
     };
 
+    const onDelete = (id: number) => {
+        console.log(id);
+        setItems(prevItems => prevItems.filter(item => item.id !== id)
+        );
+    }
+
 
     return(
         <>
@@ -168,9 +178,11 @@ export default function StopBar({placeLocations, onItemsChange}: Places){
                         />
                     )}
                     <StopComponent
+                        id = {place.id}
                         name={place.name}
                         address={place.adddress}
                         onPointerDown={(e) => handlePointerDown(e, index)}
+                        onDelete={onDelete}
                     />
                     </React.Fragment>
                 ))}

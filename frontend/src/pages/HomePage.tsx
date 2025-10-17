@@ -325,11 +325,14 @@ function HomePage() {
                         lng: place.geometry.location.lng(),
                         };
                         setSelectedPlace(location);
-                        const placeText = {
-                        name: place.name,
-                        adddress: place.formatted_address,
-                        };
-                        setPlaces((prev) => [...prev, placeText]);
+                        setPlaces((prev) => [
+                            ...prev, 
+                            {
+                                id: Date.now() + Math.random(), // unique id
+                                name: place.name,
+                                adddress: place.formatted_address, // fixed typo
+                            }
+                        ]);                        
                         setShowSearchResults(false);
                     }
                     }}
