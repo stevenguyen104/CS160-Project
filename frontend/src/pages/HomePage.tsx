@@ -269,7 +269,16 @@ function HomePage() {
                 {/* Start Route button */}
                 <div className="start-route-button">
                     <Tooltip text='Start Route' style={{ zIndex: 20 }} enterDelay={100} leaveDelay={100} position="right">
-                        <Button onClick={() => setShowConfirmRoute(true)}> <Wab321016 /> </Button>
+                        <Button 
+                            disabled = {places.length === 0}
+                            style = {{
+                                filter: places.length === 0 ? 'grayscale(100%)' : 'none',
+                                cursor: places.length === 0 ? 'not-allowed' : 'pointer',
+                            }}
+                            onClick={() => setShowConfirmRoute(true)}
+                        > 
+                            <Wab321016 /> 
+                        </Button>
                     </Tooltip>
                 </div>
 
