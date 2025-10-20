@@ -1,0 +1,15 @@
+.stopWindowContent{
+    text-align: center;
+}
+
+.startLocButton{
+    display: block;
+    margin-left: auto;
+    margin-right: auto;
+    white-space: normal;
+    word-wrap: break-word;
+    height: auto;
+    max-width: 100%;
+    font-size: 0.8rem;
+    padding: 5px;
+}

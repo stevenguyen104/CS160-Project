@@ -3,6 +3,7 @@ import StopComponent from "./StopComponent";
 import "./StopBar.css"
 import { ScrollView } from "react95";
 import { useRef, useState, useEffect } from "react";
+import StartCard from "./StartCard";
 
 interface Places{
     placeLocations: any[];
@@ -166,6 +167,9 @@ export default function StopBar({placeLocations, onItemsChange}: Places){
             whiteSpace: "nowrap",
             }}>
                 <div className="stopbarScrollContainer" ref={containerRef}>
+                <StartCard 
+                    id = {0}
+                    />
                 {items.map((place, index) => (
                     <React.Fragment key={index}>
                     {placeholderIndexRef.current === index && (
