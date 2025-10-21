@@ -24,7 +24,11 @@ function HomePage() {
     const [showConfirmRoute, setShowConfirmRoute] = useState(false);
     const [volume, setVolume] = useState(50);
     const [muted, setMuted] = useState(false);
+    const [startLocation, setStartLocation] = useState<string | null>(null);
+    const [focusSearch, setFocusSearch] = useState(false);
+    const [searchMode, setSearchMode] = useState<"add" | "start">("add");
     const audioRef = useRef<HTMLAudioElement>(null);
+
     useEffect(() => {
         if (audioRef.current) {
             audioRef.current.volume = volume / 100;
@@ -264,6 +268,9 @@ function HomePage() {
                 <StopBar 
                     placeLocations={places}
                     onItemsChange={(updatedItems) => setPlaces(updatedItems)}
+                    startLocation={startLocation ?? undefined}
+                    onEnterClick={() => { setSearchMode("start"); setFocusSearch(true); }}
+                
                 />
 
                 {/* Start Route button */}
@@ -324,27 +331,36 @@ function HomePage() {
                 <SearchPanel
                     google={window.google}
                     onSearch={(results) => {
-                    setSearchResults(results);
-                    setShowSearchResults(true);
-                    }}
+                        setSearchResults(results);
+                        setShowSearchResults(true);
+                        }}
                     onSelectPlace={(place) => {
-                    if (place.geometry?.location) {
-                        const location = {
-                        lat: place.geometry.location.lat(),
-                        lng: place.geometry.location.lng(),
-                        };
-                        setSelectedPlace(location);
-                        setPlaces((prev) => [
-                            ...prev, 
-                            {
-                                id: Date.now() + Math.random(), // unique id
-                                name: place.name,
-                                adddress: place.formatted_address, // fixed typo
+                        if (place.geometry?.location) {
+                            const location = {
+                            lat: place.geometry.location.lat(),
+                            lng: place.geometry.location.lng(),
+                            };
+                            if (searchMode === "start"){
+                                setStartLocation(place.formatted_address || null);
+                                setSearchMode("add");
                             }
-                        ]);                        
-                        setShowSearchResults(false);
-                    }
+                            else{                
+                                setPlaces((prev) => [
+                                    ...prev, 
+                                    {
+                                        id: Date.now() + Math.random(), 
+                                        name: place.name,
+                                        adddress: place.formatted_address,
+                                    }
+                                ]);      
+                            }
+                            setSelectedPlace(location);
+                            setShowSearchResults(false);
+                        }                    
                     }}
+                    searchMode={searchMode}
+                    focusSearch={focusSearch}
+                    setFocusSearch={setFocusSearch}
                 />
                 </div>
             </div>

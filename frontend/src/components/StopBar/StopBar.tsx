@@ -8,11 +8,13 @@ import StartCard from "./StartCard";
 interface Places{
     placeLocations: any[];
     onItemsChange?: (updatedItems: any[]) => void;
+    startLocation?: string;
+    onEnterClick?: () => void;
 
 }
 
 
-export default function StopBar({placeLocations, onItemsChange}: Places){
+export default function StopBar({placeLocations, onItemsChange, startLocation, onEnterClick}: Places){
 
     const [items, setItems] = useState<any[]>(placeLocations || []);
     useEffect(() => {
@@ -169,6 +171,8 @@ export default function StopBar({placeLocations, onItemsChange}: Places){
                 <div className="stopbarScrollContainer" ref={containerRef}>
                 <StartCard 
                     id = {0}
+                    startLocation={startLocation}
+                    onEnterStartLocation={onEnterClick}
                     />
                 {items.map((place, index) => (
                     <React.Fragment key={index}>

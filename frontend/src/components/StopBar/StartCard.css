@@ -1,15 +1,7 @@
-.stopWindowContent{
-    text-align: center;
-}
-
-.startLocButton{
-    display: block;
-    margin-left: auto;
-    margin-right: auto;
-    white-space: normal;
-    word-wrap: break-word;
-    height: auto;
-    max-width: 100%;
-    font-size: 0.8rem;
+.addressText {
+    font-size: 0.8em;
     padding: 5px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
 }

@@ -6,13 +6,25 @@ interface SearchPanelProps {
     google: typeof window.google;
     onSearch?: (results: google.maps.places.PlaceResult[]) => void;
     onSelectPlace?: (place: google.maps.places.PlaceResult) => void;
+    searchMode: "start" | "add";
+    focusSearch?: boolean;
+    setFocusSearch?: (focused: boolean) => void;
 }
 
-export default function SearchPanel({ google, onSearch, onSelectPlace }: SearchPanelProps) {
+export default function SearchPanel({ google, onSearch, onSelectPlace, searchMode, focusSearch, setFocusSearch }: SearchPanelProps) {
     const [searchQuery, setSearchQuery] = useState("");
     const [searchResults, setSearchResults] = useState<google.maps.places.PlaceResult[]>([]);
     const [showResults, setShowResults] = useState(false);
     const containerRef = useRef<HTMLDivElement>(null);
+
+    const inputRef = useRef<HTMLInputElement>(null);
+
+    useEffect(() => {
+        if (focusSearch && inputRef.current) {
+            inputRef.current.focus();
+            setFocusSearch?.(false);
+        }
+    }, [focusSearch, setFocusSearch]);
 
     const handleSearch = () => {
         if (!searchQuery.trim() || !google) return;
@@ -61,6 +73,7 @@ export default function SearchPanel({ google, onSearch, onSelectPlace }: SearchP
                 }}
             >
                 <TextInput
+                    ref={inputRef}
                     placeholder="Search for a place..."
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}

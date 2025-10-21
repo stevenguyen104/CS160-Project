@@ -5,11 +5,12 @@ import "./StartCard.css";
 interface StartDetails{
     id: number;
     name?: string;
-    address?: string;
+    startLocation?: string;
+    onEnterStartLocation?: () => void;
 }
 
 
-export default function StartCard({ id, name, address}: StartDetails) {
+export default function StartCard({ id, name, startLocation, onEnterStartLocation}: StartDetails) {
     
     return (
         <div className="placeDiv" 
@@ -17,7 +18,19 @@ export default function StartCard({ id, name, address}: StartDetails) {
             <Window style={{ width: 150, minHeight: 50 }}>
                 <WindowHeader className="stopWindowHeader">Start Location:{name}</WindowHeader>
                 <WindowContent className="stopWindowContent">
-                    {address || <Button className="startLocButton"> Enter Starting Location</Button>}
+                    {startLocation ? 
+                    (<div className="addressText"> {startLocation} </div>) : 
+                    (<Button className="startLocButton" style={{
+                        whiteSpace: "normal",
+                        display: "block",
+                        marginLeft: "auto", 
+                        marginRight: "auto",
+                        wordWrap: "break-word",
+                        height: "auto",
+                        maxWidth: "100%",
+                        padding: "5px"
+                    }}
+                    onClick={onEnterStartLocation}>Enter Starting Location</Button>)}
                 </WindowContent>
             </Window>
         </div>
