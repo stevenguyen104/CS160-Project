@@ -8,6 +8,7 @@ import Sidebar from "../components/SideBar/SideBar";
 import CustomCursor from "../components/CustomCursor/CustomCursor";
 import { Window, WindowHeader, WindowContent, Button, Frame, TextInput, Tooltip } from "react95";
 import { Awfxex32Info, Settings, Wab321016, Mute, Unmute } from "@react95/icons";
+import DirectionBar from "../components/DirectionBar/DirectionBar";
 const libraries: ("places")[] = ["places"];
 
 function HomePage() {
@@ -24,9 +25,13 @@ function HomePage() {
     const [showConfirmRoute, setShowConfirmRoute] = useState(false);
     const [volume, setVolume] = useState(50);
     const [muted, setMuted] = useState(false);
-    const [startLocation, setStartLocation] = useState<string | null>(null);
+
+    const [startLocation, setStartLocation] = useState<google.maps.places.PlaceResult | null>(null);
+
     const [focusSearch, setFocusSearch] = useState(false);
     const [searchMode, setSearchMode] = useState<"add" | "start">("add");
+    const [directionsMode, setDirectionsMode] = useState(false);
+
     const audioRef = useRef<HTMLAudioElement>(null);
 
     useEffect(() => {
@@ -265,16 +270,20 @@ function HomePage() {
                     <Map selectedPlace={selectedPlace} />
                 </Frame>
 
-                <StopBar 
+                {!directionsMode && (
+                    <StopBar
                     placeLocations={places}
                     onItemsChange={(updatedItems) => setPlaces(updatedItems)}
-                    startLocation={startLocation ?? undefined}
+                    startLocation={startLocation}
                     onEnterClick={() => { setSearchMode("start"); setFocusSearch(true); }}
                 
-                />
+                    />
+                )}
+                
 
                 {/* Start Route button */}
-                <div className="start-route-button">
+                {
+                    !directionsMode && (<div className="start-route-button">
                     <Tooltip text='Start Route' style={{ zIndex: 20 }} enterDelay={100} leaveDelay={100} position="right">
                         <Button 
                             disabled = {places.length === 0}
@@ -287,7 +296,9 @@ function HomePage() {
                             <Wab321016 /> 
                         </Button>
                     </Tooltip>
-                </div>
+                </div>)
+                }
+                
 
                 {/* Confirm Route Window */}
                 {showConfirmRoute && (
@@ -315,6 +326,8 @@ function HomePage() {
                                         // route logic goes here
                                         console.log("Route confirmed!");
                                         setShowConfirmRoute(false);
+                                        setDirectionsMode(true);
+
                                         }}
                                     >
                                         Confirm
@@ -328,41 +341,45 @@ function HomePage() {
 
                 {/* Search panel overlaid on the map */}
                 <div className="search-panel-overlay">
-                <SearchPanel
+                {directionsMode ? (
+                    <DirectionBar mode={directionsMode} places={places} />
+                ) : (
+                    <SearchPanel
                     google={window.google}
                     onSearch={(results) => {
                         setSearchResults(results);
                         setShowSearchResults(true);
-                        }}
+                    }}
                     onSelectPlace={(place) => {
                         if (place.geometry?.location) {
-                            const location = {
+                        const location = {
                             lat: place.geometry.location.lat(),
                             lng: place.geometry.location.lng(),
-                            };
-                            if (searchMode === "start"){
-                                setStartLocation(place.formatted_address || null);
-                                setSearchMode("add");
-                            }
-                            else{                
-                                setPlaces((prev) => [
-                                    ...prev, 
-                                    {
-                                        id: Date.now() + Math.random(), 
-                                        name: place.name,
-                                        adddress: place.formatted_address,
-                                    }
-                                ]);      
-                            }
-                            setSelectedPlace(location);
-                            setShowSearchResults(false);
-                        }                    
+                        };
+                        if (searchMode === "start") {
+                            setStartLocation(place);
+                            setSearchMode("add");
+                        } else {
+                            setPlaces((prev) => [
+                            ...prev,
+                            {
+                                id: Date.now() + Math.random(),
+                                name: place.name,
+                                adddress: place.formatted_address,
+                            },
+                            ]);
+                        }
+                        setSelectedPlace(location);
+                        setShowSearchResults(false);
+                        }
                     }}
                     searchMode={searchMode}
                     focusSearch={focusSearch}
                     setFocusSearch={setFocusSearch}
-                />
+                    />
+                )}
                 </div>
+
             </div>
         </div>
     </div>

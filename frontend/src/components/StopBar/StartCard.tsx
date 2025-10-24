@@ -5,7 +5,7 @@ import "./StartCard.css";
 interface StartDetails{
     id: number;
     name?: string;
-    startLocation?: string;
+    startLocation?: google.maps.places.PlaceResult | null;
     onEnterStartLocation?: () => void;
 }
 
@@ -19,7 +19,7 @@ export default function StartCard({ id, name, startLocation, onEnterStartLocatio
                 <WindowHeader className="stopWindowHeader">Start Location:{name}</WindowHeader>
                 <WindowContent className="stopWindowContent">
                     {startLocation ? 
-                    (<div className="addressText"> {startLocation} </div>) : 
+                    (<div className="addressText"> {startLocation.formatted_address} </div>) : 
                     (<Button className="startLocButton" style={{
                         whiteSpace: "normal",
                         display: "block",

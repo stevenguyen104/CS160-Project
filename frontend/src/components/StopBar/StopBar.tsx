@@ -8,7 +8,7 @@ import StartCard from "./StartCard";
 interface Places{
     placeLocations: any[];
     onItemsChange?: (updatedItems: any[]) => void;
-    startLocation?: string;
+    startLocation?: google.maps.places.PlaceResult | null;
     onEnterClick?: () => void;
 
 }
@@ -24,6 +24,10 @@ export default function StopBar({placeLocations, onItemsChange, startLocation, o
     useEffect(() => {
         onItemsChange?.(items);
     }, [items]);
+
+    useEffect(() => {
+        startLocation ? setItems((prev) => [...prev, { id: Date.now() + Math.random(), name: startLocation.name, address: startLocation.formatted_address }]) : null;
+    }, [startLocation]);
 
     const containerRef = useRef<HTMLDivElement | null>(null);
     const placeholderIndexRef = useRef<number | null>(null);
@@ -174,8 +178,10 @@ export default function StopBar({placeLocations, onItemsChange, startLocation, o
                     startLocation={startLocation}
                     onEnterStartLocation={onEnterClick}
                     />
-                {items.map((place, index) => (
-                    <React.Fragment key={index}>
+                {items
+                .filter((place) => place.name !== startLocation?.name) // exclude startlocation from being mdae into stopcompoentn
+                .map((place, index) => (
+                    <React.Fragment key={place.id}>
                     {placeholderIndexRef.current === index && (
                         <div
                         className="placeholder"
@@ -186,7 +192,7 @@ export default function StopBar({placeLocations, onItemsChange, startLocation, o
                         />
                     )}
                     <StopComponent
-                        id = {place.id}
+                        id={place.id}
                         name={place.name}
                         address={place.adddress}
                         onPointerDown={(e) => handlePointerDown(e, index)}
@@ -194,6 +200,7 @@ export default function StopBar({placeLocations, onItemsChange, startLocation, o
                     />
                     </React.Fragment>
                 ))}
+
                 {placeholderIndexRef.current === items.length && (
                     <div
                     className="placeholder"
