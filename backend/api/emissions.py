@@ -3,6 +3,8 @@ import os
 
 from flask import Blueprint, jsonify, request
 
+import backend
+
 emissions_bp = Blueprint("emissions", __name__, url_prefix="/trips/emissions")
 
 
@@ -16,17 +18,17 @@ def calculate_emissions():
         "Content-Type": "application/x-www-form-urlencoded"
     }
 
-    # TODO test data
     data = request.get_json()
-    # data = {
-    #    "vehicle_make": "Honda",
-    #    "vehicle_model": "Accord",
-    #    "distance": 4,
-    #    "distance_unit": "mi"
-    # }
+
+    json_data = {
+         "vehicle_make": data.get("vehicle_make"),
+         "vehicle_model": data.get("vehicle_model"),
+         "distance_value": data.get("distance_value"),
+         "distance_unit": data.get("distance_unit")
+    }
 
     try:
-        response = requests.post(url, headers=headers, data=data)
+        response = requests.post(url, headers=headers, data=json_data)
         return jsonify(response.json()), response.status_code
     except requests.exceptions.RequestException as e:
         return jsonify({

@@ -1,12 +1,15 @@
-import os
-
 from flask import Flask, jsonify
 from flask_cors import CORS
 
+import googlemaps
+import os
+
+from .api.alerts import alerts_bp
+from .api.directions import directions_bp
+from .api.emissions import emissions_bp
 from .api.stops import stops_bp
 from .api.trips import trips_bp
 from .api.users import users_bp
-from .api.emissions import emissions_bp
 
 
 def create_app(origins: list[str] = None) -> Flask:
@@ -32,10 +35,13 @@ def create_app(origins: list[str] = None) -> Flask:
         """
         return jsonify({"status": "ok"}), 200
 
+    app.gmaps = googlemaps.Client(key=os.environ.get("GOOGLE_MAPS_API_KEY"))
     app.register_blueprint(stops_bp)
     app.register_blueprint(trips_bp)
     app.register_blueprint(users_bp)
-    app.register.blueprint(emissions_bp)
+    app.register_blueprint(emissions_bp)
+    app.register_blueprint(alerts_bp)
+    app.register_blueprint(directions_bp)
     return app
 
 
