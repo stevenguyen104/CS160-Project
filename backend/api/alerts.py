@@ -5,7 +5,7 @@ import backend
 
 from flask import Blueprint, jsonify, request
 
-alerts_bp = Blueprint("alerts", __name__, url_prefix="/trips/alerts")
+alerts_bp = Blueprint("alerts", __name__, url_prefix="/stops/alerts")
 
 
 @alerts_bp.route("/", methods=["POST"])

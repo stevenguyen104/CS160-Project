@@ -2,9 +2,10 @@ import backend
 
 from flask import Blueprint, jsonify, request
 
-import googlemaps
+from googlemaps import Client
 import os
-gmaps: googlemaps.Client = googlemaps.Client(key=os.environ.get("GOOGLE_MAPS_API_KEY"))
+
+gmaps = Client(key=os.environ.get("GOOGLE_MAPS_API_KEY"))
 
 directions_bp = Blueprint("directions", __name__, url_prefix="/trips/directions")
 
@@ -17,11 +18,11 @@ def get_directions():
     destination = data.get("destination")
     mode = data.get("mode")  # cycling, driving
 
-    directions = gmaps.directions(
-        origin,
-        destination,
+    dirs = gmaps.directions(  # type: ignore[attr-defined]
+        origin=origin,
+        destination=destination,
         mode=mode,
         departure_time="now"
     )
 
-    return jsonify(directions)
+    return jsonify(dirs)
