@@ -3,7 +3,7 @@ import json
 import os
 
 import backend
-from parse_placeresult import ParsePlaceResult
+from placeresult import PlaceResult
 
 from flask import Blueprint, jsonify, request
 
@@ -18,7 +18,7 @@ def get_alert(data: json):
     }
 
     # data = request.get_json()  # google.maps.places.PlaceResult
-    place_result = ParsePlaceResult(data)
+    place_result = PlaceResult(data)
 
     json_data = {
         "location": {

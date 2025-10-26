@@ -1,7 +1,7 @@
 import json
 
 
-class ParsePlaceResult:
+class PlaceResult:
     def __init__(self, place_result: json):
         self.place_result = place_result
 

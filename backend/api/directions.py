@@ -1,6 +1,6 @@
 import backend
 import json
-from parse_placeresult import ParsePlaceResult
+from placeresult import PlaceResult
 
 from flask import Blueprint, jsonify, request
 
@@ -14,7 +14,7 @@ directions_bp = Blueprint("directions", __name__, url_prefix="/trips/directions"
 
 def get_directions_helper(array_data: json):
     # array_data = request.get_json()  # list[google.maps.places.PlaceResult]
-    place_results = [ParsePlaceResult(data) for data in array_data]
+    place_results = [PlaceResult(data) for data in array_data]
 
     first_place_result = place_results[0]
     last_place_result = place_results[-1]
