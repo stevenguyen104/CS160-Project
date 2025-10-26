@@ -6,6 +6,7 @@ from flask_cors import CORS
 from .api.stops import stops_bp
 from .api.trips import trips_bp
 from .api.users import users_bp
+from .api.emissions import emissions_bp
 
 
 def create_app(origins: list[str] = None) -> Flask:
@@ -34,6 +35,7 @@ def create_app(origins: list[str] = None) -> Flask:
     app.register_blueprint(stops_bp)
     app.register_blueprint(trips_bp)
     app.register_blueprint(users_bp)
+    app.register.blueprint(emissions_bp)
     return app
 
 
