@@ -17,7 +17,6 @@ def calculate_emissions():
     }
 
     # TODO test data
-    data = request.get_json()
     # data = {
     #    "vehicle_make": "Honda",
     #    "vehicle_model": "Accord",
@@ -25,11 +24,42 @@ def calculate_emissions():
     #    "distance_unit": "mi"
     # }
 
+    data = request.get_json()
+
+    vehicle_make = data.get("vehicle_make")
+    vehicle_model = data.get("vehicle_model")
+    distance_unit = data.get("distance_unit", "km")
+    stops = data.get("stops", [])
+
+    stop_distances = []
+    for stop in stops:
+        stop_distances.append(stop.get("distanceMeters", 0) / 1000)
+    distance_value = sum(stop_distances)
+
+    payload = f"vehicle_make={vehicle_make}&vehicle_model={vehicle_model}&distance_value={distance_value}&distance_unit={distance_unit}"
+
     try:
-        response = requests.post(url, headers=headers, data=data)
-        return jsonify(response.json()), response.status_code
+        response = requests.post(url, headers=headers, data=payload)
+        response.raise_for_status()
+        result_json = response.json()
+        total_emissions = result_json.get("data", {}).get("co2e_kg")
+        if total_emissions is None:
+            return jsonify({
+                "success": False,
+                "error": "Missing emissions data",
+                "raw_response": result_json
+            }), 502
     except requests.exceptions.RequestException as e:
         return jsonify({
             "success": False,
-            "error": str(e)
+            "error": f"Failed to connect to CarbonSutra: {e}"
         }), 500
+
+    # Distributing total emissions proportionally to each stop, not cumulatively
+    stop_emissions = [total_emissions * (distance / distance_value) for distance in stop_distances]
+    stop_emissions.append(total_emissions)
+
+    return jsonify({
+        "success": True,
+        "stop_emissions": stop_emissions
+    }), 200

@@ -35,7 +35,7 @@ def create_app(origins: list[str] = None) -> Flask:
     app.register_blueprint(stops_bp)
     app.register_blueprint(trips_bp)
     app.register_blueprint(users_bp)
-    app.register.blueprint(emissions_bp)
+    app.register_blueprint(emissions_bp)
     return app
 
 
