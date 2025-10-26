@@ -9,6 +9,7 @@ import CustomCursor from "../components/CustomCursor/CustomCursor";
 import { Window, WindowHeader, WindowContent, Button, Frame, TextInput, Tooltip } from "react95";
 import { Awfxex32Info, Settings, Wab321016, Mute, Unmute } from "@react95/icons";
 import DirectionBar from "../components/DirectionBar/DirectionBar";
+import SideWindow from "../components/RouteOverlay/SideWindow";
 const libraries: ("places")[] = ["places"];
 
 function HomePage() {
@@ -343,6 +344,7 @@ function HomePage() {
                 <div className="search-panel-overlay">
                 {directionsMode ? (
                     <DirectionBar mode={directionsMode} places={places} />
+                    
                 ) : (
                     <SearchPanel
                     google={window.google}
@@ -379,8 +381,9 @@ function HomePage() {
                     />
                 )}
                 </div>
-
+                {directionsMode && <SideWindow/>}
             </div>
+
         </div>
     </div>
     </>
