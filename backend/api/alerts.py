@@ -35,8 +35,9 @@ def get_alert(data: dict):
 
 @alerts_bp.route("/", methods=["POST"])
 def get_alerts():
-    array_data: list[dict] = request.get_json()  # list[google.maps.places.PlaceResult]
-    alerts = [get_alert(data) for data in array_data]
+    data = request.get_json()
+    places: list[dict] = data.get("places")  # list[google.maps.places.PlaceResult]
+    alerts = [get_alert(place) for place in places]
 
     num_abnormal_conditions = 0
     bad_aqi_threshold = 100  # TODO make this customizable by the user

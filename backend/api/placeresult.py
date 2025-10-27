@@ -12,6 +12,11 @@ class PlaceResult:
         place = self.get_place()
         return place.get("address")
 
+    def get_formatted_address(self) -> list[str]:
+        address = self.get_address()
+        formatted_address = address.get("formattedAddress")
+        return formatted_address.get("lines")
+
     def get_geometry(self) -> dict:
         place = self.get_place()
         return place.get("geometry")

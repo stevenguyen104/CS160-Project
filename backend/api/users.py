@@ -99,4 +99,4 @@ def delete_user():
     return jsonify({
         "success": True,
         "message": "User account successfully deleted"
-    }), 200
+    }), 204
