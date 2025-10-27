@@ -3,20 +3,31 @@ import StopComponent from "./StopComponent";
 import "./StopBar.css"
 import { ScrollView } from "react95";
 import { useRef, useState, useEffect } from "react";
+import StartCard from "./StartCard";
 
 interface Places{
     placeLocations: any[];
     onItemsChange?: (updatedItems: any[]) => void;
+    startLocation?: google.maps.places.PlaceResult | null;
+    onEnterClick?: () => void;
 
 }
 
 
-export default function StopBar({placeLocations, onItemsChange}: Places){
+export default function StopBar({placeLocations, onItemsChange, startLocation, onEnterClick}: Places){
 
     const [items, setItems] = useState<any[]>(placeLocations || []);
     useEffect(() => {
         setItems(placeLocations || []);
     }, [placeLocations]);
+
+    useEffect(() => {
+        onItemsChange?.(items);
+    }, [items]);
+
+    useEffect(() => {
+        startLocation ? setItems((prev) => [...prev, { id: Date.now() + Math.random(), name: startLocation.name, address: startLocation.formatted_address }]) : null;
+    }, [startLocation]);
 
     const containerRef = useRef<HTMLDivElement | null>(null);
     const placeholderIndexRef = useRef<number | null>(null);
@@ -143,6 +154,12 @@ export default function StopBar({placeLocations, onItemsChange}: Places){
         });
     };
 
+    const onDelete = (id: number) => {
+        console.log(id);
+        setItems(prevItems => prevItems.filter(item => item.id !== id)
+        );
+    }
+
 
     return(
         <>
@@ -156,8 +173,15 @@ export default function StopBar({placeLocations, onItemsChange}: Places){
             whiteSpace: "nowrap",
             }}>
                 <div className="stopbarScrollContainer" ref={containerRef}>
-                {items.map((place, index) => (
-                    <React.Fragment key={index}>
+                <StartCard 
+                    id = {0}
+                    startLocation={startLocation}
+                    onEnterStartLocation={onEnterClick}
+                    />
+                {items
+                .filter((place) => place.name !== startLocation?.name) // exclude startlocation from being mdae into stopcompoentn
+                .map((place, index) => (
+                    <React.Fragment key={place.id}>
                     {placeholderIndexRef.current === index && (
                         <div
                         className="placeholder"
@@ -168,12 +192,15 @@ export default function StopBar({placeLocations, onItemsChange}: Places){
                         />
                     )}
                     <StopComponent
+                        id={place.id}
                         name={place.name}
                         address={place.adddress}
                         onPointerDown={(e) => handlePointerDown(e, index)}
+                        onDelete={onDelete}
                     />
                     </React.Fragment>
                 ))}
+
                 {placeholderIndexRef.current === items.length && (
                     <div
                     className="placeholder"
