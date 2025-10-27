@@ -1,8 +1,8 @@
-import json
-
-
 class PlaceResult:
-    def __init__(self, place_result: json):
+    def __init__(self, place_result: dict):
+        """
+        Initialize a PlaceResult with a google.maps.places.PlaceResult object.
+        """
         self.place_result = place_result
 
     def get_place(self) -> dict:

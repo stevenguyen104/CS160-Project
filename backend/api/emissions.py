@@ -1,19 +1,23 @@
 import requests
-import json
-import os
 
-from directions import get_directions_helper
 from flask import Blueprint, jsonify, request
 
-import backend
+from backend import RAPIDAPI_KEY
+from directions import get_directions_helper
 
 emissions_bp = Blueprint("emissions", __name__, url_prefix="/trips/emissions")
 
 
-def compute_total_distance(directions_result: json):
-    legs = directions_result[0].get("legs")
-    total_distance = sum(leg["distance"]["value"] for leg in legs)
-    return total_distance
+def compute_distances(directions_route: dict) -> list[int]:
+    """
+    Compute the individual distances from a directions result.
+
+    :param directions_route: A Directions object's route.
+    :return: A list of distances (in meters) from the route.
+    """
+    legs = directions_route.get("legs")
+    distances = [leg.get("distance").get("value") for leg in legs]  # meters
+    return distances
 
 
 @emissions_bp.route("/", methods=["POST"])
@@ -21,7 +25,7 @@ def calculate_emissions():
     url = "https://carbonsutra1.p.rapidapi.com/vehicle_estimate_by_model"
 
     headers = {
-        "x-rapidapi-key": os.environ.get("RAPIDAPI_KEY"),
+        "x-rapidapi-key": RAPIDAPI_KEY,
         "x-rapidapi-host": "carbonsutra1.p.rapidapi.com",
         "Content-Type": "application/x-www-form-urlencoded"
     }
@@ -29,8 +33,9 @@ def calculate_emissions():
     data = request.get_json()  # vehicle_make, vehicle_model, google.maps.places.PlaceResult
     place_results = data.get("place_results")
     directions = get_directions_helper(place_results)
-    distance_value = compute_total_distance(directions)
-    distance_unit = "mi"
+    distances = compute_distances(directions)
+    distance_value = sum(distances) / 1000  # meters to kilometers
+    distance_unit = "km"
 
     json_data = {
          "vehicle_make": data.get("vehicle_make"),
