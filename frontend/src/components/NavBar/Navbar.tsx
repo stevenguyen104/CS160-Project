@@ -1,18 +1,19 @@
-import { AppBar, Button, Frame, Toolbar } from 'react95';
+import { AppBar, Button, Toolbar } from 'react95';
 import "./Navbar.css"
 
-export default function Navbar() {
+type NavbarProps = {
+  onAboutClick?: () => void;
+};
+
+export default function Navbar({ onAboutClick }: NavbarProps) {
   return (
     <AppBar>
         <Toolbar className="navToolbar">
             <div className="grouped">
-                <Frame className='logo'>
-                    Carbon Compass
-                </Frame>
-                
+
             </div>
             <div className="groupTwo">
-                <Button>
+                <Button onClick={onAboutClick}>
                     About
                 </Button>
                 <Button>
