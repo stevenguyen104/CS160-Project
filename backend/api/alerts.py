@@ -1,4 +1,3 @@
-import json
 import requests
 
 from flask import Blueprint, jsonify, request
@@ -9,7 +8,7 @@ from placeresult import PlaceResult
 alerts_bp = Blueprint("alerts", __name__, url_prefix="/stops/alerts")
 
 
-def get_alert(data: json):
+def get_alert(data: dict):
     url = "https://airquality.googleapis.com/v1/currentConditions:lookup"
 
     params = {

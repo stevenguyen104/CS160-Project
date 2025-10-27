@@ -4,7 +4,7 @@ from googlemaps import Client
 from backend import GOOGLE_MAPS_API_KEY
 from placeresult import PlaceResult
 
-gmaps = Client(key=GOOGLE_MAPS_API_KEY)
+gmaps: Client = Client(key=GOOGLE_MAPS_API_KEY)
 
 directions_bp = Blueprint("directions", __name__, url_prefix="/trips/directions")
 

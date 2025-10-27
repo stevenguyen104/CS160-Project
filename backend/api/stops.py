@@ -36,8 +36,9 @@ def add_stop(trip_id: int):
     longitude = data.get("longitude")
     name = data.get("name")
     stop_order = data.get("stop_order")
+    place_id = data.get("place_id")
 
-    stop = stop_repo.add_stop(trip_id, latitude, longitude, name, stop_order)
+    stop = stop_repo.add_stop(trip_id, latitude, longitude, name, stop_order, place_id)
 
     return jsonify({
         "success": True,
