@@ -1,10 +1,10 @@
-from flask import Blueprint, jsonify, request
+from flask import Blueprint, jsonify, request, current_app
 from googlemaps import Client
 
-from backend import GOOGLE_MAPS_API_KEY
-from placeresult import PlaceResult
+import backend
+from .placeresult import PlaceResult
 
-gmaps: Client = Client(key=GOOGLE_MAPS_API_KEY)
+# gmaps: Client = Client(key=backend.GOOGLE_MAPS_API_KEY)
 
 directions_bp = Blueprint("directions", __name__, url_prefix="/trips/directions")
 
@@ -32,7 +32,7 @@ def get_directions_helper(array_data: list[dict[str, object]]) -> dict:
     departure_time = "now"  # TODO let users customize
     units = "imperial"  # TODO let users customize
 
-    directions = gmaps.directions(  # type: ignore[attr-defined]
+    directions = current_app.config.get("gmaps").directions(  # type: ignore[attr-defined]
         origin=origin,
         destination=destination,
         waypoints=waypoints or [],

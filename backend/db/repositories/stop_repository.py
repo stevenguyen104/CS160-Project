@@ -47,6 +47,9 @@ class StopRepository:
                     .insert(data)
                     .execute())
         return response.data[0] if response.data else None
+    
+    def add_stops(self):
+        pass
 
     def get_stops(self, trip_id: int) -> list[dict]:
         """

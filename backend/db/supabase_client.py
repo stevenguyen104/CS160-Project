@@ -1,9 +1,9 @@
 from supabase import create_client, Client
 
-from backend import SUPABASE_KEY, SUPABASE_URL
+import backend
 
-url: str = SUPABASE_URL
-key: str = SUPABASE_KEY
+url: str = backend.SUPABASE_URL
+key: str = backend.SUPABASE_KEY
 
 if not url or not key:
     raise ValueError("Missing Supabase environment variables.")
