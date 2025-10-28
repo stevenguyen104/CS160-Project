@@ -11,7 +11,8 @@ class StopRepository:
         """
         self.supabase: Client = supabase_client
 
-    def add_stop(self, trip_id: int, latitude: float, longitude: float, name: str, stop_order: int) -> dict:
+    def add_stop(self, trip_id: int, latitude: float, longitude: float, name: str,
+                 stop_order: int, place_id: str, address: list[str]) -> dict:
         """
         Add a new stop to the stop repository.
 
@@ -25,6 +26,10 @@ class StopRepository:
         :type name: str
         :param stop_order: The order in which the stop would be placed; lower numbers go first
         :type stop_order: int
+        :param place_id: The place ID that is identified by Google.
+        :type place_id: str
+        :param address: The human-readable address; there may be multiple lines
+        :type address: list[str]
         :return: The newly added stop
         :rtype: dict
         """
@@ -33,7 +38,9 @@ class StopRepository:
             "latitude": latitude,
             "longitude": longitude,
             "name": name,
-            "stop_order": stop_order
+            "stop_order": stop_order,
+            "place_id": place_id,
+            "address": address
         }
 
         response = (self.supabase.table("stops")

@@ -1,4 +1,5 @@
 from flask import Blueprint, jsonify, request
+
 from ..db.supabase_client import supabase
 
 users_bp = Blueprint("users", __name__, url_prefix="/users")
@@ -98,4 +99,4 @@ def delete_user():
     return jsonify({
         "success": True,
         "message": "User account successfully deleted"
-    }), 200
+    }), 204

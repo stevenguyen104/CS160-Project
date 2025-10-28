@@ -1,65 +1,80 @@
 import requests
-import os
 
 from flask import Blueprint, jsonify, request
 
+from backend import RAPIDAPI_KEY
+from directions import get_directions_helper
+
 emissions_bp = Blueprint("emissions", __name__, url_prefix="/trips/emissions")
 
+CARBON_API_URL = "https://carbonsutra1.p.rapidapi.com/vehicle_estimate_by_model"
 
-@emissions_bp.route("/", methods=["POST"])
-def calculate_emissions():
-    url = "https://carbonsutra1.p.rapidapi.com/vehicle_estimate_by_model"
 
+def compute_distances(directions_route: dict) -> (list[str], list[int]):
+    """
+    Compute the individual distances from a directions result.
+
+    :param directions_route: A Directions object's route.
+    :return: A list of distances displayed to the user and in meters from the route.
+    """
+    legs = directions_route.get("legs", [])
+    readable_distances = []
+    distances = []
+
+    for leg in legs:
+        try:
+            distance = leg["distance"]
+            readable_distances.append(distance["text"])
+            distances.append(distance["value"])  # always in meters
+        except (TypeError, KeyError):
+            raise ValueError(f"Missing distance in leg: {leg}")
+
+    return readable_distances, distances
+
+
+def fetch_emission_estimate(make: str, model: str, distance: float, unit: str = "km") -> dict:
+    """
+    Send emission request to CarbonSutra API.
+    """
     headers = {
-        "x-rapidapi-key": os.environ.get("RAPIDAPI_KEY"),
+        "x-rapidapi-key": RAPIDAPI_KEY,
         "x-rapidapi-host": "carbonsutra1.p.rapidapi.com",
         "Content-Type": "application/x-www-form-urlencoded"
     }
 
-    # TODO test data
-    # data = {
-    #    "vehicle_make": "Honda",
-    #    "vehicle_model": "Accord",
-    #    "distance": 4,
-    #    "distance_unit": "mi"
-    # }
+    payload = {
+        "vehicle_make": make,
+        "vehicle_model": model,
+        "distance_value": distance,
+        "distance_unit": unit
+    }
 
-    data = request.get_json()
+    response = requests.post(CARBON_API_URL, headers=headers, data=payload)
+    response.raise_for_status()
+    return response.json()
 
+
+@emissions_bp.route("/", methods=["POST"])
+def calculate_emissions():
+    """
+    Calculates emissions based on vehicle models and distance.
+    """
+
+    data = request.get_json()  # vehicle_make, vehicle_model, google.maps.places.PlaceResult
     vehicle_make = data.get("vehicle_make")
     vehicle_model = data.get("vehicle_model")
-    distance_unit = data.get("distance_unit", "km")
-    stops = data.get("stops", [])
+    place_results = data.get("place_results")
 
-    stop_distances = []
-    for stop in stops:
-        stop_distances.append(stop.get("distanceMeters", 0) / 1000)
-    distance_value = sum(stop_distances)
-
-    payload = f"vehicle_make={vehicle_make}&vehicle_model={vehicle_model}&distance_value={distance_value}&distance_unit={distance_unit}"
+    directions = get_directions_helper(place_results)
+    distances = compute_distances(directions)
+    distance_value = sum(distances) / 1000.0  # meters to kilometers
+    distance_unit = "km"
 
     try:
-        response = requests.post(url, headers=headers, data=payload)
-        response.raise_for_status()
-        result_json = response.json()
-        total_emissions = result_json.get("data", {}).get("co2e_kg")
-        if total_emissions is None:
-            return jsonify({
-                "success": False,
-                "error": "Missing emissions data",
-                "raw_response": result_json
-            }), 502
+        response = fetch_emission_estimate(vehicle_make, vehicle_model, distance_value, distance_unit)
+        return jsonify(response), 200
     except requests.exceptions.RequestException as e:
         return jsonify({
             "success": False,
-            "error": f"Failed to connect to CarbonSutra: {e}"
+            "error": str(e)
         }), 500
-
-    # Distributing total emissions proportionally to each stop, not cumulatively
-    stop_emissions = [total_emissions * (distance / distance_value) for distance in stop_distances]
-    stop_emissions.append(total_emissions)
-
-    return jsonify({
-        "success": True,
-        "stop_emissions": stop_emissions
-    }), 200

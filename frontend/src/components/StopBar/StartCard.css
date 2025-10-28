@@ -1,0 +1,7 @@
+.addressText {
+    font-size: 0.8em;
+    padding: 5px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}

@@ -1,12 +1,14 @@
-import os
-
+import googlemaps
 from flask import Flask, jsonify
 from flask_cors import CORS
 
+from .api.alerts import alerts_bp
+from .api.directions import directions_bp
+from .api.emissions import emissions_bp
 from .api.stops import stops_bp
 from .api.trips import trips_bp
 from .api.users import users_bp
-from .api.emissions import emissions_bp
+from backend import FRONTEND_ORIGINS, GOOGLE_MAPS_API_KEY
 
 
 def create_app(origins: list[str] = None) -> Flask:
@@ -32,15 +34,18 @@ def create_app(origins: list[str] = None) -> Flask:
         """
         return jsonify({"status": "ok"}), 200
 
+    app.gmaps = googlemaps.Client(key=GOOGLE_MAPS_API_KEY)
     app.register_blueprint(stops_bp)
     app.register_blueprint(trips_bp)
     app.register_blueprint(users_bp)
     app.register_blueprint(emissions_bp)
+    app.register_blueprint(alerts_bp)
+    app.register_blueprint(directions_bp)
     return app
 
 
 if __name__ == '__main__':
-    frontend_origins: str = os.environ.get("FRONTEND_ORIGINS")
+    frontend_origins: str = FRONTEND_ORIGINS
     if frontend_origins is not None:
         frontend_origins: list[str] = frontend_origins.split(",")
 
