@@ -1,0 +1,20 @@
+# JetBrains IDEs project files
+.idea/
+*.iml
+
+# macOS
+.DS_Store
+
+# Windows
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+
+
+# Linux
+*~
+.nfs*
+
+# VSCode
+.vscode/*
+!.vscode/extensions.json
