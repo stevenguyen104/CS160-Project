@@ -148,7 +148,13 @@ function HomePage() {
             } else {
                 alert(data.error);
             }
+        } catch (error) {
+            console.error(error);
         }
+    }
+
+    const handleDeleteUser = async () => {
+        // pass
     }
 
     // Load Google Maps API once
