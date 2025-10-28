@@ -51,9 +51,16 @@ def add_stop(trip_id: int):
     }), 201
 
 
-@stops_bp.route("/many", methods=["POST"])
+@stops_bp.route("/save", methods=["POST"])
 def add_stops(trip_id: int):
-    pass
+    data = request.get_json()
+
+    stops = stop_repo.add_stops(trip_id, data)
+    return jsonify({
+        "success": True,
+        "stops": stops,
+        "message": "Stops were successfully added to the trip"
+    }), 201
 
 
 @stops_bp.route("/<int:stop_id>", methods=["PUT"])

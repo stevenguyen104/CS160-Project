@@ -48,8 +48,24 @@ class StopRepository:
                     .execute())
         return response.data[0] if response.data else None
 
-    def add_stops(self):
-        pass
+    def add_stops(self, trip_id: int, stops: list[dict]) -> list[dict]:
+        """
+        Add a list of stops to the stop repository.
+        :param trip_id: Trip ID
+        :type trip_id: int
+        :param stops: List of stops not including the trip ID
+        :type stops: list[dict]
+        :return: The newly added stops
+        :rtype: list[dict]
+        """
+        data = stops
+        for stop in stops:
+            stop["trip_id"] = trip_id
+
+        response = (self.supabase.table("stops")
+                    .insert(data)
+                    .execute())
+        return response.data
 
     def get_stops(self, trip_id: int) -> list[dict]:
         """
