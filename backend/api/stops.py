@@ -2,7 +2,7 @@ from flask import Blueprint, jsonify, request
 
 from ..db.repositories.stop_repository import StopRepository
 from ..db.supabase_client import supabase
-from placeresult import PlaceResult
+from .placeresult import PlaceResult
 
 stops_bp = Blueprint("stops", __name__, url_prefix="/trips/<int:trip_id>/stops")
 stop_repo = StopRepository(supabase_client=supabase)
@@ -49,6 +49,11 @@ def add_stop(trip_id: int):
         "stop": stop,
         "message": "Stop was successfully added to the trip"
     }), 201
+
+
+@stops_bp.route("/many", methods=["POST"])
+def add_stops(trip_id: int):
+    pass
 
 
 @stops_bp.route("/<int:stop_id>", methods=["PUT"])
