@@ -21,32 +21,39 @@ export default function StopComponent({ id, name, address, onPointerDown, onDele
             style={{ flex: '0 0 auto', cursor: 'grab' }}
             onMouseEnter={() => setHovered(true)}
             onMouseLeave={() => setHovered(false)}>
-            <Window style={{ width: 150, minHeight: 50 }}>
-                <Button
-                square
-                size="sm"
-                style={{ position: "absolute", top: 5, right: 20, display: hovered? 'flex' : 'none' }}
-                onPointerDown={(e) => { e.stopPropagation(); }}
-                onPointerUp={(e) => { e.stopPropagation(); }}
-                onClick={(e) => {
-                    e.stopPropagation();
-                    onEdit?.(id);
-                }}>
-                    ✏️
-                </Button>
+            <Window style={{ width: 150, minHeight: 50}}>
+                <WindowHeader className="stopWindowHeader" style={{display: 'flex', justifyContent: 'space-between', alignItems: 'center'}}>
+                    <span>
+                        {name}
+                    </span>
+                    <div style={{visibility: hovered? 'visible' : 'hidden'}}>
+                        <Button
+                            square
+                            size="sm"
+                            style={{marginRight: '4px'}}
+                            onPointerDown={(e) => { e.stopPropagation(); }}
+                            onPointerUp={(e) => { e.stopPropagation(); }}
+                            onClick={(e) => {
+                                e.stopPropagation();
+                                onEdit?.(id);
+                        }}>
+                            ✏️
+                        </Button>
 
-                <Button
-                square
-                size="sm"
-                style={{ position: "absolute", top: 5, right: 5, display: hovered? 'flex' : 'none' }}
-                onPointerDown={(e) => { e.stopPropagation(); }}
-                onPointerUp={(e) => { e.stopPropagation(); }}
-                onClick={(e) => {
-                    onDelete?.(id);
-                }}>
-                ✕
-                </Button>
-                <WindowHeader className="stopWindowHeader">{name}</WindowHeader>
+                        <Button
+                            square
+                            size="sm"
+                            style={{}}
+                            onPointerDown={(e) => { e.stopPropagation(); }}
+                            onPointerUp={(e) => { e.stopPropagation(); }}
+                            onClick={(e) => {
+                                onDelete?.(id);
+                        }}>
+                            ✕
+                        </Button>
+                    </div>
+                    
+                    </WindowHeader>
                 <WindowContent className="stopWindowContent">
                     {address || "No address"}
                 </WindowContent>
