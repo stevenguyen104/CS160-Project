@@ -30,8 +30,9 @@ function HomePage() {
     const [startLocation, setStartLocation] = useState<google.maps.places.PlaceResult | null>(null);
 
     const [focusSearch, setFocusSearch] = useState(false);
-    const [searchMode, setSearchMode] = useState<"add" | "start">("add");
+    const [searchMode, setSearchMode] = useState<"add" | "start" | "edit">("add");
     const [directionsMode, setDirectionsMode] = useState(false);
+    const [editingPlace, setEditingPlace] = useState<any | null>(null);
 
     const audioRef = useRef<HTMLAudioElement>(null);
 
@@ -277,6 +278,12 @@ function HomePage() {
                     onItemsChange={(updatedItems) => setPlaces(updatedItems)}
                     startLocation={startLocation}
                     onEnterClick={() => { setSearchMode("start"); setFocusSearch(true); }}
+                    onEditPlace={(place) => {
+                        console.log('editing place', place);
+                        setEditingPlace(place);
+                        setSearchMode("edit");
+                        setFocusSearch(true);
+                    }}
                 
                     />
                 )}
@@ -361,14 +368,30 @@ function HomePage() {
                         if (searchMode === "start") {
                             setStartLocation(place);
                             setSearchMode("add");
-                        } else {
+                        } 
+                        else if (searchMode === "edit"){
+                            setPlaces((prev) =>
+                            prev.map((p) =>
+                            p.id === editingPlace.id
+                                ? {
+                                    ...p,
+                                    name: place.name,
+                                    address: place.formatted_address,
+                                }
+                                : p
+                            ));
+                            setEditingPlace(null);
+                            setSearchMode("add");
+                        }
+                        
+                        else {
                             setPlaces((prev) => [
-                            ...prev,
-                            {
-                                id: Date.now() + Math.random(),
-                                name: place.name,
-                                adddress: place.formatted_address,
-                            },
+                                ...prev,
+                                {
+                                    id: Date.now() + Math.random(),
+                                    name: place.name,
+                                    address: place.formatted_address,
+                                },
                             ]);
                         }
                         setSelectedPlace(location);

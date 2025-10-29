@@ -8,9 +8,10 @@ interface StopDetails{
     address: string;
     onPointerDown?: (e: React.PointerEvent<HTMLDivElement>) => void;
     onDelete?:  (id: number) => void;
+    onEdit?: (id: number) => void;
 }
 
-export default function StopComponent({ id, name, address, onPointerDown, onDelete }: StopDetails) {
+export default function StopComponent({ id, name, address, onPointerDown, onDelete, onEdit }: StopDetails) {
     const [hovered, setHovered] = useState(false);
 
     
@@ -21,6 +22,19 @@ export default function StopComponent({ id, name, address, onPointerDown, onDele
             onMouseEnter={() => setHovered(true)}
             onMouseLeave={() => setHovered(false)}>
             <Window style={{ width: 150, minHeight: 50 }}>
+                <Button
+                square
+                size="sm"
+                style={{ position: "absolute", top: 5, right: 20, display: hovered? 'flex' : 'none' }}
+                onPointerDown={(e) => { e.stopPropagation(); }}
+                onPointerUp={(e) => { e.stopPropagation(); }}
+                onClick={(e) => {
+                    e.stopPropagation();
+                    onEdit?.(id);
+                }}>
+                    ✏️
+                </Button>
+
                 <Button
                 square
                 size="sm"

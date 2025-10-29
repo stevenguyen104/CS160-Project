@@ -10,19 +10,23 @@ interface Places{
     onItemsChange?: (updatedItems: any[]) => void;
     startLocation?: google.maps.places.PlaceResult | null;
     onEnterClick?: () => void;
+    onEditPlace?: (place: any) => void;
 
 }
 
 
-export default function StopBar({placeLocations, onItemsChange, startLocation, onEnterClick}: Places){
+export default function StopBar({placeLocations, onItemsChange, startLocation, onEnterClick, onEditPlace}: Places){
 
     const [items, setItems] = useState<any[]>(placeLocations || []);
+
+
     useEffect(() => {
         setItems(placeLocations || []);
     }, [placeLocations]);
 
     useEffect(() => {
         onItemsChange?.(items);
+        console.log(items);
     }, [items]);
 
     useEffect(() => {
@@ -155,9 +159,15 @@ export default function StopBar({placeLocations, onItemsChange, startLocation, o
     };
 
     const onDelete = (id: number) => {
-        console.log(id);
         setItems(prevItems => prevItems.filter(item => item.id !== id)
         );
+    }
+
+    const onEdit = (id: number) => {
+        const itemEdited = items.find((item) => item.id === id);
+        if (itemEdited){
+            onEditPlace?.(itemEdited);
+        }
     }
 
 
@@ -194,9 +204,10 @@ export default function StopBar({placeLocations, onItemsChange, startLocation, o
                     <StopComponent
                         id={place.id}
                         name={place.name}
-                        address={place.adddress}
+                        address={place.address}
                         onPointerDown={(e) => handlePointerDown(e, index)}
                         onDelete={onDelete}
+                        onEdit={onEdit}
                     />
                     </React.Fragment>
                 ))}
