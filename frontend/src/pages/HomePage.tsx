@@ -30,12 +30,9 @@ function HomePage() {
     const [startLocation, setStartLocation] = useState<google.maps.places.PlaceResult | null>(null);
 
     const [focusSearch, setFocusSearch] = useState(false);
-    const [searchMode, setSearchMode] = useState<"add" | "start">("add");
+    const [searchMode, setSearchMode] = useState<"add" | "start" | "edit">("add");
     const [directionsMode, setDirectionsMode] = useState(false);
-
-    const [email, setEmail] = useState("");
-    const [password, setPassword] = useState("");
-    const [userID, setUserID] = useState("");
+    const [editingPlace, setEditingPlace] = useState<any | null>(null);
 
     const audioRef = useRef<HTMLAudioElement>(null);
 
@@ -55,113 +52,14 @@ function HomePage() {
 
         window.addEventListener("click", startAudio);
         return () => window.removeEventListener("click", startAudio);
-
-        // Get current user logged in
-        /*
-        try {
-            const response = await fetch("http://127.0.0.1:5000/users/", {
-                method: "GET",
-                mode: "cors",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({})
-            });
-
-            const data = await response.json();
-            if (response.ok) {
-                setUserID(data.user_id);
-            }
-        } catch (error) {
-            console.error(error);
-        }
-        */
     }, []);
-
-    const handleLogin = async() => {
-        try {
-            const response = await fetch("http://127.0.0.1:5000/users/login", {
-                method: "POST",
-                mode: "cors",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({
-                    "email": email,
-                    "password": password
-                }),
-                credentials: "include"
-            });
-
-            const data = await response.json();
-            console.log(data);
-
-            if (response.ok) {
-                setUserID(data.user_id);
-                alert(data.message);
-            } else {
-                alert(data.error);
-            }
-        } catch (error) {
-            console.error(error);
-        }
-    }
-
-    const handleRegister = async () => {
-        try {
-            const response = await fetch("http://127.0.0.1:5000/users/register", {
-                method: "POST",
-                mode: "cors",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({
-                    "email": email,
-                    "password": password
-                }),
-                credentials: "include",
-            });
-
-            const data = await response.json();
-            console.log(data);
-
-            if (response.ok) {
-                alert(data.message);
-            } else {
-                alert(data.error);
-            }
-        } catch (error) {
-            console.error(error);
-        }
-    }
-
-    const handleLogout = async () => {
-        try {
-            const response = await fetch("http://127.0.0.1:5000/users/logout", {
-                method: "POST",
-                mode: "cors",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({}),
-                credentials: "include",
-            })
-
-            const data = await response.json();
-            console.log(data);
-
-            if (response.ok) {
-                alert(data.message);
-                setUserID("");
-            } else {
-                alert(data.error);
-            }
-        } catch (error) {
-            console.error(error);
-        }
-    }
-
-    const handleDeleteUser = async () => {
-        // pass
-    }
 
     // Load Google Maps API once
     const { isLoaded } = useJsApiLoader({
         googleMapsApiKey: import.meta.env.VITE_GOOGLE_MAPS_KEY,
         libraries,
     });
+
 
     if (!isLoaded) return <div>Loading Map...</div>;
 
@@ -350,22 +248,12 @@ function HomePage() {
                     marginTop: "10px",
                 }}
                 >
-                <TextInput
-                    placeholder="Email"
-                    type="email"
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                    fullWidth />
-                <TextInput
-                    placeholder="Password"
-                    type="password"
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                    fullWidth />
-                <Button fullWidth onClick={handleLogin}>
+                <TextInput placeholder="Username" fullWidth />
+                <TextInput placeholder="Password" type="password" fullWidth />
+                <Button fullWidth>
                     Login
                 </Button>
-                <Button fullWidth onClick={handleRegister}>
+                <Button fullWidth>
                     Register Account
                 </Button>
                 </form>
@@ -390,6 +278,12 @@ function HomePage() {
                     onItemsChange={(updatedItems) => setPlaces(updatedItems)}
                     startLocation={startLocation}
                     onEnterClick={() => { setSearchMode("start"); setFocusSearch(true); }}
+                    onEditPlace={(place) => {
+                        console.log('editing place', place);
+                        setEditingPlace(place);
+                        setSearchMode("edit");
+                        setFocusSearch(true);
+                    }}
                 
                     />
                 )}
@@ -400,10 +294,10 @@ function HomePage() {
                     !directionsMode && (<div className="start-route-button">
                     <Tooltip text='Start Route' style={{ zIndex: 20 }} enterDelay={100} leaveDelay={100} position="right">
                         <Button 
-                            disabled = {places.length === 0}
+                            disabled = {places.length < 2 && startLocation === null}
                             style = {{
-                                filter: places.length === 0 ? 'grayscale(100%)' : 'none',
-                                cursor: places.length === 0 ? 'not-allowed' : 'pointer',
+                                filter: places.length < 2 && startLocation === null ? 'grayscale(100%)' : 'none',
+                                cursor: places.length < 2 && startLocation === null ? 'not-allowed' : 'pointer',
                             }}
                             onClick={() => setShowConfirmRoute(true)}
                         > 
@@ -474,14 +368,30 @@ function HomePage() {
                         if (searchMode === "start") {
                             setStartLocation(place);
                             setSearchMode("add");
-                        } else {
+                        } 
+                        else if (searchMode === "edit"){
+                            setPlaces((prev) =>
+                            prev.map((p) =>
+                            p.id === editingPlace.id
+                                ? {
+                                    ...p,
+                                    name: place.name,
+                                    address: place.formatted_address,
+                                }
+                                : p
+                            ));
+                            setEditingPlace(null);
+                            setSearchMode("add");
+                        }
+                        
+                        else {
                             setPlaces((prev) => [
-                            ...prev,
-                            {
-                                id: Date.now() + Math.random(),
-                                name: place.name,
-                                address: place.formatted_address,
-                            },
+                                ...prev,
+                                {
+                                    id: Date.now() + Math.random(),
+                                    name: place.name,
+                                    address: place.formatted_address,
+                                },
                             ]);
                         }
                         setSelectedPlace(location);

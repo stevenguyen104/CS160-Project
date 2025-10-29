@@ -2,8 +2,8 @@ import requests
 
 from flask import Blueprint, jsonify, request
 
-import backend
-from .placeresult import PlaceResult
+from backend import GOOGLE_MAPS_API_KEY
+from placeresult import PlaceResult
 
 alerts_bp = Blueprint("alerts", __name__, url_prefix="/stops/alerts")
 
@@ -12,7 +12,7 @@ def get_alert(data: dict):
     url = "https://airquality.googleapis.com/v1/currentConditions:lookup"
 
     params = {
-        "key": backend.GOOGLE_MAPS_API_KEY
+        "key": GOOGLE_MAPS_API_KEY
     }
 
     # data = request.get_json()  # google.maps.places.PlaceResult

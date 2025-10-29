@@ -4,8 +4,8 @@ from flask import Blueprint, jsonify, request
 
 from ..db.repositories.trip_repository import TripRepository
 from ..db.supabase_client import supabase
-from .directions import get_directions_helper
-from .emissions import compute_distances, fetch_emission_estimate
+from directions import get_directions_helper
+from emissions import compute_distances, fetch_emission_estimate
 
 trips_bp = Blueprint("trips", __name__, url_prefix="/trips")
 trip_repo = TripRepository(supabase_client=supabase)

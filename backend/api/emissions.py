@@ -2,15 +2,15 @@ import requests
 
 from flask import Blueprint, jsonify, request
 
-import backend
-from .directions import get_directions_helper
+from backend import RAPIDAPI_KEY
+from directions import get_directions_helper
 
 emissions_bp = Blueprint("emissions", __name__, url_prefix="/trips/emissions")
 
 CARBON_API_URL = "https://carbonsutra1.p.rapidapi.com/vehicle_estimate_by_model"
 
 
-def compute_distances(directions_route: dict) -> tuple[list[str], list[int]]:
+def compute_distances(directions_route: dict) -> (list[str], list[int]):
     """
     Compute the individual distances from a directions result.
 
@@ -37,7 +37,7 @@ def fetch_emission_estimate(make: str, model: str, distance: float, unit: str = 
     Send emission request to CarbonSutra API.
     """
     headers = {
-        "x-rapidapi-key": backend.RAPIDAPI_KEY,
+        "x-rapidapi-key": RAPIDAPI_KEY,
         "x-rapidapi-host": "carbonsutra1.p.rapidapi.com",
         "Content-Type": "application/x-www-form-urlencoded"
     }
