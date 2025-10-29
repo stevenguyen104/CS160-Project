@@ -10,7 +10,7 @@ stop_repo = StopRepository(supabase_client=supabase)
 
 @stops_bp.route("/", methods=["GET"])
 def get_stops(trip_id: int):
-    stops = stop_repo.get_stops(trip_id)
+    stops = stop_repo.get_stops(trip_id=trip_id)
 
     return jsonify({
         "success": True,
@@ -21,7 +21,7 @@ def get_stops(trip_id: int):
 
 @stops_bp.route("/<int:stop_id>", methods=["GET"])
 def get_stop(trip_id: int, stop_id: int):
-    stop = stop_repo.get_stop(trip_id, stop_id)
+    stop = stop_repo.get_stop(trip_id=trip_id, stop_id=stop_id)
 
     return jsonify({
         "success": True,
@@ -33,16 +33,9 @@ def get_stop(trip_id: int, stop_id: int):
 @stops_bp.route("/", methods=["POST"])
 def add_stop(trip_id: int):
     data = request.get_json()
-
     place = PlaceResult(data.get("place"))
-    latitude = place.get_latitude()
-    longitude = place.get_longitude()
-    name = place.get_name()
     stop_order = data.get("stop_order")  # TODO get the ordering from frontend
-    place_id = place.get_place_id()
-    address = place.get_formatted_address()
-
-    stop = stop_repo.add_stop(trip_id, latitude, longitude, name, stop_order, place_id, address)
+    stop = stop_repo.add_stop(trip_id=trip_id, stop=place, stop_order=stop_order)
 
     return jsonify({
         "success": True,
@@ -51,11 +44,13 @@ def add_stop(trip_id: int):
     }), 201
 
 
-@stops_bp.route("/save", methods=["POST"])
+@stops_bp.route("/many", methods=["POST"])
 def add_stops(trip_id: int):
     data = request.get_json()
+    places = data.get("places")
+    place_results = [PlaceResult(place) for place in places]
+    stops = stop_repo.add_stops(trip_id=trip_id, stops=place_results)
 
-    stops = stop_repo.add_stops(trip_id, data)
     return jsonify({
         "success": True,
         "stops": stops,
@@ -67,7 +62,7 @@ def add_stops(trip_id: int):
 def reorder_stop(trip_id: int, stop_id: int):
     data = request.get_json()
     new_order = data.get("stop_order")  # TODO optimize reordering so only modified stops will have to be called
-    stop = stop_repo.reorder_stop(trip_id, stop_id, new_order)
+    stop = stop_repo.reorder_stop(trip_id=trip_id, stop_id=stop_id, new_order=new_order)
 
     return jsonify({
         "success": True,
@@ -78,10 +73,21 @@ def reorder_stop(trip_id: int, stop_id: int):
 
 @stops_bp.route("/<int:stop_id>", methods=["DELETE"])
 def remove_stop(trip_id: int, stop_id: int):
-    deleted_stop = stop_repo.delete_stop(trip_id, stop_id)
+    deleted_stop = stop_repo.delete_stop(trip_id=trip_id, stop_id=stop_id)
 
     return jsonify({
         "success": True,
         "stop": deleted_stop,
         "message": "Stop successfully deleted"
+    }), 204
+
+
+@stops_bp.route("/", methods=["DELETE"])
+def remove_stops(trip_id: int):
+    deleted_stops = stop_repo.delete_stops(trip_id=trip_id)
+
+    return jsonify({
+        "success": True,
+        "stops": deleted_stops,
+        "message": "Stops successfully deleted"
     }), 204

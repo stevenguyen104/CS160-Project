@@ -1,5 +1,5 @@
 import { Frame, Button, Tooltip } from "react95";
-import { Bookmark, Password1000, Logo, Mmsys101, Save} from "@react95/icons";
+import { Bookmark, Password1000, Logo, Mmsys101, Save } from "@react95/icons";
 import "./SideBar.css";
 
 type SideBarProps = {
@@ -7,6 +7,7 @@ type SideBarProps = {
     onSavedOpen: () => void;
     onLoginOpen: () => void;
     onVolumeOpen: () => void;
+    onSaveTripOpen: () => void;
 };
 
 export default function SideBar({
@@ -14,6 +15,7 @@ export default function SideBar({
     onSavedOpen,
     onLoginOpen,
     onVolumeOpen,
+    onSaveTripOpen,
 }: SideBarProps) {
     return (
     <aside className="sidebar-react95">
@@ -33,9 +35,8 @@ export default function SideBar({
 
                 <div className="sidebar-spacer" />
 
-                {/* USE THIS FOR SAVE */}
                 <Tooltip text='Save Trip' style={{ zIndex: 20 }} enterDelay={100} leaveDelay={100} position="right">
-                    <Button style={{ width: "100%" }}>
+                    <Button style={{ width: "100%" }} onClick={onSaveTripOpen}>
                         <Save />
                     </Button>
                 </Tooltip>

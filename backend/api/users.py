@@ -1,5 +1,7 @@
 from flask import Blueprint, jsonify, request
 
+from supabase import AuthApiError
+
 from ..db.supabase_client import supabase
 
 users_bp = Blueprint("users", __name__, url_prefix="/users")
@@ -10,22 +12,23 @@ def register_user():
     data = request.get_json()
     email = data.get("email")
     password = data.get("password")
-    response = supabase.auth.sign_up({
-        "email": email,
-        "password": password
-    })
 
-    if response.get("error"):
+    try:
+        response = supabase.auth.sign_up({
+            "email": email,
+            "password": password
+        })
+
+        return jsonify({
+            "success": True,
+            "user_id": response.user.id,
+            "message": "User successfully registered"
+        }), 201
+    except AuthApiError as err:
         return jsonify({
             "success": False,
-            "error": response.error.message
-        }), 400
-
-    return jsonify({
-        "success": True,
-        "user": response.user,
-        "message": "User successfully registered"
-    }), 201
+            "error": f"{err.name}: {err.code}"
+        }), err.status
 
 
 @users_bp.route("/login", methods=["POST"])
@@ -33,70 +36,70 @@ def login_user():
     data = request.get_json()
     email = data.get("email")
     password = data.get("password")
-    response = supabase.auth.sign_in_with_password({
-        "email": email,
-        "password": password
-    })
 
-    if response.get("error"):
+    try:
+        response = supabase.auth.sign_in_with_password({
+            "email": email,
+            "password": password
+        })
+
+        return jsonify({
+            "success": True,
+            "user_id": response.user.id,
+            "message": "User successfully logged in"
+        }), 200
+    except AuthApiError as err:
         return jsonify({
             "success": False,
-            "error": response.error.message
-        }), 401
-
-    return jsonify({
-        "success": True,
-        "user": response.user,
-        "message": "User successfully logged in"
-    }), 200
+            "error": f"{err.name}: {err.code}"
+        }), err.status
 
 
 @users_bp.route("/logout", methods=["POST"])
 def logout_user():
-    response = supabase.auth.sign_out()
+    try:
+        response = supabase.auth.sign_out()
 
-    if response.get("error"):
+        return jsonify({
+            "success": True,
+            "message": "User successfully signed out"
+        }), 200
+    except AuthApiError as err:
         return jsonify({
             "success": False,
-            "error": response.error.message
-        }), 500
-
-    return jsonify({
-        "success": True,
-        "message": "User successfully logged out"
-    }), 200
+            "error": f"{err.name}: {err.code}"
+        }), err.status
 
 
-@users_bp.route("/profile", methods=["GET"])
+@users_bp.route("/", methods=["GET"])
 def get_current_user():
-    response = supabase.auth.get_user()
+    try:
+        response = supabase.auth.get_user()
 
-    if response.get("error"):
+        return jsonify({
+            "success": True,
+            "user_id": response.user.id,
+            "message": "User successfully obtained"
+        }), 200
+    except AuthApiError as err:
         return jsonify({
             "success": False,
-            "error": response.error.message
-        }), 401
-
-    return jsonify({
-        "success": True,
-        "user": response.user,
-        "message": "User successfully obtained"
-    }), 200
+            "error": f"{err.name}: {err.code}"
+        }), err.status
 
 
-@users_bp.route("/delete", methods=["DELETE"])
+@users_bp.route("/", methods=["DELETE"])
 def delete_user():
-    user = supabase.auth.get_user()
-    user_id = user.id
-    response = supabase.auth.admin.delete_user(user_id)
+    try:
+        user = supabase.auth.get_user()
+        supabase.auth.admin.delete_user(user.id)
 
-    if response.get("error"):
+        return jsonify({
+            "success": True,
+            "message": "User account successfully deleted"
+        }), 204
+    except AuthApiError as err:
         return jsonify({
             "success": False,
-            "error": response.error.message
-        }), 500
-
-    return jsonify({
-        "success": True,
-        "message": "User account successfully deleted"
-    }), 204
+            "error": f"{err.name}: {err.code}"
+        }), err.status

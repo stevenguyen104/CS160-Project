@@ -18,14 +18,16 @@ function HomePage() {
     const [loginOpen, setLoginOpen] = useState(false);
     const [volumeOpen, setVolumeOpen] = useState(false);
     const [settingsOpen, setSettingsOpen] = useState(false);
+    const [saveTripOpen, setSaveTripOpen] = useState(false);
     const [infoOpen, setInfoOpen] = useState(false);
     const [selectedPlace, setSelectedPlace] = useState<google.maps.LatLngLiteral | null>(null);
-    const [places, setPlaces] = useState<any[]>([]);
+    const [places, setPlaces] = useState<google.maps.places.PlaceResult[]>([]);
     const [searchResults, setSearchResults] = useState<google.maps.places.PlaceResult[]>([]);
     const [showSearchResults, setShowSearchResults] = useState(false);
     const [showConfirmRoute, setShowConfirmRoute] = useState(false);
     const [volume, setVolume] = useState(50);
     const [muted, setMuted] = useState(false);
+    const [isLoading, setIsLoading] = useState(false);
 
     const [startLocation, setStartLocation] = useState<google.maps.places.PlaceResult | null>(null);
 
@@ -33,6 +35,11 @@ function HomePage() {
     const [searchMode, setSearchMode] = useState<"add" | "start" | "edit">("add");
     const [directionsMode, setDirectionsMode] = useState(false);
     const [editingPlace, setEditingPlace] = useState<any | null>(null);
+
+    const [email, setEmail] = useState("");
+    const [password, setPassword] = useState("");
+    const [userID, setUserID] = useState("");
+    const [tripID, setTripID] = useState(0);
 
     const audioRef = useRef<HTMLAudioElement>(null);
 
@@ -43,6 +50,10 @@ function HomePage() {
         }
     }, [volume, muted]);
 
+    useEffect(() => {
+        console.log("tripID updated:", tripID);
+    }, [tripID])
+
     // play on action
     useEffect(() => {
         const startAudio = () => {
@@ -52,14 +63,182 @@ function HomePage() {
 
         window.addEventListener("click", startAudio);
         return () => window.removeEventListener("click", startAudio);
+
+        // Get current user logged in
+        /*
+        try {
+            const response = await fetch("http://127.0.0.1:5000/users/", {
+                method: "GET",
+                mode: "cors",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({})
+            });
+
+            const data = await response.json();
+            if (response.ok) {
+                setUserID(data.user_id);
+            }
+        } catch (error) {
+            console.error(error);
+        }
+        */
     }, []);
+
+    const handleLogin = async() => {
+        try {
+            const response = await fetch("http://127.0.0.1:5000/users/login", {
+                method: "POST",
+                mode: "cors",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                    "email": email,
+                    "password": password
+                }),
+                credentials: "include"
+            });
+
+            const data = await response.json();
+            console.log(data);
+
+            if (response.ok) {
+                setUserID(data.user_id);
+                alert(data.message);
+            } else {
+                alert(data.error);
+            }
+        } catch (error) {
+            console.error(error);
+        }
+    }
+
+    const handleRegister = async () => {
+        try {
+            const response = await fetch("http://127.0.0.1:5000/users/register", {
+                method: "POST",
+                mode: "cors",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                    "email": email,
+                    "password": password
+                }),
+                credentials: "include",
+            });
+
+            const data = await response.json();
+            console.log(data);
+
+            if (response.ok) {
+                alert(data.message);
+            } else {
+                alert(data.error);
+            }
+        } catch (error) {
+            console.error(error);
+        }
+    }
+
+    const handleLogout = async () => {
+        try {
+            const response = await fetch("http://127.0.0.1:5000/users/logout", {
+                method: "POST",
+                mode: "cors",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({}),
+                credentials: "include",
+            })
+
+            const data = await response.json();
+            console.log(data);
+
+            if (response.ok) {
+                alert(data.message);
+                setUserID("");
+            } else {
+                alert(data.error);
+            }
+        } catch (error) {
+            console.error(error);
+        }
+    }
+
+    const handleDeleteUser = async () => {
+        // pass
+    }
+
+    const handleAddTrip = async () => {
+        setIsLoading(true);
+        try {
+            const response = await fetch("http://127.0.0.1:5000/trips/", {
+                method: "POST",
+                mode: "cors",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({}),
+                credentials: "include"
+            });
+
+            const data = await response.json();
+            console.log(data);
+
+            if (response.ok) {
+                setTripID(data.trip["trip_id"]);
+                console.log(data.message);
+                return data.trip["trip_id"];
+            } else {
+                console.error(data.error);
+            }
+        } catch (error) {
+            console.error(error);
+        } finally {
+            setIsLoading(false);
+        }
+    }
+
+    const handleAddStops = async (getTripID: number) => {
+        setIsLoading(true);
+        try {
+            const response = await fetch("http://127.0.0.1:5000/trips/" + getTripID + "/stops/save", {
+                method: "POST",
+                mode: "cors",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                    places
+                }),
+                credentials: "include"
+            });
+
+            const data = await response.json();
+            console.log(data);
+
+            if (response.ok) {
+                console.log(data.message);
+            } else {
+                console.error(data.error);
+            }
+        } catch (error) {
+            console.error(error);
+        } finally {
+            setIsLoading(false);
+        }
+    }
+
+    const handleSaveTrip = async () => {
+        // No trip selected (tripID starts at 1)
+        if (tripID <= 0) {
+            const newTripID: number = await handleAddTrip();
+            await handleAddStops(newTripID);
+        } else {
+            await handleAddStops(tripID);
+        }
+        // save trip logic goes here
+        console.log("Trip saved!");
+        setSaveTripOpen(false);
+    }
 
     // Load Google Maps API once
     const { isLoaded } = useJsApiLoader({
         googleMapsApiKey: import.meta.env.VITE_GOOGLE_MAPS_KEY,
         libraries,
     });
-
 
     if (!isLoaded) return <div>Loading Map...</div>;
 
@@ -84,6 +263,7 @@ function HomePage() {
         onSavedOpen={() => setSavedOpen(true)}
         onLoginOpen={() => setLoginOpen(true)}
         onVolumeOpen={() => setVolumeOpen(true)}
+        onSaveTripOpen={() => setSaveTripOpen(true)}
         />
 
         {/* Menu Window */}
@@ -224,6 +404,40 @@ function HomePage() {
             </div>
         )}
 
+        {/* Confirm Save Trip Window */}
+        {saveTripOpen && (
+            <div className="overlay-backdrop" onClick={() => setSaveTripOpen(false)}>
+                <Window
+                    style={{ width: 300, height: 200, position: "relative" }}
+                    onClick={(e) => e.stopPropagation()}
+                >
+                    <WindowHeader>
+                        <span>Confirm Saving Trip</span>
+                        <Button
+                            square
+                            size="sm"
+                            onClick={() => setSaveTripOpen(false)}
+                            style={{ position: "absolute", top: 5, right: 5 }}
+                        >
+                            ✕
+                        </Button>
+                    </WindowHeader>
+                    <WindowContent>
+                        <p>Do you want to save this trip?</p>
+                        <div style={{ marginTop: "25%", display: "flex", justifyContent: "space-between", width: "100%" }}>
+                            <Button
+                                onClick={() => handleSaveTrip()}
+                                disabled={isLoading}
+                            >
+                                Confirm
+                            </Button>
+                            <Button onClick={() => setSaveTripOpen(false)}>Cancel</Button>
+                        </div>
+                    </WindowContent>
+                </Window>
+            </div>
+        )}
+
         {/* Login Window */}
         {loginOpen && (
         <div className="overlay-backdrop" onClick={() => setLoginOpen(false)}>
@@ -248,12 +462,22 @@ function HomePage() {
                     marginTop: "10px",
                 }}
                 >
-                <TextInput placeholder="Username" fullWidth />
-                <TextInput placeholder="Password" type="password" fullWidth />
-                <Button fullWidth>
+                <TextInput
+                    placeholder="Email"
+                    type="email"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    fullWidth />
+                <TextInput
+                    placeholder="Password"
+                    type="password"
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    fullWidth />
+                <Button fullWidth onClick={handleLogin}>
                     Login
                 </Button>
-                <Button fullWidth>
+                <Button fullWidth onClick={handleRegister}>
                     Register Account
                 </Button>
                 </form>
@@ -284,7 +508,7 @@ function HomePage() {
                         setSearchMode("edit");
                         setFocusSearch(true);
                     }}
-                
+
                     />
                 )}
                 
@@ -368,7 +592,7 @@ function HomePage() {
                         if (searchMode === "start") {
                             setStartLocation(place);
                             setSearchMode("add");
-                        } 
+                        }
                         else if (searchMode === "edit"){
                             setPlaces((prev) =>
                             prev.map((p) =>
@@ -383,7 +607,7 @@ function HomePage() {
                             setEditingPlace(null);
                             setSearchMode("add");
                         }
-                        
+
                         else {
                             setPlaces((prev) => [
                                 ...prev,

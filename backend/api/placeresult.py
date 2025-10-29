@@ -6,16 +6,11 @@ class PlaceResult:
         self.place_result = place_result
 
     def get_place(self) -> dict:
-        return self.place_result.get("place")
+        return self.place_result
 
-    def get_address(self) -> dict:
+    def get_address(self) -> str:
         place = self.get_place()
-        return place.get("address")
-
-    def get_formatted_address(self) -> list[str]:
-        address = self.get_address()
-        formatted_address = address.get("formattedAddress")
-        return formatted_address.get("lines")
+        return place.get("formatted_address")
 
     def get_geometry(self) -> dict:
         place = self.get_place()
@@ -27,16 +22,16 @@ class PlaceResult:
 
     def get_latitude(self) -> float:
         location = self.get_location()
-        return location.get("latitude")
+        return location.get("lat")
 
     def get_longitude(self) -> float:
         location = self.get_location()
-        return location.get("longitude")
+        return location.get("lng")
 
     def get_name(self) -> str:
         place = self.get_place()
-        return place.get("displayName")
+        return place.get("name")
 
     def get_place_id(self) -> str:
         place = self.get_place()
-        return place.get("placeId")
+        return place.get("place_id")

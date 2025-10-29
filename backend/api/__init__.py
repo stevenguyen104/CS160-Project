@@ -5,4 +5,11 @@ from .stops import stops_bp
 from .trips import trips_bp
 from .users import users_bp
 
-__all__ = ["stops_bp", "trips_bp", "users_bp", "emissions_bp", "alerts_bp", "directions_bp"]
+__all__ = [
+    "alerts_bp",
+    "directions_bp",
+    "emissions_bp",
+    "stops_bp",
+    "trips_bp",
+    "users_bp"
+]
