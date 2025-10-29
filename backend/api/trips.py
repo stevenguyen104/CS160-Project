@@ -4,23 +4,30 @@ from flask import Blueprint, jsonify, request
 from supabase import AuthApiError
 
 from ..db.repositories.trip_repository import TripRepository
+from ..db.repositories.stop_repository import StopRepository
 from ..db.supabase_client import supabase
-from directions import get_directions_helper
-from emissions import compute_distances, fetch_emission_estimate
+from .directions import get_directions_helper
+from .emissions import compute_distances, fetch_emission_estimate
 
 trips_bp = Blueprint("trips", __name__, url_prefix="/trips")
 trip_repo = TripRepository(supabase_client=supabase)
+stop_repo = StopRepository(supabase_client=supabase)
 
 
 @trips_bp.route("/", methods=["GET"])
 def get_trips():
     try:
-        user = supabase.auth.get_user()
-        trips = trip_repo.get_trips(user_id=uuid.UUID(user.id))
+        response = supabase.auth.get_user()
+        trips = trip_repo.get_trips(user_id=uuid.UUID(response.user.id))
+
+        result = []
+        for trip in trips:
+            stops = stop_repo.get_stops(trip_id=trip["trip_id"])
+            result.append({**trip, "stops": stops})
 
         return jsonify({
             "success": True,
-            "trips": trips,
+            "trips": result,
             "message": "Trips successfully obtained"
         }), 200
     except AuthApiError as err:
@@ -44,8 +51,8 @@ def get_trip(trip_id: int):
 @trips_bp.route("/", methods=["POST"])
 def create_trip():
     try:
-        user = supabase.auth.get_user()
-        trip = trip_repo.create_trip(user_id=uuid.UUID(user.id))
+        response = supabase.auth.get_user()
+        trip = trip_repo.create_trip(user_id=uuid.UUID(response.user.id))
 
         return jsonify({
             "success": True,

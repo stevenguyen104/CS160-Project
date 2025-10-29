@@ -25,6 +25,7 @@ function HomePage() {
     const [searchResults, setSearchResults] = useState<google.maps.places.PlaceResult[]>([]);
     const [showSearchResults, setShowSearchResults] = useState(false);
     const [showConfirmRoute, setShowConfirmRoute] = useState(false);
+    const [savedTrips, setSavedTrips] = useState<any[]>([]);
     const [volume, setVolume] = useState(50);
     const [muted, setMuted] = useState(false);
     const [isLoading, setIsLoading] = useState(false);
@@ -56,13 +57,37 @@ function HomePage() {
 
     // play on action
     useEffect(() => {
-        const startAudio = () => {
-            audioRef.current?.play().catch(console.log);
-            window.removeEventListener("click", startAudio);
-        };
+      const startAudio = () => {
+        audioRef.current?.play().catch(console.log);
+        window.removeEventListener("click", startAudio);
+      };
+      window.addEventListener("click", startAudio);
+      return () => window.removeEventListener("click", startAudio);
+    }, []);
 
-        window.addEventListener("click", startAudio);
-        return () => window.removeEventListener("click", startAudio);
+    useEffect(() => {
+      if (savedOpen && userID) {
+        const getTrips = async () => {
+          try {
+            const response = await fetch("http://127.0.0.1:5000/trips/", {
+              method: "GET",
+              mode: "cors",
+              credentials: "include",
+            });
+            const data = await response.json();
+            if (response.ok) {
+              setSavedTrips(data.trips);
+            } else {
+              console.error("Error getting trips:", data.error);
+            }
+          } catch (error) {
+            console.error("Error getting trips:", error);
+          }
+        };
+        getTrips();
+      }
+    }, [savedOpen, userID]);
+
 
         // Get current user logged in
         /*
@@ -82,7 +107,6 @@ function HomePage() {
             console.error(error);
         }
         */
-    }, []);
 
     const handleLogin = async() => {
         try {
@@ -196,14 +220,32 @@ function HomePage() {
     const handleAddStops = async (getTripID: number) => {
         setIsLoading(true);
         try {
-            const response = await fetch("http://127.0.0.1:5000/trips/" + getTripID + "/stops/save", {
+            const response = await fetch("http://127.0.0.1:5000/trips/" + getTripID + "/stops/many", {
                 method: "POST",
                 mode: "cors",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({
-                    places
+                  places: places.map((p) => ({
+                    name: p.name,
+                    address: p.formatted_address || p.address || "",
+                    place_id: p.place_id,
+                    geometry: p.geometry
+                      ? {
+                          location: {
+                            lat:
+                                typeof p.geometry.location.lat === "function"
+                                ? p.geometry.location.lat()
+                                : p.geometry.location.lat,
+                            lng:
+                                typeof p.geometry.location.lng === "function"
+                                ? p.geometry.location.lng()
+                                : p.geometry.location.lng,
+                          },
+                        }
+                      : null,
+                  })),
                 }),
-                credentials: "include"
+                credentials: "include",
             });
 
             const data = await response.json();
@@ -233,6 +275,31 @@ function HomePage() {
         console.log("Trip saved!");
         setSaveTripOpen(false);
     }
+
+    const handleLoadTrip = async (trip_id: number) => {
+        try {
+            const response = await fetch(`http://127.0.0.1:5000/trips/${trip_id}/stops/`, {
+              method: "GET",
+              mode: "cors",
+              credentials: "include",
+            });
+            const data = await response.json();
+            console.log(data);
+            if (response.ok) {
+                setPlaces(data.stops.map((stop: any) => ({
+                    id: stop.stop_id,
+                    name: stop.name,
+                    address: stop.address,
+                })));
+                setSavedOpen(false);
+            } else {
+                console.error("Error loading stops:", data.error);
+            }
+        } catch (error) {
+            console.error("Error loading stops:", error);
+        }
+    };
+
 
     // Load Google Maps API once
     const { isLoaded } = useJsApiLoader({
@@ -359,8 +426,33 @@ function HomePage() {
                 ✕
                 </Button>
             </WindowHeader>
-            <WindowContent>
-                <p>(nothing here yet)</p>
+            <WindowContent style={{ maxHeight: "400px", overflowY: "auto" }}>
+                {savedTrips.length === 0 ? (
+                    <p>No saved trips yet.</p>
+                ) : (
+                    <ul style={{ listStyle: "none", padding: 0}}>
+                        {savedTrips.map((trip) => (
+                            <li key={trip.trip_id} style={{ marginBottom: "10px" }}>
+                                <Button
+                                    fullWidth
+                                    onClick={() => handleLoadTrip(trip.trip_id)}
+                                    style={{
+                                        textAlign: "left",
+                                        whiteSpace: "normal",
+                                        height: "auto",
+                                        padding: "6px",
+                                        }}
+                                    >
+                                        <b>Trip #{trip.trip_id}</b>
+                                        <br />
+                                        {trip.stops && trip.stops.length > 0
+                                            ? trip.stops.map((stop: any) => stop.name).join(" → ")
+                                            : "(no stops listed)"}
+                                    </Button>
+                                </li>
+                            ))}
+                        </ul>
+                    )}
             </WindowContent>
             </Window>
         </div>
@@ -615,6 +707,7 @@ function HomePage() {
                                     id: Date.now() + Math.random(),
                                     name: place.name,
                                     address: place.formatted_address,
+                                    geometry: { location },
                                 },
                             ]);
                         }

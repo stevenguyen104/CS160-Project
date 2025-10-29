@@ -29,7 +29,7 @@ class StopRepository:
         data = {
             "trip_id": trip_id,
             "latitude": stop.get_latitude(),
-            "longitude": stop.get_latitude(),
+            "longitude": stop.get_longitude(),
             "name": stop.get_name(),
             "stop_order": stop_order,
             "place_id": stop.get_place_id(),

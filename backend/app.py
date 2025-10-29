@@ -8,21 +8,23 @@ from .api.emissions import emissions_bp
 from .api.stops import stops_bp
 from .api.trips import trips_bp
 from .api.users import users_bp
-from backend import FRONTEND_ORIGINS, GOOGLE_MAPS_API_KEY
+import backend
 
 
-def create_app(origins: list[str] = None) -> Flask:
+def create_app(origins: list[str] = None, supports_credentials: bool = False) -> Flask:
     """
     Creates and configures a Flask application with CORS, blueprints, and repositories.
 
     :param origins: A list of allowed origins for CORS. If None, no restriction is applied.
     :type origins: list[str] or None
+    :param supports_credentials: Whether to support credentials or not.
+    :type supports_credentials: bool
 
     :returns: The configured Flask application instance.
     :rtype: Flask
     """
     app: Flask = Flask(__name__)
-    CORS(app, origins=origins, supports_credentials=True)
+    CORS(app, origins=origins, supports_credentials=supports_credentials)
 
     @app.route("/ping")
     def ping():
@@ -34,7 +36,7 @@ def create_app(origins: list[str] = None) -> Flask:
         """
         return jsonify({"status": "ok"}), 200
 
-    app.gmaps = googlemaps.Client(key=GOOGLE_MAPS_API_KEY)
+    app.config["gmaps"] = googlemaps.Client(key=backend.GOOGLE_MAPS_API_KEY)
     app.register_blueprint(stops_bp)
     app.register_blueprint(trips_bp)
     app.register_blueprint(users_bp)
@@ -45,9 +47,9 @@ def create_app(origins: list[str] = None) -> Flask:
 
 
 if __name__ == '__main__':
-    frontend_origins: str = FRONTEND_ORIGINS
+    frontend_origins: str = backend.FRONTEND_ORIGINS
     if frontend_origins is not None:
         frontend_origins: list[str] = frontend_origins.split(",")
 
-    flask_app = create_app(frontend_origins)
-    flask_app.run(host="127.0.0.1", port=5000, debug=True)
+    flask_app = create_app(frontend_origins, True)
+    flask_app.run(debug=True)

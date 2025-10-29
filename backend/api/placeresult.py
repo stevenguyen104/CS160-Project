@@ -3,30 +3,38 @@ class PlaceResult:
         """
         Initialize a PlaceResult with a Google.maps.places.PlaceResult object.
         """
-        self.place_result = place_result
+        self.place_result = place_result or {}
 
     def get_place(self) -> dict:
         return self.place_result
 
     def get_address(self) -> str:
         place = self.get_place()
-        return place.get("formatted_address")
+        return place.get("formatted_address") or place.get("address")
 
-    def get_geometry(self) -> dict:
+    def get_geometry(self) -> dict | None:
         place = self.get_place()
         return place.get("geometry")
 
-    def get_location(self) -> dict:
+    def get_location(self) -> dict | None:
         geometry = self.get_geometry()
+        if not geometry:
+            return None
         return geometry.get("location")
 
-    def get_latitude(self) -> float:
+    def get_latitude(self) -> float | None:
         location = self.get_location()
-        return location.get("lat")
+        if not location:
+            return None
+        lat = location.get("lat")
+        return lat() if callable(lat) else lat
 
-    def get_longitude(self) -> float:
+    def get_longitude(self) -> float | None:
         location = self.get_location()
-        return location.get("lng")
+        if not location:
+            return None
+        lng = location.get("lng")
+        return lng() if callable(lng) else lng
 
     def get_name(self) -> str:
         place = self.get_place()
