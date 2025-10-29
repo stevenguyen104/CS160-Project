@@ -294,10 +294,10 @@ function HomePage() {
                     !directionsMode && (<div className="start-route-button">
                     <Tooltip text='Start Route' style={{ zIndex: 20 }} enterDelay={100} leaveDelay={100} position="right">
                         <Button 
-                            disabled = {places.length === 0}
+                            disabled = {places.length < 2 && startLocation === null}
                             style = {{
-                                filter: places.length === 0 ? 'grayscale(100%)' : 'none',
-                                cursor: places.length === 0 ? 'not-allowed' : 'pointer',
+                                filter: places.length < 2 && startLocation === null ? 'grayscale(100%)' : 'none',
+                                cursor: places.length < 2 && startLocation === null ? 'not-allowed' : 'pointer',
                             }}
                             onClick={() => setShowConfirmRoute(true)}
                         > 
