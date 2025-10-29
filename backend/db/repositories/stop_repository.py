@@ -1,5 +1,7 @@
 from supabase import Client
 
+from ...api.placeresult import PlaceResult
+
 
 class StopRepository:
     def __init__(self, supabase_client: Client):
@@ -11,36 +13,27 @@ class StopRepository:
         """
         self.supabase: Client = supabase_client
 
-    def add_stop(self, trip_id: int, latitude: float, longitude: float, name: str,
-                 stop_order: int, place_id: str, address: list[str]) -> dict:
+    def add_stop(self, trip_id: int, stop: PlaceResult, stop_order: int) -> dict:
         """
         Add a new stop to the stop repository.
 
         :param trip_id: Trip ID
         :type trip_id: int
-        :param latitude: Latitude
-        :type latitude: float
-        :param longitude: Longitude
-        :type longitude: float
-        :param name: Name of the location
-        :type name: str
+        :param stop: A PlaceResult object
+        :type stop: PlaceResult
         :param stop_order: The order in which the stop would be placed; lower numbers go first
         :type stop_order: int
-        :param place_id: The place ID that is identified by Google.
-        :type place_id: str
-        :param address: The human-readable address; there may be multiple lines
-        :type address: list[str]
         :return: The newly added stop
         :rtype: dict
         """
         data = {
             "trip_id": trip_id,
-            "latitude": latitude,
-            "longitude": longitude,
-            "name": name,
+            "latitude": stop.get_latitude(),
+            "longitude": stop.get_latitude(),
+            "name": stop.get_name(),
             "stop_order": stop_order,
-            "place_id": place_id,
-            "address": address
+            "place_id": stop.get_place_id(),
+            "address": stop.get_address()
         }
 
         response = (self.supabase.table("stops")
@@ -48,7 +41,7 @@ class StopRepository:
                     .execute())
         return response.data[0] if response.data else None
 
-    def add_stops(self, trip_id: int, stops: list[dict]) -> list[dict]:
+    def add_stops(self, trip_id: int, stops: list[PlaceResult]) -> list[dict]:
         """
         Add a list of stops to the stop repository.
         :param trip_id: Trip ID
@@ -58,9 +51,15 @@ class StopRepository:
         :return: The newly added stops
         :rtype: list[dict]
         """
-        data = stops
-        for stop in stops:
-            stop["trip_id"] = trip_id
+        data = [{
+            "trip_id": trip_id,
+            "name": stop.get_name(),
+            "latitude": stop.get_latitude(),
+            "longitude": stop.get_longitude(),
+            "stop_order": i + 1,
+            "place_id": stop.get_place_id(),
+            "address": stop.get_address()
+        } for i, stop in enumerate(stops)]
 
         response = (self.supabase.table("stops")
                     .insert(data)
@@ -79,7 +78,7 @@ class StopRepository:
         response = (self.supabase.table("stops")
                     .select("*")
                     .eq("trip_id", trip_id)
-                    .order("stop_order")
+                    .order("stop_order", desc=False)
                     .execute())
         return response.data
 
@@ -120,6 +119,21 @@ class StopRepository:
                     .eq("stop_id", stop_id)
                     .execute())
         return response.data[0] if response.data else None
+
+    def delete_stops(self, trip_id: int) -> list[dict]:
+        """
+        Delete stops from the stop repository.
+
+        :param trip_id: Trip ID
+        :type trip_id: int
+        :return: The stops that were deleted
+        :rtype: dict
+        """
+        response = (self.supabase.table("stops")
+                    .delete()
+                    .eq("trip_id", trip_id)
+                    .execute())
+        return response.data
 
     def reorder_stop(self, trip_id: int, stop_id: int, new_order: int) -> dict:
         """

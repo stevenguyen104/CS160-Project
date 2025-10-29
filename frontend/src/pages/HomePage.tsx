@@ -18,14 +18,16 @@ function HomePage() {
     const [loginOpen, setLoginOpen] = useState(false);
     const [volumeOpen, setVolumeOpen] = useState(false);
     const [settingsOpen, setSettingsOpen] = useState(false);
+    const [saveTripOpen, setSaveTripOpen] = useState(false);
     const [infoOpen, setInfoOpen] = useState(false);
     const [selectedPlace, setSelectedPlace] = useState<google.maps.LatLngLiteral | null>(null);
-    const [places, setPlaces] = useState<any[]>([]);
+    const [places, setPlaces] = useState<google.maps.places.PlaceResult[]>([]);
     const [searchResults, setSearchResults] = useState<google.maps.places.PlaceResult[]>([]);
     const [showSearchResults, setShowSearchResults] = useState(false);
     const [showConfirmRoute, setShowConfirmRoute] = useState(false);
     const [volume, setVolume] = useState(50);
     const [muted, setMuted] = useState(false);
+    const [isLoading, setIsLoading] = useState(false);
 
     const [startLocation, setStartLocation] = useState<google.maps.places.PlaceResult | null>(null);
 
@@ -36,6 +38,7 @@ function HomePage() {
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
     const [userID, setUserID] = useState("");
+    const [tripID, setTripID] = useState(0);
 
     const audioRef = useRef<HTMLAudioElement>(null);
 
@@ -45,6 +48,10 @@ function HomePage() {
             audioRef.current.muted = muted;
         }
     }, [volume, muted]);
+
+    useEffect(() => {
+        console.log("tripID updated:", tripID);
+    }, [tripID])
 
     // play on action
     useEffect(() => {
@@ -157,6 +164,75 @@ function HomePage() {
         // pass
     }
 
+    const handleAddTrip = async () => {
+        setIsLoading(true);
+        try {
+            const response = await fetch("http://127.0.0.1:5000/trips/", {
+                method: "POST",
+                mode: "cors",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({}),
+                credentials: "include"
+            });
+
+            const data = await response.json();
+            console.log(data);
+
+            if (response.ok) {
+                setTripID(data.trip["trip_id"]);
+                console.log(data.message);
+                return data.trip["trip_id"];
+            } else {
+                console.error(data.error);
+            }
+        } catch (error) {
+            console.error(error);
+        } finally {
+            setIsLoading(false);
+        }
+    }
+
+    const handleAddStops = async (getTripID: number) => {
+        setIsLoading(true);
+        try {
+            const response = await fetch("http://127.0.0.1:5000/trips/" + getTripID + "/stops/save", {
+                method: "POST",
+                mode: "cors",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                    places
+                }),
+                credentials: "include"
+            });
+
+            const data = await response.json();
+            console.log(data);
+
+            if (response.ok) {
+                console.log(data.message);
+            } else {
+                console.error(data.error);
+            }
+        } catch (error) {
+            console.error(error);
+        } finally {
+            setIsLoading(false);
+        }
+    }
+
+    const handleSaveTrip = async () => {
+        // No trip selected (tripID starts at 1)
+        if (tripID <= 0) {
+            const newTripID: number = await handleAddTrip();
+            await handleAddStops(newTripID);
+        } else {
+            await handleAddStops(tripID);
+        }
+        // save trip logic goes here
+        console.log("Trip saved!");
+        setSaveTripOpen(false);
+    }
+
     // Load Google Maps API once
     const { isLoaded } = useJsApiLoader({
         googleMapsApiKey: import.meta.env.VITE_GOOGLE_MAPS_KEY,
@@ -186,6 +262,7 @@ function HomePage() {
         onSavedOpen={() => setSavedOpen(true)}
         onLoginOpen={() => setLoginOpen(true)}
         onVolumeOpen={() => setVolumeOpen(true)}
+        onSaveTripOpen={() => setSaveTripOpen(true)}
         />
 
         {/* Menu Window */}
@@ -321,6 +398,40 @@ function HomePage() {
                             style={{ flex: 1 }}
                             className="volume-slider"
                         />
+                    </WindowContent>
+                </Window>
+            </div>
+        )}
+
+        {/* Confirm Save Trip Window */}
+        {saveTripOpen && (
+            <div className="overlay-backdrop" onClick={() => setSaveTripOpen(false)}>
+                <Window
+                    style={{ width: 300, height: 200, position: "relative" }}
+                    onClick={(e) => e.stopPropagation()}
+                >
+                    <WindowHeader>
+                        <span>Confirm Saving Trip</span>
+                        <Button
+                            square
+                            size="sm"
+                            onClick={() => setSaveTripOpen(false)}
+                            style={{ position: "absolute", top: 5, right: 5 }}
+                        >
+                            ✕
+                        </Button>
+                    </WindowHeader>
+                    <WindowContent>
+                        <p>Do you want to save this trip?</p>
+                        <div style={{ marginTop: "25%", display: "flex", justifyContent: "space-between", width: "100%" }}>
+                            <Button
+                                onClick={() => handleSaveTrip()}
+                                disabled={isLoading}
+                            >
+                                Confirm
+                            </Button>
+                            <Button onClick={() => setSaveTripOpen(false)}>Cancel</Button>
+                        </div>
                     </WindowContent>
                 </Window>
             </div>
@@ -477,11 +588,7 @@ function HomePage() {
                         } else {
                             setPlaces((prev) => [
                             ...prev,
-                            {
-                                id: Date.now() + Math.random(),
-                                name: place.name,
-                                address: place.formatted_address,
-                            },
+                            place,
                             ]);
                         }
                         setSelectedPlace(location);

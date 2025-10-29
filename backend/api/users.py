@@ -12,13 +12,13 @@ def register_user():
     data = request.get_json()
     email = data.get("email")
     password = data.get("password")
+
     try:
         response = supabase.auth.sign_up({
             "email": email,
             "password": password
         })
 
-        print(response)
         return jsonify({
             "success": True,
             "user_id": response.user.id,
@@ -48,7 +48,6 @@ def login_user():
             "user_id": response.user.id,
             "message": "User successfully logged in"
         }), 200
-
     except AuthApiError as err:
         return jsonify({
             "success": False,
@@ -89,19 +88,18 @@ def get_current_user():
         }), err.status
 
 
-@users_bp.route("/delete", methods=["DELETE"])
+@users_bp.route("/", methods=["DELETE"])
 def delete_user():
-    user = supabase.auth.get_user()
-    user_id = user.id
-    response = supabase.auth.admin.delete_user(user_id)
+    try:
+        user = supabase.auth.get_user()
+        supabase.auth.admin.delete_user(user.id)
 
-    if response.get("error"):
+        return jsonify({
+            "success": True,
+            "message": "User account successfully deleted"
+        }), 204
+    except AuthApiError as err:
         return jsonify({
             "success": False,
-            "error": response.error.message
-        }), 500
-
-    return jsonify({
-        "success": True,
-        "message": "User account successfully deleted"
-    }), 204
+            "error": f"{err.name}: {err.code}"
+        }), err.status

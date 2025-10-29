@@ -1,4 +1,5 @@
 import uuid
+from datetime import datetime, timezone
 
 from supabase import Client
 
@@ -13,20 +14,17 @@ class TripRepository:
         """
         self.supabase: Client = supabase_client
 
-    def create_trip(self, user_id: uuid.UUID, emissions: list[float] = None) -> dict:
+    def create_trip(self, user_id: uuid.UUID) -> dict:
         """
         Create a new trip.
 
         :param user_id: User ID
         :type user_id: UUID
-        :param emissions: Emissions to add to the trip, stored individually between two stops
-        :type emissions: list[float]
         :return: The newly created trip data
         :rtype: dict
         """
         data = {
-            "user_id": str(user_id),
-            "emissions": emissions or [0.0]
+            "user_id": str(user_id)
         }
 
         response = (self.supabase.table("trips")
@@ -66,19 +64,17 @@ class TripRepository:
                     .execute())
         return response.data
 
-    def update_trip(self, trip_id: int, emissions: list[float] = None) -> dict:
+    def update_trip(self, trip_id: int) -> dict:
         """
-        Update trip attributes (emissions in this case).
+        Update trip attributes (last modified in this case).
 
         :param trip_id: Trip ID
         :type trip_id: int
-        :param emissions: Emissions to add to the trip, stored individually between two stops
-        :type emissions: list[float]
         :return: The updated trip data
         :rtype: dict
         """
         new_data = {
-            "emissions": emissions or [0.0]
+            "last_modified": str(datetime.now(timezone.utc))
         }
 
         response = (self.supabase.table("trips")
