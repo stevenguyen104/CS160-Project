@@ -594,13 +594,14 @@ function HomePage() {
                             setSearchMode("add");
                         } 
                         else if (searchMode === "edit"){
+
                             setPlaces((prev) =>
                             prev.map((p) =>
-                            p.id === editingPlace.id
+                            p.place_id === editingPlace.place_id
                                 ? {
                                     ...p,
                                     name: place.name,
-                                    address: place.formatted_address,
+                                    formatted_address: place.formatted_address
                                 }
                                 : p
                             ));
