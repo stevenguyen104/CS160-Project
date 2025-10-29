@@ -22,11 +22,19 @@ export default function StopComponent({ id, name, address, onPointerDown, onDele
             onMouseEnter={() => setHovered(true)}
             onMouseLeave={() => setHovered(false)}>
             <Window style={{ width: 150, minHeight: 50}}>
-                <WindowHeader className="stopWindowHeader" style={{display: 'flex', justifyContent: 'space-between', alignItems: 'center'}}>
-                    <span>
+                <WindowHeader className="stopWindowHeader" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>                    
+                    <span style={{
+                        overflow: 'hidden',
+                        textOverflow: 'ellipsis',
+                        whiteSpace: 'nowrap'
+                    }}>
                         {name}
                     </span>
-                    <div style={{visibility: hovered? 'visible' : 'hidden'}}>
+                    <div style={{
+                            flexShrink: 0,
+                            paddingLeft: '4px', 
+                            visibility: hovered ? 'visible' : 'hidden',
+                            display: hovered ? 'block' : 'none'}}>                        
                         <Button
                             square
                             size="sm"
