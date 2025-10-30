@@ -681,6 +681,7 @@ function HomePage() {
                             setSearchMode("add");
                         } 
                         else if (searchMode === "edit"){
+
                             setPlaces((prev) =>
                             prev.map((p) =>
                             p.place_id === editingPlace.place_id
