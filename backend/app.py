@@ -47,9 +47,9 @@ def create_app(origins: list[str] | None = None, supports_credentials: bool = Fa
 
 
 if __name__ == '__main__':
-    origins: str | None = backend.FRONTEND_ORIGINS
-    if origins is not None:
-        flask_app = create_app(origins=origins.split(","), supports_credentials=True)
+    urls: str | None = backend.FRONTEND_ORIGINS
+    if urls is not None:
+        flask_app = create_app(origins=urls.split(","), supports_credentials=True)
     else:
         flask_app = create_app(supports_credentials=True)
     flask_app.run(debug=True)

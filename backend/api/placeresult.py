@@ -1,8 +1,8 @@
 class PlaceResult:
     def __init__(self, place_result: dict):
         """
-        Initialize a PlaceResult with a PlaceResult object from Google's Location Selection API.
-        See: https://developers.google.com/maps/documentation/mobility/location-selection-api/reference/rest/v1beta/PlaceResult
+        Initialize a PlaceResult with a PlaceResult object from Google's Location Selection API. See:
+        https://developers.google.com/maps/documentation/mobility/location-selection-api/reference/rest/v1beta/PlaceResult
         """
         self.place_result = place_result
 
