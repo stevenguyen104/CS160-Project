@@ -39,7 +39,11 @@ function HomePage() {
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
     const [userID, setUserID] = useState("");
-    const [tripID, setTripID] = useState(0);
+    const [tripID, setTripID] = useState(-1);
+
+    const [directions, setDirections] = useState(null);
+    const [alerts, setAlerts] = useState(null);
+    const [emissions, setEmissions] = useState(null);
 
     const audioRef = useRef<HTMLAudioElement>(null);
 
@@ -232,6 +236,86 @@ function HomePage() {
         // save trip logic goes here
         console.log("Trip saved!");
         setSaveTripOpen(false);
+    }
+
+    const handleGetDirections = async () => {
+        try {
+            const response = await fetch("http://127.0.0.1:5000/trips/directions/", {
+                method: "POST",
+                mode: "cors",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                    places
+                }),
+                credentials: "include"
+            });
+
+            const data = await response.json();
+            setDirections(data);
+            console.log(data);
+
+            if (response.ok) {
+                console.log(data.message);
+            } else {
+                console.error(data.error);
+            }
+        } catch (error) {
+            console.error(error);
+        }
+    }
+
+    const handleGetAlerts = async () => {
+        try {
+            const response = await fetch("http://127.0.0.1:5000/stops/alerts/", {
+                method: "POST",
+                mode: "cors",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                    places
+                }),
+                credentials: "include"
+            });
+
+            const data = await response.json();
+            setAlerts(data);
+            console.log(data);
+
+            if (response.ok) {
+                console.log(data.message);
+            } else {
+                console.error(data.error);
+            }
+        } catch (error) {
+            console.error(error);
+        }
+    }
+
+    const handleGetEmissions = async () => {
+        try {
+            const response = await fetch("http://127.0.0.1:5000/trips/emissions/", {
+                method: "POST",
+                mode: "cors",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                    "vehicle_make": "Honda",  // example
+                    "vehicle_model": "Accord", 
+                    "place_results": places
+                }),
+                credentials: "include"
+            });
+
+            const data = await response.json();
+            setEmissions(data);
+            console.log(data);
+
+            if (response.ok) {
+                console.log(data.message);
+            } else {
+                console.error(data.error);
+            }
+        } catch (error) {
+            console.error(error);
+        }
     }
 
     // Load Google Maps API once
@@ -556,6 +640,9 @@ function HomePage() {
                                     <Button
                                         onClick={() => {
                                         // route logic goes here
+                                        handleGetDirections();
+                                        handleGetAlerts();
+                                        handleGetEmissions();
                                         console.log("Route confirmed!");
                                         setShowConfirmRoute(false);
                                         setDirectionsMode(true);
@@ -596,11 +683,11 @@ function HomePage() {
                         else if (searchMode === "edit"){
                             setPlaces((prev) =>
                             prev.map((p) =>
-                            p.id === editingPlace.id
+                            p.place_id === editingPlace.place_id
                                 ? {
                                     ...p,
                                     name: place.name,
-                                    address: place.formatted_address,
+                                    formatted_address: place.formatted_address,
                                 }
                                 : p
                             ));
@@ -624,7 +711,7 @@ function HomePage() {
                     />
                 )}
                 </div>
-                {directionsMode && <SideWindow/>}
+                {directionsMode && <SideWindow alerts={alerts} emissions={emissions} directions={directions}/>}
             </div>
 
         </div>

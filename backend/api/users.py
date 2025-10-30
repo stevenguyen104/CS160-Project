@@ -19,9 +19,16 @@ def register_user():
             "password": password
         })
 
+        user = response.user
+        if user is None:
+            return jsonify({
+                "success": False,
+                "error": "User unable to sign up"
+            }), 400
+        
         return jsonify({
             "success": True,
-            "user_id": response.user.id,
+            "user_id": user.id,
             "message": "User successfully registered"
         }), 201
     except AuthApiError as err:
@@ -43,9 +50,16 @@ def login_user():
             "password": password
         })
 
+        user = response.user
+        if user is None:
+            return jsonify({
+                "success": False,
+                "error": "User unable to sign in"
+            }), 400
+        
         return jsonify({
             "success": True,
-            "user_id": response.user.id,
+            "user_id": user.id,
             "message": "User successfully logged in"
         }), 200
     except AuthApiError as err:
@@ -58,7 +72,7 @@ def login_user():
 @users_bp.route("/logout", methods=["POST"])
 def logout_user():
     try:
-        response = supabase.auth.sign_out()
+        supabase.auth.sign_out()
 
         return jsonify({
             "success": True,
@@ -75,6 +89,11 @@ def logout_user():
 def get_current_user():
     try:
         response = supabase.auth.get_user()
+        if response is None:
+            return jsonify({
+                "success": False,
+                "error": "Cannot get current user"
+            }), 401
 
         return jsonify({
             "success": True,
@@ -91,8 +110,14 @@ def get_current_user():
 @users_bp.route("/", methods=["DELETE"])
 def delete_user():
     try:
-        user = supabase.auth.get_user()
-        supabase.auth.admin.delete_user(user.id)
+        response = supabase.auth.get_user()
+        if response is None:
+            return jsonify({
+                "success": False,
+                "error": "User not found"
+            }), 401
+
+        supabase.auth.admin.delete_user(response.user.id)
 
         return jsonify({
             "success": True,

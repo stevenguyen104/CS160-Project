@@ -47,5 +47,6 @@ def get_directions_helper(array_data: list[dict[str, object]]) -> dict:
 @directions_bp.route("/", methods=["POST"])
 def get_directions():
     data = request.get_json()
-    directions = get_directions_helper(data)
+    places = data.get("places")
+    directions = get_directions_helper(places)
     return jsonify(directions)

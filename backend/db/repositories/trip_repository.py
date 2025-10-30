@@ -14,14 +14,13 @@ class TripRepository:
         """
         self.supabase: Client = supabase_client
 
-    def create_trip(self, user_id: uuid.UUID) -> dict:
+    def create_trip(self, user_id: uuid.UUID):
         """
         Create a new trip.
 
         :param user_id: User ID
         :type user_id: UUID
         :return: The newly created trip data
-        :rtype: dict
         """
         data = {
             "user_id": str(user_id)
@@ -32,14 +31,13 @@ class TripRepository:
                     .execute())
         return response.data[0] if response.data else None
 
-    def get_trip(self, trip_id: int) -> dict:
+    def get_trip(self, trip_id: int):
         """
         Get a trip by its ID.
 
         :param trip_id: Trip ID
         :type trip_id: int
         :return: Trip data
-        :rtype: dict
         """
         response = (self.supabase.table("trips")
                     .select("*")
@@ -49,14 +47,13 @@ class TripRepository:
                     .execute())
         return response.data
 
-    def get_trips(self, user_id: uuid.UUID) -> list[dict]:
+    def get_trips(self, user_id: uuid.UUID):
         """
         Get all trips for a user.
 
         :param user_id: User ID
         :type user_id: UUID
         :return: All trips belonging to a user
-        :rtype: list[dict]
         """
         response = (self.supabase.table("trips")
                     .select("*")
@@ -64,14 +61,13 @@ class TripRepository:
                     .execute())
         return response.data
 
-    def update_trip(self, trip_id: int) -> dict:
+    def update_trip(self, trip_id: int):
         """
         Update trip attributes (last modified in this case).
 
         :param trip_id: Trip ID
         :type trip_id: int
         :return: The updated trip data
-        :rtype: dict
         """
         new_data = {
             "last_modified": str(datetime.now(timezone.utc))
@@ -83,14 +79,13 @@ class TripRepository:
                     .execute())
         return response.data[0] if response.data else None
 
-    def delete_trip(self, trip_id: int) -> dict:
+    def delete_trip(self, trip_id: int):
         """
         Delete a trip by its ID.
 
         :param trip_id: Trip ID
         :type trip_id: int
-        :return: The trip that was deleted.
-        :rtype: dict
+        :return: The trip that was deleted
         """
         response = (self.supabase.table("trips")
                     .delete()

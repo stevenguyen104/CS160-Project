@@ -6,7 +6,7 @@ import { useRef, useState, useEffect } from "react";
 import StartCard from "./StartCard";
 
 interface Places{
-    placeLocations: any[];
+    placeLocations: google.maps.places.PlaceResult[];
     onItemsChange?: (updatedItems: any[]) => void;
     startLocation?: google.maps.places.PlaceResult | null;
     onEnterClick?: () => void;
@@ -30,7 +30,7 @@ export default function StopBar({placeLocations, onItemsChange, startLocation, o
     }, [items]);
 
     useEffect(() => {
-        startLocation ? setItems((prev) => [...prev, { id: Date.now() + Math.random(), name: startLocation.name, address: startLocation.formatted_address }]) : null;
+        startLocation ? setItems((prev) => [...prev, { id: startLocation.place_id, name: startLocation.name, address: startLocation.formatted_address }]) : null;
     }, [startLocation]);
 
     const containerRef = useRef<HTMLDivElement | null>(null);
@@ -159,13 +159,16 @@ export default function StopBar({placeLocations, onItemsChange, startLocation, o
     };
 
     const onDelete = (id: number) => {
-        setItems(prevItems => prevItems.filter(item => item.id !== id)
+        setItems(prevItems => prevItems.filter(item => item.place_id !== id)
         );
     }
 
     const onEdit = (id: number) => {
-        const itemEdited = items.find((item) => item.id === id);
+        console.log(id);
+        console.log(items);
+        const itemEdited = items.find((item) => item.place_id === id);
         if (itemEdited){
+            console.log("found");
             onEditPlace?.(itemEdited);
         }
     }
@@ -202,9 +205,9 @@ export default function StopBar({placeLocations, onItemsChange, startLocation, o
                         />
                     )}
                     <StopComponent
-                        id={place.id}
+                        id={place.place_id}
                         name={place.name}
-                        address={place.address}
+                        address={place.formatted_address}
                         onPointerDown={(e) => handlePointerDown(e, index)}
                         onDelete={onDelete}
                         onEdit={onEdit}

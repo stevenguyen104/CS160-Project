@@ -17,7 +17,7 @@ def compute_distances(directions_route: dict) -> tuple[list[str], list[int]]:
     :param directions_route: A Directions object's route.
     :return: A list of distances displayed to the user and in meters from the route.
     """
-    legs = directions_route.get("legs", [])
+    legs = directions_route[0].get("legs", [])
     readable_distances = []
     distances = []
 
@@ -66,7 +66,7 @@ def calculate_emissions():
     place_results = data.get("place_results")
 
     directions = get_directions_helper(place_results)
-    distances = compute_distances(directions)
+    _, distances = compute_distances(directions)
     distance_value = sum(distances) / 1000.0  # meters to kilometers
     distance_unit = "km"
 
