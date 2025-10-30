@@ -52,7 +52,9 @@ def get_trip(trip_id: int):
 def create_trip():
     try:
         response = supabase.auth.get_user()
-        trip = trip_repo.create_trip(user_id=uuid.UUID(response.user.id))
+        data = request.get_json() or {}
+        trip_name = data.get("name", "Untitled Trip")
+        trip = trip_repo.create_trip(user_id=uuid.UUID(response.user.id), name=trip_name)
 
         return jsonify({
             "success": True,

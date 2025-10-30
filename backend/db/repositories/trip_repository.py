@@ -14,17 +14,20 @@ class TripRepository:
         """
         self.supabase: Client = supabase_client
 
-    def create_trip(self, user_id: uuid.UUID) -> dict:
+    def create_trip(self, user_id: uuid.UUID, name: str) -> dict:
         """
         Create a new trip.
 
         :param user_id: User ID
         :type user_id: UUID
+        :param name: Trip Name
+        :type name: string
         :return: The newly created trip data
         :rtype: dict
         """
         data = {
-            "user_id": str(user_id)
+            "user_id": str(user_id),
+            "name": name
         }
 
         response = (self.supabase.table("trips")

@@ -41,6 +41,7 @@ function HomePage() {
     const [password, setPassword] = useState("");
     const [userID, setUserID] = useState("");
     const [tripID, setTripID] = useState(0);
+    const [tripName, setTripName] = useState("");
 
     const audioRef = useRef<HTMLAudioElement>(null);
 
@@ -189,14 +190,14 @@ function HomePage() {
         // pass
     }
 
-    const handleAddTrip = async () => {
+    const handleAddTrip = async (name: string) => {
         setIsLoading(true);
         try {
             const response = await fetch("http://127.0.0.1:5000/trips/", {
                 method: "POST",
                 mode: "cors",
                 headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({}),
+                body: JSON.stringify({ name }),
                 credentials: "include"
             });
 
@@ -263,10 +264,11 @@ function HomePage() {
         }
     }
 
-    const handleSaveTrip = async () => {
+    const handleSaveTrip = async (name: string) => {
+        if (!name.trim()) return;
         // No trip selected (tripID starts at 1)
         if (tripID <= 0) {
-            const newTripID: number = await handleAddTrip();
+            const newTripID: number = await handleAddTrip(name);
             await handleAddStops(newTripID);
         } else {
             await handleAddStops(tripID);
@@ -274,6 +276,7 @@ function HomePage() {
         // save trip logic goes here
         console.log("Trip saved!");
         setSaveTripOpen(false);
+        setTripName("");
     }
 
     const handleLoadTrip = async (trip_id: number) => {
@@ -443,11 +446,7 @@ function HomePage() {
                                         padding: "6px",
                                         }}
                                     >
-                                        <b>Trip #{trip.trip_id}</b>
-                                        <br />
-                                        {trip.stops && trip.stops.length > 0
-                                            ? trip.stops.map((stop: any) => stop.name).join(" → ")
-                                            : "(no stops listed)"}
+                                        <b>{trip.name ? trip.name : "Untitled Trip"}</b>
                                     </Button>
                                 </li>
                             ))}
@@ -504,7 +503,7 @@ function HomePage() {
                     onClick={(e) => e.stopPropagation()}
                 >
                     <WindowHeader>
-                        <span>Confirm Saving Trip</span>
+                        <span>Save Trip</span>
                         <Button
                             square
                             size="sm"
@@ -515,15 +514,23 @@ function HomePage() {
                         </Button>
                     </WindowHeader>
                     <WindowContent>
-                        <p>Do you want to save this trip?</p>
-                        <div style={{ marginTop: "25%", display: "flex", justifyContent: "space-between", width: "100%" }}>
+                        <p>Enter a name for your trip:</p>
+                        <TextInput
+                            placeholder="Trip Name"
+                            value={tripName}
+                            onChange={(e) => setTripName(e.target.value)}
+                            fullWidth
+                            style={{ marginTop: 10, marginBottom: 20 }}
+                        />
+                        <div style={{ display: "flex", flexDirection: "row", gap: "8px", width: "100%", marginTop: "10px" }}>
                             <Button
-                                onClick={() => handleSaveTrip()}
-                                disabled={isLoading}
+                                style={{ flex: 1 }}
+                                onClick={() => handleSaveTrip(tripName)}
+                                disabled={isLoading || !tripName.trim()}
                             >
                                 Confirm
                             </Button>
-                            <Button onClick={() => setSaveTripOpen(false)}>Cancel</Button>
+                            <Button style={{ flex: 1}} onClick={() => setSaveTripOpen(false)}>Cancel</Button>
                         </div>
                     </WindowContent>
                 </Window>
