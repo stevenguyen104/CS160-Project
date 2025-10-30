@@ -1,7 +1,8 @@
 class PlaceResult:
     def __init__(self, place_result: dict):
         """
-        Initialize a PlaceResult with a Google.maps.places.PlaceResult object.
+        Initialize a PlaceResult with a PlaceResult object from Google's Location Selection API. See:
+        https://developers.google.com/maps/documentation/mobility/location-selection-api/reference/rest/v1beta/PlaceResult
         """
         self.place_result = place_result
 
@@ -9,29 +10,25 @@ class PlaceResult:
         return self.place_result
 
     def get_address(self) -> str:
-        place = self.get_place()
-        return place.get("formatted_address")
+        return self.place_result["formatted_address"]
 
     def get_geometry(self) -> dict:
-        place = self.get_place()
-        return place.get("geometry")
+        return self.place_result["geometry"]
 
     def get_location(self) -> dict:
         geometry = self.get_geometry()
-        return geometry.get("location")
+        return geometry["location"]
 
     def get_latitude(self) -> float:
         location = self.get_location()
-        return location.get("lat")
+        return location["lat"]
 
     def get_longitude(self) -> float:
         location = self.get_location()
-        return location.get("lng")
+        return location["lng"]
 
     def get_name(self) -> str:
-        place = self.get_place()
-        return place.get("name")
+        return self.place_result["name"]
 
     def get_place_id(self) -> str:
-        place = self.get_place()
-        return place.get("place_id")
+        return self.place_result["place_id"]

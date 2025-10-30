@@ -1,7 +1,13 @@
 import { Button, Window, WindowContent, WindowHeader } from "react95"
 import { useState } from "react";
 
-export default function SideWindow() {
+interface SideWindowProps {
+    alerts: any;
+    directions: any;
+    emissions: any;
+}
+
+export default function SideWindow({ alerts, directions, emissions}: SideWindowProps) {
     const [show, setShow] = useState(true);
 
     return (
@@ -16,7 +22,7 @@ export default function SideWindow() {
                     Alerts
                 </WindowHeader>
                 <WindowContent>
-                    hehe
+                    {alerts ? JSON.stringify(alerts, null, 2) : "Loading..."}
                 </WindowContent>
 
             </Window>
@@ -28,7 +34,7 @@ export default function SideWindow() {
                     Emissions info
                 </WindowHeader>
                 <WindowContent>
-                    hehe
+                    {emissions ? JSON.stringify(emissions, null, 2) : "Loading..."}
                 </WindowContent>
 
             </Window>

@@ -9,8 +9,8 @@ alerts_bp = Blueprint("alerts", __name__, url_prefix="/stops/alerts")
 
 
 def get_alert(data: dict):
-    url = "https://airquality.googleapis.com/v1/currentConditions:lookup"
-
+    url = "https://airquality.googleapis.com/v1/currentConditions:lookup/"
+    
     params = {
         "key": backend.GOOGLE_MAPS_API_KEY
     }

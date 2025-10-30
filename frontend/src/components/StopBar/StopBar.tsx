@@ -164,7 +164,7 @@ export default function StopBar({placeLocations, onItemsChange, startLocation, o
     }
 
     const onEdit = (id: number) => {
-        console.log(id)
+        console.log(id);
         console.log(items);
         const itemEdited = items.find((item) => item.place_id === id);
         if (itemEdited){

@@ -11,7 +11,7 @@ from .api.users import users_bp
 import backend
 
 
-def create_app(origins: list[str] = None, supports_credentials: bool = False) -> Flask:
+def create_app(origins: list[str] | None = None, supports_credentials: bool = False) -> Flask:
     """
     Creates and configures a Flask application with CORS, blueprints, and repositories.
 
@@ -47,9 +47,9 @@ def create_app(origins: list[str] = None, supports_credentials: bool = False) ->
 
 
 if __name__ == '__main__':
-    frontend_origins: str = backend.FRONTEND_ORIGINS
-    if frontend_origins is not None:
-        frontend_origins: list[str] = frontend_origins.split(",")
-
-    flask_app = create_app(frontend_origins, True)
+    urls: str | None = backend.FRONTEND_ORIGINS
+    if urls is not None:
+        flask_app = create_app(origins=urls.split(","), supports_credentials=True)
+    else:
+        flask_app = create_app(supports_credentials=True)
     flask_app.run(debug=True)
