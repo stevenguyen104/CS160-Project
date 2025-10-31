@@ -1,6 +1,7 @@
-from flask import Blueprint, jsonify, request, current_app
+from flask import Blueprint, jsonify, request
 from googlemaps import Client
 
+from backend import GOOGLE_MAPS_CLIENT
 from ..helpers.directions_response_parser import DirectionsResponse
 from ..helpers.emissions_estimate_parser import EmissionsEstimate
 from ..helpers.place_result_parser import PlaceResult
@@ -18,8 +19,8 @@ def calculate_emissions():
     places = data.get("place_results")
     place_results: list[PlaceResult] = [PlaceResult(place) for place in places]
     # TODO store directions so we don't have to call the Directions API again.
-    gmaps_client: Client = current_app.config.get("gmaps")
-    directions_service: DirectionsService = DirectionsService(place_results, gmaps_client)
+    google_maps_client: Client = GOOGLE_MAPS_CLIENT
+    directions_service: DirectionsService = DirectionsService(place_results, google_maps_client)
     directions_response: DirectionsResponse = directions_service.obtain_directions()
     total_distance_meters: int = sum(directions_response.get_distances())
     distance_value: float = total_distance_meters / 1000.0

@@ -1,6 +1,6 @@
 import requests
 
-import backend
+from backend import GOOGLE_MAPS_API_KEY
 from ..helpers.aqi_response_parser import AQIResponse
 from ..helpers.place_result_parser import PlaceResult
 
@@ -32,7 +32,7 @@ class AQIService:
             })
 
             session.params = ({
-                "key": backend.GOOGLE_MAPS_API_KEY
+                "key": GOOGLE_MAPS_API_KEY
             })
 
             for place_result in self.place_results:

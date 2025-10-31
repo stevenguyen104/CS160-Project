@@ -2,7 +2,7 @@ from flask import Blueprint, jsonify, request
 
 from ..helpers.place_result_parser import PlaceResult
 from ..helpers.aqi_response_parser import AQIResponse
-from ..services import AQIService
+from ..services.aqi_service import AQIService
 
 alerts_bp = Blueprint("alerts", __name__, url_prefix="/stops/alerts")
 

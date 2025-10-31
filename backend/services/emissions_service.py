@@ -1,6 +1,6 @@
 import requests
 
-import backend
+from backend import RAPIDAPI_KEY
 from ..helpers.emissions_estimate_parser import EmissionsEstimate
 
 
@@ -32,7 +32,7 @@ class EmissionsService:
         """
         with requests.Session() as session:
             session.headers.update({
-                "x-rapidapi-key": backend.RAPIDAPI_KEY,
+                "x-rapidapi-key": RAPIDAPI_KEY,
                 "x-rapidapi-host": "carbonsutra1.p.rapidapi.com",
                 "Content-Type": "application/x-www-form-urlencoded"
             })
