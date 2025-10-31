@@ -584,8 +584,7 @@ function HomePage() {
                     <StopBar
                     placeLocations={places}
                     onItemsChange={(updatedItems) => setPlaces(updatedItems)}
-                    startLocation={startLocation}
-                    onEnterClick={() => { setSearchMode("start"); setFocusSearch(true); }}
+                    onEnterClick={() => {setFocusSearch(true); }}
                     onEditPlace={(place) => {
                         console.log('editing place', place);
                         setEditingPlace(place);
@@ -676,11 +675,11 @@ function HomePage() {
                             lat: place.geometry.location.lat(),
                             lng: place.geometry.location.lng(),
                         };
-                        if (searchMode === "start") {
-                            setStartLocation(place);
-                            setSearchMode("add");
-                        } 
-                        else if (searchMode === "edit"){
+                        // if (searchMode === "start") {
+                        //     setStartLocation(place);
+                        //     setSearchMode("add");
+                        // } 
+                        if (searchMode === "edit"){
 
                             setPlaces((prev) =>
                             prev.map((p) =>

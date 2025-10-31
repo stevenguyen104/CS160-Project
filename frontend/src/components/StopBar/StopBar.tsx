@@ -8,14 +8,13 @@ import StartCard from "./StartCard";
 interface Places{
     placeLocations: google.maps.places.PlaceResult[];
     onItemsChange?: (updatedItems: any[]) => void;
-    startLocation?: google.maps.places.PlaceResult | null;
     onEnterClick?: () => void;
     onEditPlace?: (place: any) => void;
 
 }
 
 
-export default function StopBar({placeLocations, onItemsChange, startLocation, onEnterClick, onEditPlace}: Places){
+export default function StopBar({placeLocations, onItemsChange, onEnterClick, onEditPlace}: Places){
 
     const [items, setItems] = useState<any[]>(placeLocations || []);
 
@@ -28,10 +27,6 @@ export default function StopBar({placeLocations, onItemsChange, startLocation, o
         onItemsChange?.(items);
         console.log(items);
     }, [items]);
-
-    useEffect(() => {
-        startLocation ? setItems((prev) => [...prev, { id: startLocation.place_id, name: startLocation.name, address: startLocation.formatted_address }]) : null;
-    }, [startLocation]);
 
     const containerRef = useRef<HTMLDivElement | null>(null);
     const placeholderIndexRef = useRef<number | null>(null);
@@ -187,12 +182,12 @@ export default function StopBar({placeLocations, onItemsChange, startLocation, o
             }}>
                 <div className="stopbarScrollContainer" ref={containerRef}>
                 <StartCard 
-                    id = {0}
-                    startLocation={startLocation}
+                    placeLocations = {placeLocations}
+                    // startLocation={startLocation}
                     onEnterStartLocation={onEnterClick}
                     />
                 {items
-                .filter((place) => place.name !== startLocation?.name) // exclude startlocation from being mdae into stopcompoentn
+                // .filter((place) => place.name !== startLocation?.name) // exclude startlocation from being mdae into stopcompoentn
                 .map((place, index) => (
                     <React.Fragment key={place.id}>
                     {placeholderIndexRef.current === index && (
