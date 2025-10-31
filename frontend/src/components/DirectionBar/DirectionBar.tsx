@@ -1,10 +1,11 @@
 import { Button, GroupBox, TreeView} from "react95";
 interface DirectionBarProps {
     mode: boolean;   
+    setMode: (value: boolean) => void 
     places: any[];
 }
 
-export default function DirectionBar({mode, places}: DirectionBarProps) {
+export default function DirectionBar({mode, setMode, places}: DirectionBarProps) {
     const adjustedPlaces = (places || []).map((place) => {
         const { name, label, ...rest } = place || {};
         return {
@@ -14,6 +15,10 @@ export default function DirectionBar({mode, places}: DirectionBarProps) {
     });
     const onClick = () => {
         console.log(places);
+    }
+
+    const endRoute = () => {
+        setMode(false);
     }
 
     return (
@@ -31,6 +36,10 @@ export default function DirectionBar({mode, places}: DirectionBarProps) {
                     </div>
                 ))} */}
             </GroupBox>
+
+            <Button onClick={endRoute}>
+                End Route
+            </Button>
 
         </div>
         </>
