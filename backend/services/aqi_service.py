@@ -25,7 +25,7 @@ class AQIService:
 
         :return: A list of AQIResponse objects.
         """
-        aqi_responses = []
+        aqi_responses: list[AQIResponse] = []
         with requests.Session() as session:
             session.headers.update({
                 "Content-Type": "application/json"
