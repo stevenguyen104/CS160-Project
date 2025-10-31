@@ -9,3 +9,5 @@ if not url or not key:
     raise ValueError("Missing Supabase environment variables.")
 
 supabase: Client = create_client(url, key)
+
+__all__ = ["supabase"]

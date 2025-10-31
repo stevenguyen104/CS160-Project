@@ -4,7 +4,7 @@ class PlaceResult:
         Initialize a PlaceResult with a PlaceResult object from Google's Location Selection API. See:
         https://developers.google.com/maps/documentation/mobility/location-selection-api/reference/rest/v1beta/PlaceResult
         """
-        self.place_result = place_result
+        self.place_result: dict = place_result
 
     def get_place(self) -> dict:
         return self.place_result

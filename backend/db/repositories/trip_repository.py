@@ -14,16 +14,20 @@ class TripRepository:
         """
         self.supabase: Client = supabase_client
 
-    def create_trip(self, user_id: uuid.UUID):
+    def create_trip(self, user_id: uuid.UUID, name: str):
         """
         Create a new trip.
 
         :param user_id: User ID
         :type user_id: UUID
+        :param name: The name of the trip
+        :type name: str
         :return: The newly created trip data
         """
         data = {
-            "user_id": str(user_id)
+            "user_id": str(user_id),
+            "name": name,
+            "last_modified": str(datetime.now(timezone.utc))
         }
 
         response = (self.supabase.table("trips")
@@ -61,16 +65,19 @@ class TripRepository:
                     .execute())
         return response.data
 
-    def update_trip(self, trip_id: int):
+    def update_trip(self, trip_id: int, new_name: str):
         """
         Update trip attributes (last modified in this case).
 
         :param trip_id: Trip ID
         :type trip_id: int
+        :param new_name: The new name of the trip
+        :type new_name: str
         :return: The updated trip data
         """
         new_data = {
-            "last_modified": str(datetime.now(timezone.utc))
+            "last_modified": str(datetime.now(timezone.utc)),
+            "name": new_name
         }
 
         response = (self.supabase.table("trips")

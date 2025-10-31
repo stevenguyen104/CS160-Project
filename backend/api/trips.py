@@ -54,8 +54,10 @@ def create_trip():
                 "success": False,
                 "error": "Cannot get current user"
             }), 401
-        
-        trip = trip_repo.create_trip(user_id=uuid.UUID(response.user.id))
+
+        data = request.get_json()
+        name = data.get("name", "Untitled Trip")
+        trip = trip_repo.create_trip(user_id=uuid.UUID(response.user.id), name=name)
 
         return jsonify({
             "success": True,
@@ -71,26 +73,9 @@ def create_trip():
 
 @trips_bp.route("/<int:trip_id>", methods=["PUT"])
 def update_trip(trip_id: int):
-    # TODO modify this method so it reflects update_trip in trip repository.
-    #data = request.get_json()  # Array of PlaceResults
-    #places = data.get("places")
-    #directions = get_directions_helper(places)
-    #_, distances = compute_distances(directions)
-    #vehicle_make = data.get("vehicle_make")
-    #vehicle_model = data.get("vehicle_model")
-    #emissions = fetch_emission_estimate(vehicle_make, vehicle_model, sum(distances) / 1000.0)
-
-    #if emissions.get("status") != 200 or emissions.get("success") is not True:
-    #    return jsonify({
-    #        "success": False,
-    #        "error": "Trip was unable to be updated"
-    #    }), 503
-
-    #emissions_data = emissions.get("data")
-    #emissions_kg = emissions_data.get("co2e_kg")  # TODO decide if data should always be stored in kg
-    #individual_emissions = [emissions_kg * (distance / sum(distances)) for distance in distances]
-    #trip = trip_repo.update_trip(trip_id, individual_emissions)
-    trip = trip_repo.update_trip(trip_id=trip_id)
+    data = request.get_json()
+    new_name = data.get("name", "Untitled Trip")
+    trip = trip_repo.update_trip(trip_id=trip_id, new_name=new_name)
 
     return jsonify({
         "success": True,

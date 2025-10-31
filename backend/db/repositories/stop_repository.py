@@ -1,6 +1,6 @@
 from supabase import Client
 
-from ...api.placeresult import PlaceResult
+from ...helpers.place_result_parser import PlaceResult
 
 
 class StopRepository:

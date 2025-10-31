@@ -2,7 +2,7 @@ from flask import Blueprint, jsonify, request
 
 from ..db.repositories.stop_repository import StopRepository
 from ..db.supabase_client import supabase
-from .placeresult import PlaceResult
+from ..helpers.place_result_parser import PlaceResult
 
 stops_bp = Blueprint("stops", __name__, url_prefix="/trips/<int:trip_id>/stops")
 stop_repo = StopRepository(supabase_client=supabase)
