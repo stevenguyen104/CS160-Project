@@ -41,7 +41,12 @@ function HomePage() {
     const [password, setPassword] = useState("");
     const [userID, setUserID] = useState("");
     const [tripID, setTripID] = useState(0);
+
     const [tripName, setTripName] = useState("");
+    const [hoveredTrip, setHoveredTrip] = useState<number | null>(null);
+    const [editingTripId, setEditingTripId] = useState<number | null>(null);
+    const [editTripName, setEditTripName] = useState("");
+    const [confirmDeleteTrip, setConfirmDeleteTrip] = useState({ open: false, tripId: null });
 
     const audioRef = useRef<HTMLAudioElement>(null);
 
@@ -303,6 +308,52 @@ function HomePage() {
         }
     };
 
+    const handleRenameTrip = async (trip_id: number, newName: string) => {
+        try {
+            const response = await fetch(`http://127.0.0.1:5000/trips/${trip_id}`, {
+                method: "PUT",
+                mode: "cors",
+                headers: { "Content-Type": "application/json"},
+                body: JSON.stringify({ name: newName }),
+                credentials: "include",
+            });
+            const data = await response.json();
+            console.log(data);
+            if (response.ok) {
+                setSavedTrips((prev) =>
+                    prev.map((t) =>
+                        t.trip_id === trip_id ? { ...t, name:newName} : t
+                    )
+                );
+                setEditingTripId(null);
+            } else {
+                console.error(data.error);
+            }
+        } catch (error) {
+            console.error(error);
+        }
+    };
+
+    const handleDeleteTrip = async (trip_id: number) => {
+        try {
+            const response = await fetch(`http://127.0.0.1:5000/trips/${trip_id}`, {
+                method: "DELETE",
+                mode: "cors",
+                credentials: "include",
+            });
+            const data = await response.json();
+            console.log(data);
+            if (response.ok) {
+                setSavedTrips((prev) => prev.filter((t) => t.trip_id !== trip_id));
+            } else {
+                console.error(data.error);
+            }
+        } catch (error) {
+            console.error(error);
+        } finally {
+            setConfirmDeleteTrip({ open: false, tripId: null });
+        }
+    };
 
     // Load Google Maps API once
     const { isLoaded } = useJsApiLoader({
@@ -418,43 +469,135 @@ function HomePage() {
         {savedOpen && (
         <div className="overlay-backdrop" onClick={() => setSavedOpen(false)}>
             <Window style={{ width: 300, position: "relative" }} onClick={(e) => e.stopPropagation()}>
-            <WindowHeader>
-                <span>Saved Trips</span>
-                <Button
-                square
-                size="sm"
-                onClick={() => setSavedOpen(false)}
-                style={{ position: "absolute", top: 5, right: 5 }}
-                >
-                ✕
-                </Button>
-            </WindowHeader>
+                <WindowHeader>
+                    <span>Saved Trips</span>
+                    <Button
+                        square
+                        size="sm"
+                        onClick={() => setSavedOpen(false)}
+                        style={{ position: "absolute", top: 5, right: 5 }}
+                    >
+                        ✕
+                    </Button>
+                </WindowHeader>
             <WindowContent style={{ maxHeight: "400px", overflowY: "auto" }}>
                 {savedTrips.length === 0 ? (
                     <p>No saved trips yet.</p>
                 ) : (
-                    <ul style={{ listStyle: "none", padding: 0}}>
+                    <ul style={{ listStyle: "none", padding: 0 }}>
                         {savedTrips.map((trip) => (
-                            <li key={trip.trip_id} style={{ marginBottom: "10px" }}>
-                                <Button
-                                    fullWidth
-                                    onClick={() => handleLoadTrip(trip.trip_id)}
-                                    style={{
-                                        textAlign: "left",
-                                        whiteSpace: "normal",
-                                        height: "auto",
-                                        padding: "6px",
+                            <li
+                                key={trip.trip_id}
+                                onMouseEnter={() => setHoveredTrip(trip.trip_id)}
+                                onMouseLeave={() => setHoveredTrip(null)}
+                                style={{ marginBottom: "10px", position: "relative" }}
+                            >
+                                {editingTripId === trip.trip_id ? (
+                                    <div style={{ display: "flex", gap: "6px" }}>
+                                        <TextInput
+                                            placeholder="Enter new name"
+                                            value={editTripName}
+                                            onChange={(e) => setEditTripName(e.target.value)}
+                                            fullWidth
+                                            autoFocus
+                                            onKeyDown={(e) => {
+                                                if (e.key === "Enter" && editTripName.trim()) {
+                                                    handleRenameTrip(trip.trip_id, editTripName.trim());
+                                                    setEditingTripId(null);
+                                                } else if (e.key === "Escape") {
+                                                    setEditingTripId(null);
+                                                }
+                                            }}
+                                        />
+                                    </div>
+                                ) : (
+                                    <>
+                                    <Button
+                                        fullWidth
+                                        onClick={() => handleLoadTrip(trip.trip_id)}
+                                        style={{
+                                            textAlign: "left",
+                                            whiteSpace: "normal",
+                                            height: "auto",
+                                            padding: "6px",
                                         }}
                                     >
                                         <b>{trip.name ? trip.name : "Untitled Trip"}</b>
                                     </Button>
-                                </li>
-                            ))}
-                        </ul>
-                    )}
+                                    <div
+                                        style={{
+                                            position: "absolute",
+                                            top: "8px",
+                                            right: "-5px",
+                                            display: hoveredTrip === trip.trip_id ? "flex" : "none",
+                                            gap: "3px",
+                                       }}
+                                    >
+                                        <Button
+                                            square
+                                            size="sm"
+                                            onClick={(e) => {
+                                                e.stopPropagation();
+                                                setEditingTripId(trip.trip_id);
+                                                setEditTripName(trip.name || "");
+                                            }}
+                                        >
+                                            ✏️
+                                        </Button>
+                                        <Button
+                                            square
+                                            size="sm"
+                                            onClick={(e) => {
+                                                e.stopPropagation();
+                                                setConfirmDeleteTrip({ open: true, tripId: trip.trip_id });
+                                            }}
+                                        >
+                                            ✕
+                                        </Button>
+                                    </div>
+                                    </>
+                                )}
+                            </li>
+                        ))}
+                    </ul>
+                )}
             </WindowContent>
             </Window>
         </div>
+        )}
+
+        {/* Confirm Delete Trip Window */}
+        {confirmDeleteTrip.open && (
+            <div className="overlay-backdrop" onClick={() => setConfirmDeleteTrip({ open: false, tripId: null })}>
+                <Window
+                    style={{ width: 350, height: 150, position: "relative" }}
+                    onClick={(e) => e.stopPropagation()}
+                >
+                    <WindowHeader>
+                        <span>Delete Trip</span>
+                        <Button
+                            square
+                            size="sm"
+                            onClick={() => setConfirmDeleteTrip({ open: false, tripId: null })}
+                            style={{ position: "absolute", top: 5, right: 5 }}
+                        >
+                            ✕
+                        </Button>
+                    </WindowHeader>
+                    <WindowContent>
+                        <p>Are you sure you want to delete this trip?</p>
+                        <div style={{ display: "flex", flexDirection: "row", gap: "8px", width: "100%", marginTop: "15px" }}>
+                            <Button
+                                style={{ flex: 1 }}
+                                onClick={() => handleDeleteTrip(confirmDeleteTrip.tripId)}
+                            >
+                                Confirm
+                            </Button>
+                            <Button style={{ flex: 1}} onClick={() => setConfirmDeleteTrip({ open: false, tripId: null })}>Cancel</Button>
+                        </div>
+                    </WindowContent>
+                </Window>
+            </div>
         )}
 
         {/* Volume Window */}
@@ -520,6 +663,7 @@ function HomePage() {
                             value={tripName}
                             onChange={(e) => setTripName(e.target.value)}
                             fullWidth
+                            autoFocus
                             style={{ marginTop: 10, marginBottom: 20 }}
                         />
                         <div style={{ display: "flex", flexDirection: "row", gap: "8px", width: "100%", marginTop: "10px" }}>
@@ -566,6 +710,7 @@ function HomePage() {
                     type="email"
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
+                    autoFocus
                     fullWidth />
                 <TextInput
                     placeholder="Password"

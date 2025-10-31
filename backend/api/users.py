@@ -91,7 +91,7 @@ def get_current_user():
 @users_bp.route("/", methods=["DELETE"])
 def delete_user():
     try:
-        user = supabase.auth.get_user()
+        user = supabase.auth.get_user().user
         supabase.auth.admin.delete_user(user.id)
 
         return jsonify({

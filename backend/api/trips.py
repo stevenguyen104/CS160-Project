@@ -17,8 +17,8 @@ stop_repo = StopRepository(supabase_client=supabase)
 @trips_bp.route("/", methods=["GET"])
 def get_trips():
     try:
-        response = supabase.auth.get_user()
-        trips = trip_repo.get_trips(user_id=uuid.UUID(response.user.id))
+        user = supabase.auth.get_user().user
+        trips = trip_repo.get_trips(user_id=uuid.UUID(user.id))
 
         result = []
         for trip in trips:
@@ -51,10 +51,10 @@ def get_trip(trip_id: int):
 @trips_bp.route("/", methods=["POST"])
 def create_trip():
     try:
-        response = supabase.auth.get_user()
+        user = supabase.auth.get_user().user
         data = request.get_json() or {}
         trip_name = data.get("name", "Untitled Trip")
-        trip = trip_repo.create_trip(user_id=uuid.UUID(response.user.id), name=trip_name)
+        trip = trip_repo.create_trip(user_id=uuid.UUID(user.id), name=trip_name)
 
         return jsonify({
             "success": True,
@@ -89,13 +89,15 @@ def update_trip(trip_id: int):
     #emissions_kg = emissions_data.get("co2e_kg")  # TODO decide if data should always be stored in kg
     #individual_emissions = [emissions_kg * (distance / sum(distances)) for distance in distances]
     #trip = trip_repo.update_trip(trip_id, individual_emissions)
-    trip = trip_repo.update_trip(trip_id=trip_id)
+    data = request.get_json() or {}
+    new_name = data.get("name")
+    trip = trip_repo.update_trip(trip_id=trip_id, name=new_name)
 
     return jsonify({
         "success": True,
         "trip": trip,
         "message": "Trip successfully updated"
-    }), 204
+    }), 200
 
 
 @trips_bp.route("/<int:trip_id>", methods=["DELETE"])
@@ -107,4 +109,4 @@ def delete_trip(trip_id: int):
         "success": True,
         "trip": deleted_trip,
         "message": "Trip successfully deleted"
-    }), 204
+    }), 200

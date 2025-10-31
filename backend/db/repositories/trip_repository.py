@@ -67,18 +67,23 @@ class TripRepository:
                     .execute())
         return response.data
 
-    def update_trip(self, trip_id: int) -> dict:
+    def update_trip(self, trip_id: int, name: str | None = None) -> dict:
         """
         Update trip attributes (last modified in this case).
 
         :param trip_id: Trip ID
         :type trip_id: int
+        :param name: Trip Name
+        :type name: string
         :return: The updated trip data
         :rtype: dict
         """
         new_data = {
             "last_modified": str(datetime.now(timezone.utc))
         }
+
+        if name is not None:
+            new_data["name"] = name
 
         response = (self.supabase.table("trips")
                     .update(new_data)
