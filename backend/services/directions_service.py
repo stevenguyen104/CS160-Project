@@ -53,4 +53,4 @@ class DirectionsService:
             units=units
         )
 
-        return DirectionsResponse(directions)
+        return DirectionsResponse(directions[0])

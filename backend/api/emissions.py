@@ -32,4 +32,4 @@ def calculate_emissions():
         distance_unit=distance_unit
     )
     emissions_estimate: EmissionsEstimate = emissions_service.obtain_emissions()
-    return jsonify(emissions_estimate)
+    return jsonify(emissions_estimate.get_dict()), 200

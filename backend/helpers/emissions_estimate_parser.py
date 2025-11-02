@@ -6,6 +6,9 @@ class EmissionsEstimate:
         """
         self.emissions_estimate: dict = emissions_estimate
 
+    def get_dict(self) -> dict:
+        return self.emissions_estimate
+
     def get_success(self) -> bool:
         return self.emissions_estimate["success"]
 

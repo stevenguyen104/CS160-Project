@@ -6,6 +6,9 @@ class DirectionsResponse:
         """
         self.directions_response: dict = directions_response
 
+    def get_dict(self) -> dict:
+        return self.directions_response
+
     def get_status(self) -> str:
         return self.directions_response["status"]
 
@@ -22,7 +25,6 @@ class DirectionsResponse:
         """
         Obtains a list of distances in meters
         """
-        route = self.get_routes()[0]
-        legs: list[dict] = route["legs"]
+        legs: list = self.directions_response["legs"]
         distance_meters: list[int] = [leg["distance"]["value"] for leg in legs]
         return distance_meters
