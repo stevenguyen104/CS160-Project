@@ -45,6 +45,13 @@ function HomePage() {
     const [alerts, setAlerts] = useState(null);
     const [emissions, setEmissions] = useState(null);
 
+    const [savedTrips, setSavedTrips] = useState<any[]>([]);
+    const [tripName, setTripName] = useState("");
+    const [hoveredTrip, setHoveredTrip] = useState<number | null>(null);
+    const [editingTripId, setEditingTripId] = useState<number | null>(null);
+    const [editTripName, setEditTripName] = useState("");
+    const [confirmDeleteTrip, setConfirmDeleteTrip] = useState({ open: false, tripId: null });
+
     const audioRef = useRef<HTMLAudioElement>(null);
 
     useEffect(() => {
@@ -236,7 +243,79 @@ function HomePage() {
         // save trip logic goes here
         console.log("Trip saved!");
         setSaveTripOpen(false);
-    }
+    };
+
+    const handleLoadTrip = async (trip_id: number) => {
+        try {
+            const response = await fetch(`http://127.0.0.1:5000/trips/${trip_id}/stops/`, {
+              method: "GET",
+              mode: "cors",
+              credentials: "include",
+            });
+            const data = await response.json();
+            console.log(data);
+            if (response.ok) {
+                setPlaces(data.stops.map((stop: any) => ({
+                    id: stop.stop_id,
+                    name: stop.name,
+                    address: stop.address,
+                })));
+                setSavedOpen(false);
+            } else {
+                console.error("Error loading stops:", data.error);
+            }
+        } catch (error) {
+            console.error("Error loading stops:", error);
+        }
+    };
+
+    const handleRenameTrip = async (trip_id: number, newName: string) => {
+        try {
+            const response = await fetch(`http://127.0.0.1:5000/trips/${trip_id}`, {
+                method: "PUT",
+                mode: "cors",
+                headers: { "Content-Type": "application/json"},
+                body: JSON.stringify({ name: newName }),
+                credentials: "include",
+            });
+            const data = await response.json();
+            console.log(data);
+            if (response.ok) {
+                setSavedTrips((prev) =>
+                    prev.map((t) =>
+                        t.trip_id === trip_id ? { ...t, name:newName} : t
+                    )
+                );
+                setEditingTripId(null);
+            } else {
+                console.error(data.error);
+            }
+        } catch (error) {
+            console.error(error);
+        }
+    };
+
+
+    const handleDeleteTrip = async (trip_id: number) => {
+        try {
+            const response = await fetch(`http://127.0.0.1:5000/trips/${trip_id}`, {
+                method: "DELETE",
+                mode: "cors",
+                credentials: "include",
+            });
+            const data = await response.json();
+            console.log(data);
+            if (response.ok) {
+                setSavedTrips((prev) => prev.filter((t) => t.trip_id !== trip_id));
+            } else {
+                console.error(data.error);
+            }
+        } catch (error) {
+            console.error(error);
+        } finally {
+            setConfirmDeleteTrip({ open: false, tripId: null });
+        }
+    };
 
     const handleGetDirections = async () => {
         try {
