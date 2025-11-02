@@ -44,7 +44,7 @@ def add_stop(trip_id: int):
     }), 201
 
 
-@stops_bp.route("/many", methods=["POST"])
+@stops_bp.route("/add", methods=["POST"])
 def add_stops(trip_id: int):
     data = request.get_json()
     places = data.get("places")

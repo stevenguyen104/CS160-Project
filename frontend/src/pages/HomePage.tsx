@@ -230,30 +230,12 @@ function HomePage() {
     const handleAddStops = async (getTripID: number) => {
         setIsLoading(true);
         try {
-            const response = await fetch("http://127.0.0.1:5000/trips/" + getTripID + "/stops/many", {
+            const response = await fetch("http://127.0.0.1:5000/trips/" + getTripID + "/stops/add", {
                 method: "POST",
                 mode: "cors",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({
-                  places: places.map((p) => ({
-                    name: p.name,
-                    address: p.formatted_address || "",
-                    place_id: p.place_id,
-                    geometry: p.geometry
-                      ? {
-                          location: {
-                            lat:
-                                typeof p.geometry.location!.lat === "function"
-                                ? p.geometry.location!.lat()
-                                : p.geometry.location!.lat,
-                            lng:
-                                typeof p.geometry.location!.lng === "function"
-                                ? p.geometry.location!.lng()
-                                : p.geometry.location!.lng,
-                          },
-                        }
-                      : null,
-                  })),
+                  "places": places,
                 }),
                 credentials: "include",
             });
