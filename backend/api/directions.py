@@ -17,4 +17,4 @@ def get_directions():
     gmaps_client: Client = GOOGLE_MAPS_CLIENT
     directions_service: DirectionsService = DirectionsService(place_results, gmaps_client)
     directions_response: DirectionsResponse = directions_service.obtain_directions()
-    return jsonify(directions_response.get_dict()), 200 if directions_response.get_status() == "OK" else 401
+    return jsonify(directions_response.get_dict()), 200

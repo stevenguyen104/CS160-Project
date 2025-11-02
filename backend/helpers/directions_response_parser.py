@@ -9,9 +9,6 @@ class DirectionsResponse:
     def get_dict(self) -> dict:
         return self.directions_response
 
-    def get_status(self) -> str:
-        return self.directions_response["status"]
-
     def get_routes(self) -> list[dict]:
         return self.directions_response["routes"]
 

@@ -1,5 +1,6 @@
 from flask import Blueprint, jsonify, request
 
+from backend import GOOGLE_MAPS_CLIENT
 from ..db.repositories.stop_repository import StopRepository
 from ..db.supabase_client import supabase
 from ..helpers.place_result_parser import PlaceResult
@@ -12,9 +13,11 @@ stop_repo = StopRepository(supabase_client=supabase)
 def get_stops(trip_id: int):
     stops = stop_repo.get_stops(trip_id=trip_id)
 
+    details = [{"place": GOOGLE_MAPS_CLIENT.place(place_id=stop["place_id"]), "distance_meters": 200} for stop in stops] # type: ignore
+
     return jsonify({
         "success": True,
-        "stops": stops,
+        "stops": details,
         "message": "Stops successfully obtained"
     }), 200
 

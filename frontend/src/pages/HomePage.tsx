@@ -359,11 +359,7 @@ function HomePage() {
             const data = await response.json();
             console.log(data);
             if (response.ok) {
-                setPlaces(data.stops.map((stop: any) => ({
-                    id: stop.stop_id,
-                    name: stop.name,
-                    address: stop.address,
-                })));
+                setPlaces(data.stops);
                 setSavedOpen(false);
             } else {
                 console.error("Error loading stops:", data.error);

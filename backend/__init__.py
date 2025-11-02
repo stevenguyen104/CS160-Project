@@ -16,7 +16,6 @@ __all__ = [
     "SUPABASE_URL",
     "SUPABASE_KEY",
     "RAPIDAPI_KEY",
-    "GOOGLE_MAPS_API_KEY",
     "FRONTEND_ORIGINS",
     "GOOGLE_MAPS_CLIENT"
 ]
