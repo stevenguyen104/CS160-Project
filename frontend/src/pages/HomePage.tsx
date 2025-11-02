@@ -25,6 +25,7 @@ function HomePage() {
     const [searchResults, setSearchResults] = useState<google.maps.places.PlaceResult[]>([]);
     const [showSearchResults, setShowSearchResults] = useState(false);
     const [showConfirmRoute, setShowConfirmRoute] = useState(false);
+    const [savedTrips, setSavedTrips] = useState<any[]>([]);
     const [volume, setVolume] = useState(50);
     const [muted, setMuted] = useState(false);
     const [isLoading, setIsLoading] = useState(false);
@@ -45,7 +46,6 @@ function HomePage() {
     const [alerts, setAlerts] = useState(null);
     const [emissions, setEmissions] = useState(null);
 
-    const [savedTrips, setSavedTrips] = useState<any[]>([]);
     const [tripName, setTripName] = useState("");
     const [hoveredTrip, setHoveredTrip] = useState<number | null>(null);
     const [editingTripId, setEditingTripId] = useState<number | null>(null);
@@ -67,13 +67,37 @@ function HomePage() {
 
     // play on action
     useEffect(() => {
-        const startAudio = () => {
-            audioRef.current?.play().catch(console.log);
-            window.removeEventListener("click", startAudio);
-        };
+      const startAudio = () => {
+        audioRef.current?.play().catch(console.log);
+        window.removeEventListener("click", startAudio);
+      };
+      window.addEventListener("click", startAudio);
+      return () => window.removeEventListener("click", startAudio);
+    }, []);
 
-        window.addEventListener("click", startAudio);
-        return () => window.removeEventListener("click", startAudio);
+    useEffect(() => {
+      if (savedOpen && userID) {
+        const getTrips = async () => {
+          try {
+            const response = await fetch("http://127.0.0.1:5000/trips/", {
+              method: "GET",
+              mode: "cors",
+              credentials: "include",
+            });
+            const data = await response.json();
+            if (response.ok) {
+              setSavedTrips(data.trips);
+            } else {
+              console.error("Error getting trips:", data.error);
+            }
+          } catch (error) {
+            console.error("Error getting trips:", error);
+          }
+        };
+        getTrips();
+      }
+    }, [savedOpen, userID]);
+
 
         // Get current user logged in
         /*
@@ -93,7 +117,6 @@ function HomePage() {
             console.error(error);
         }
         */
-    }, []);
 
     const handleLogin = async() => {
         try {
@@ -176,14 +199,14 @@ function HomePage() {
         // pass
     }
 
-    const handleAddTrip = async () => {
+    const handleAddTrip = async (name: string) => {
         setIsLoading(true);
         try {
             const response = await fetch("http://127.0.0.1:5000/trips/", {
                 method: "POST",
                 mode: "cors",
                 headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({}),
+                body: JSON.stringify({ name }),
                 credentials: "include"
             });
 
@@ -207,14 +230,32 @@ function HomePage() {
     const handleAddStops = async (getTripID: number) => {
         setIsLoading(true);
         try {
-            const response = await fetch("http://127.0.0.1:5000/trips/" + getTripID + "/stops/save", {
+            const response = await fetch("http://127.0.0.1:5000/trips/" + getTripID + "/stops/many", {
                 method: "POST",
                 mode: "cors",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({
-                    places
+                  places: places.map((p) => ({
+                    name: p.name,
+                    address: p.formatted_address || "",
+                    place_id: p.place_id,
+                    geometry: p.geometry
+                      ? {
+                          location: {
+                            lat:
+                                typeof p.geometry.location!.lat === "function"
+                                ? p.geometry.location!.lat()
+                                : p.geometry.location!.lat,
+                            lng:
+                                typeof p.geometry.location!.lng === "function"
+                                ? p.geometry.location!.lng()
+                                : p.geometry.location!.lng,
+                          },
+                        }
+                      : null,
+                  })),
                 }),
-                credentials: "include"
+                credentials: "include",
             });
 
             const data = await response.json();
@@ -232,10 +273,11 @@ function HomePage() {
         }
     }
 
-    const handleSaveTrip = async () => {
+    const handleSaveTrip = async (name: string) => {
+        if (!name.trim()) return;
         // No trip selected (tripID starts at 1)
         if (tripID <= 0) {
-            const newTripID: number = await handleAddTrip();
+            const newTripID: number = await handleAddTrip(name);
             await handleAddStops(newTripID);
         } else {
             await handleAddStops(tripID);
@@ -243,78 +285,6 @@ function HomePage() {
         // save trip logic goes here
         console.log("Trip saved!");
         setSaveTripOpen(false);
-    };
-
-    const handleLoadTrip = async (trip_id: number) => {
-        try {
-            const response = await fetch(`http://127.0.0.1:5000/trips/${trip_id}/stops/`, {
-              method: "GET",
-              mode: "cors",
-              credentials: "include",
-            });
-            const data = await response.json();
-            console.log(data);
-            if (response.ok) {
-                setPlaces(data.stops.map((stop: any) => ({
-                    id: stop.stop_id,
-                    name: stop.name,
-                    address: stop.address,
-                })));
-                setSavedOpen(false);
-            } else {
-                console.error("Error loading stops:", data.error);
-            }
-        } catch (error) {
-            console.error("Error loading stops:", error);
-        }
-    };
-
-    const handleRenameTrip = async (trip_id: number, newName: string) => {
-        try {
-            const response = await fetch(`http://127.0.0.1:5000/trips/${trip_id}`, {
-                method: "PUT",
-                mode: "cors",
-                headers: { "Content-Type": "application/json"},
-                body: JSON.stringify({ name: newName }),
-                credentials: "include",
-            });
-            const data = await response.json();
-            console.log(data);
-            if (response.ok) {
-                setSavedTrips((prev) =>
-                    prev.map((t) =>
-                        t.trip_id === trip_id ? { ...t, name:newName} : t
-                    )
-                );
-                setEditingTripId(null);
-            } else {
-                console.error(data.error);
-            }
-        } catch (error) {
-            console.error(error);
-        }
-    };
-
-
-    const handleDeleteTrip = async (trip_id: number) => {
-        try {
-            const response = await fetch(`http://127.0.0.1:5000/trips/${trip_id}`, {
-                method: "DELETE",
-                mode: "cors",
-                credentials: "include",
-            });
-            const data = await response.json();
-            console.log(data);
-            if (response.ok) {
-                setSavedTrips((prev) => prev.filter((t) => t.trip_id !== trip_id));
-            } else {
-                console.error(data.error);
-            }
-        } catch (error) {
-            console.error(error);
-        } finally {
-            setConfirmDeleteTrip({ open: false, tripId: null });
-        }
     };
 
     const handleGetDirections = async () => {
@@ -396,6 +366,77 @@ function HomePage() {
             console.error(error);
         }
     }
+
+    const handleLoadTrip = async (trip_id: number) => {
+        try {
+            const response = await fetch(`http://127.0.0.1:5000/trips/${trip_id}/stops/`, {
+              method: "GET",
+              mode: "cors",
+              credentials: "include",
+            });
+            const data = await response.json();
+            console.log(data);
+            if (response.ok) {
+                setPlaces(data.stops.map((stop: any) => ({
+                    id: stop.stop_id,
+                    name: stop.name,
+                    address: stop.address,
+                })));
+                setSavedOpen(false);
+            } else {
+                console.error("Error loading stops:", data.error);
+            }
+        } catch (error) {
+            console.error("Error loading stops:", error);
+        }
+    };
+
+    const handleRenameTrip = async (trip_id: number, newName: string) => {
+        try {
+            const response = await fetch(`http://127.0.0.1:5000/trips/${trip_id}`, {
+                method: "PUT",
+                mode: "cors",
+                headers: { "Content-Type": "application/json"},
+                body: JSON.stringify({ name: newName }),
+                credentials: "include",
+            });
+            const data = await response.json();
+            console.log(data);
+            if (response.ok) {
+                setSavedTrips((prev) =>
+                    prev.map((t) =>
+                        t.trip_id === trip_id ? { ...t, name:newName} : t
+                    )
+                );
+                setEditingTripId(null);
+            } else {
+                console.error(data.error);
+            }
+        } catch (error) {
+            console.error(error);
+        }
+    };
+
+    const handleDeleteTrip = async (trip_id: number) => {
+        try {
+            const response = await fetch(`http://127.0.0.1:5000/trips/${trip_id}`, {
+                method: "DELETE",
+                mode: "cors",
+                credentials: "include",
+            });
+            const data = await response.json();
+            console.log(data);
+            if (response.ok) {
+                setSavedTrips((prev) => prev.filter((t) => t.trip_id !== trip_id));
+            } else {
+                console.error(data.error);
+            }
+        } catch (error) {
+            console.error(error);
+        } finally {
+            setConfirmDeleteTrip({ open: false, tripId: null });
+        }
+    };
 
     // Load Google Maps API once
     const { isLoaded } = useJsApiLoader({
@@ -511,22 +552,135 @@ function HomePage() {
         {savedOpen && (
         <div className="overlay-backdrop" onClick={() => setSavedOpen(false)}>
             <Window style={{ width: 300, position: "relative" }} onClick={(e) => e.stopPropagation()}>
-            <WindowHeader>
-                <span>Saved Trips</span>
-                <Button
-                square
-                size="sm"
-                onClick={() => setSavedOpen(false)}
-                style={{ position: "absolute", top: 5, right: 5 }}
-                >
-                ✕
-                </Button>
-            </WindowHeader>
-            <WindowContent>
-                <p>(nothing here yet)</p>
+                <WindowHeader>
+                    <span>Saved Trips</span>
+                    <Button
+                        square
+                        size="sm"
+                        onClick={() => setSavedOpen(false)}
+                        style={{ position: "absolute", top: 5, right: 5 }}
+                    >
+                        ✕
+                    </Button>
+                </WindowHeader>
+            <WindowContent style={{ maxHeight: "400px", overflowY: "auto" }}>
+                {savedTrips.length === 0 ? (
+                    <p>No saved trips yet.</p>
+                ) : (
+                    <ul style={{ listStyle: "none", padding: 0 }}>
+                        {savedTrips.map((trip) => (
+                            <li
+                                key={trip.trip_id}
+                                onMouseEnter={() => setHoveredTrip(trip.trip_id)}
+                                onMouseLeave={() => setHoveredTrip(null)}
+                                style={{ marginBottom: "10px", position: "relative" }}
+                            >
+                                {editingTripId === trip.trip_id ? (
+                                    <div style={{ display: "flex", gap: "6px" }}>
+                                        <TextInput
+                                            placeholder="Enter new name"
+                                            value={editTripName}
+                                            onChange={(e) => setEditTripName(e.target.value)}
+                                            fullWidth
+                                            autoFocus
+                                            onKeyDown={(e) => {
+                                                if (e.key === "Enter" && editTripName.trim()) {
+                                                    handleRenameTrip(trip.trip_id, editTripName.trim());
+                                                    setEditingTripId(null);
+                                                } else if (e.key === "Escape") {
+                                                    setEditingTripId(null);
+                                                }
+                                            }}
+                                        />
+                                    </div>
+                                ) : (
+                                    <>
+                                    <Button
+                                        fullWidth
+                                        onClick={() => handleLoadTrip(trip.trip_id)}
+                                        style={{
+                                            textAlign: "left",
+                                            whiteSpace: "normal",
+                                            height: "auto",
+                                            padding: "6px",
+                                        }}
+                                    >
+                                        <b>{trip.name ? trip.name : "Untitled Trip"}</b>
+                                    </Button>
+                                    <div
+                                        style={{
+                                            position: "absolute",
+                                            top: "8px",
+                                            right: "-5px",
+                                            display: hoveredTrip === trip.trip_id ? "flex" : "none",
+                                            gap: "3px",
+                                       }}
+                                    >
+                                        <Button
+                                            square
+                                            size="sm"
+                                            onClick={(e) => {
+                                                e.stopPropagation();
+                                                setEditingTripId(trip.trip_id);
+                                                setEditTripName(trip.name || "");
+                                            }}
+                                        >
+                                            ✏️
+                                        </Button>
+                                        <Button
+                                            square
+                                            size="sm"
+                                            onClick={(e) => {
+                                                e.stopPropagation();
+                                                setConfirmDeleteTrip({ open: true, tripId: trip.trip_id });
+                                            }}
+                                        >
+                                            ✕
+                                        </Button>
+                                    </div>
+                                    </>
+                                )}
+                            </li>
+                        ))}
+                    </ul>
+                )}
             </WindowContent>
             </Window>
         </div>
+        )}
+
+        {/* Confirm Delete Trip Window */}
+        {confirmDeleteTrip.open && (
+            <div className="overlay-backdrop" onClick={() => setConfirmDeleteTrip({ open: false, tripId: null })}>
+                <Window
+                    style={{ width: 350, height: 150, position: "relative" }}
+                    onClick={(e) => e.stopPropagation()}
+                >
+                    <WindowHeader>
+                        <span>Delete Trip</span>
+                        <Button
+                            square
+                            size="sm"
+                            onClick={() => setConfirmDeleteTrip({ open: false, tripId: null })}
+                            style={{ position: "absolute", top: 5, right: 5 }}
+                        >
+                            ✕
+                        </Button>
+                    </WindowHeader>
+                    <WindowContent>
+                        <p>Are you sure you want to delete this trip?</p>
+                        <div style={{ display: "flex", flexDirection: "row", gap: "8px", width: "100%", marginTop: "15px" }}>
+                            <Button
+                                style={{ flex: 1 }}
+                                onClick={() => handleDeleteTrip(confirmDeleteTrip.tripId!)}
+                            >
+                                Confirm
+                            </Button>
+                            <Button style={{ flex: 1}} onClick={() => setConfirmDeleteTrip({ open: false, tripId: null })}>Cancel</Button>
+                        </div>
+                    </WindowContent>
+                </Window>
+            </div>
         )}
 
         {/* Volume Window */}
@@ -575,7 +729,7 @@ function HomePage() {
                     onClick={(e) => e.stopPropagation()}
                 >
                     <WindowHeader>
-                        <span>Confirm Saving Trip</span>
+                        <span>Save Trip</span>
                         <Button
                             square
                             size="sm"
@@ -586,15 +740,24 @@ function HomePage() {
                         </Button>
                     </WindowHeader>
                     <WindowContent>
-                        <p>Do you want to save this trip?</p>
-                        <div style={{ marginTop: "25%", display: "flex", justifyContent: "space-between", width: "100%" }}>
+                        <p>Enter a name for your trip:</p>
+                        <TextInput
+                            placeholder="Trip Name"
+                            value={tripName}
+                            onChange={(e) => setTripName(e.target.value)}
+                            fullWidth
+                            autoFocus
+                            style={{ marginTop: 10, marginBottom: 20 }}
+                        />
+                        <div style={{ display: "flex", flexDirection: "row", gap: "8px", width: "100%", marginTop: "10px" }}>
                             <Button
-                                onClick={() => handleSaveTrip()}
-                                disabled={isLoading}
+                                style={{ flex: 1 }}
+                                onClick={() => handleSaveTrip(tripName)}
+                                disabled={isLoading || !tripName.trim()}
                             >
                                 Confirm
                             </Button>
-                            <Button onClick={() => setSaveTripOpen(false)}>Cancel</Button>
+                            <Button style={{ flex: 1}} onClick={() => setSaveTripOpen(false)}>Cancel</Button>
                         </div>
                     </WindowContent>
                 </Window>
@@ -630,6 +793,7 @@ function HomePage() {
                     type="email"
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
+                    autoFocus
                     fullWidth />
                 <TextInput
                     placeholder="Password"
@@ -670,7 +834,7 @@ function HomePage() {
                         setSearchMode("edit");
                         setFocusSearch(true);
                     }}
-                
+
                     />
                 )}
                 
@@ -757,12 +921,11 @@ function HomePage() {
                             lat: place.geometry.location.lat(),
                             lng: place.geometry.location.lng(),
                         };
-                        // if (searchMode === "start") {
-                        //     setStartLocation(place);
-                        //     setSearchMode("add");
-                        // } 
-                        if (searchMode === "edit"){
-
+                        if (searchMode === "start") {
+                            setStartLocation(place);
+                            setSearchMode("add");
+                        }
+                        else if (searchMode === "edit"){
                             setPlaces((prev) =>
                             prev.map((p) =>
                             p.place_id === editingPlace.place_id
@@ -776,7 +939,7 @@ function HomePage() {
                             setEditingPlace(null);
                             setSearchMode("add");
                         }
-                        
+
                         else {
                             setPlaces((prev) => [
                             ...prev,
