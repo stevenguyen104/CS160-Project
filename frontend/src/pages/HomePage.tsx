@@ -660,7 +660,10 @@ function HomePage() {
                 {/* Search panel overlaid on the map */}
                 <div className="search-panel-overlay">
                 {directionsMode ? (
-                    <DirectionBar mode={directionsMode} places={places} />
+                    <DirectionBar 
+                    mode={directionsMode} 
+                    setMode={setDirectionsMode}
+                    places={places} />
                     
                 ) : (
                     <SearchPanel
