@@ -1,9 +1,10 @@
 import os
 from dotenv import load_dotenv
 from pathlib import Path
-load_dotenv(dotenv_path=Path(__file__).parent / ".env")
 
 from googlemaps import Client
+
+load_dotenv(dotenv_path=Path(__file__).parent / ".env")
 
 SUPABASE_URL: str = os.environ["SUPABASE_URL"]
 SUPABASE_KEY: str = os.environ["SUPABASE_KEY"]
@@ -17,5 +18,6 @@ __all__ = [
     "SUPABASE_KEY",
     "RAPIDAPI_KEY",
     "FRONTEND_ORIGINS",
+    "GOOGLE_MAPS_API_KEY",
     "GOOGLE_MAPS_CLIENT"
 ]

@@ -1,4 +1,4 @@
-from flask import Blueprint, jsonify, request, current_app
+from flask import Blueprint, jsonify, request
 from googlemaps import Client
 
 from backend import GOOGLE_MAPS_CLIENT
