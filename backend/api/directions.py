@@ -1,7 +1,5 @@
 from flask import Blueprint, jsonify, request
-from googlemaps import Client
 
-from backend import GOOGLE_MAPS_CLIENT
 from ..helpers.directions_response_parser import DirectionsResponse
 from ..helpers.place_result_parser import PlaceResult
 from ..services.directions_service import DirectionsService
@@ -14,7 +12,6 @@ def get_directions():
     data = request.get_json()
     places = data.get("places")
     place_results: list[PlaceResult] = [PlaceResult(place) for place in places]
-    gmaps_client: Client = GOOGLE_MAPS_CLIENT
-    directions_service: DirectionsService = DirectionsService(place_results, gmaps_client)
+    directions_service: DirectionsService = DirectionsService(place_results)
     directions_response: DirectionsResponse = directions_service.obtain_directions()
     return jsonify(directions_response.get_dict()), 200

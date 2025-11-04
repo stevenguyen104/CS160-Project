@@ -1,24 +1,20 @@
-from googlemaps import Client
-
+from backend import GOOGLE_MAPS_CLIENT
 from ..helpers.place_result_parser import PlaceResult
 from ..helpers.directions_response_parser import DirectionsResponse
 
 
 class DirectionsService:
-    def __init__(self, place_results: list[PlaceResult], gmaps_client: Client):
+    def __init__(self, place_results: list[PlaceResult]):
         """
         Initialize a DirectionsService object with a list of PlaceResults.
 
         :param place_results: A list of PlaceResults.
         :type place_results: list[PlaceResult]
-        :param gmaps_client: A Google Maps client.
-        :type gmaps_client: Client
         """
         if len(place_results) < 2:
             raise ValueError("At least an origin and destination are required to get directions.")
 
         self.place_results: list[PlaceResult] = place_results
-        self.gmaps_client: Client = gmaps_client
 
     def obtain_directions(self) -> DirectionsResponse:
         """
@@ -44,7 +40,7 @@ class DirectionsService:
         departure_time = "now"  # TODO let users customize
         units = "imperial"  # TODO let users customize
 
-        directions = self.gmaps_client.directions(  # type: ignore[attr-defined]
+        directions = GOOGLE_MAPS_CLIENT.directions(  # type: ignore[attr-defined]
             origin=origin,
             destination=destination,
             waypoints=waypoints,

@@ -1,4 +1,4 @@
-import uuid
+from uuid import UUID
 
 from flask import Blueprint, jsonify, request
 from supabase import AuthApiError
@@ -20,7 +20,7 @@ def get_trips():
                 "error": "Cannot get current user"
             }), 401
         
-        trips = trip_repo.get_trips(user_id=uuid.UUID(response.user.id))
+        trips = trip_repo.get_trips(user_id=UUID(response.user.id))
 
         return jsonify({
             "success": True,
@@ -57,7 +57,7 @@ def create_trip():
 
         data = request.get_json()
         name = data.get("name", "Untitled Trip")
-        trip = trip_repo.create_trip(user_id=uuid.UUID(response.user.id), name=name)
+        trip = trip_repo.create_trip(user_id=UUID(response.user.id), name=name)
 
         return jsonify({
             "success": True,

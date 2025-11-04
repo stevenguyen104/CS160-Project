@@ -1,5 +1,5 @@
-import uuid
 from datetime import datetime, timezone
+from uuid import UUID
 
 from supabase import Client
 
@@ -14,7 +14,7 @@ class TripRepository:
         """
         self.supabase: Client = supabase_client
 
-    def create_trip(self, user_id: uuid.UUID, name: str):
+    def create_trip(self, user_id: UUID, name: str):
         """
         Create a new trip.
 
@@ -51,7 +51,7 @@ class TripRepository:
                     .execute())
         return response.data
 
-    def get_trips(self, user_id: uuid.UUID):
+    def get_trips(self, user_id: UUID):
         """
         Get all trips for a user.
 

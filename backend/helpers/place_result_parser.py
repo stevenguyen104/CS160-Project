@@ -3,6 +3,10 @@ class PlaceResult:
         """
         Initialize a PlaceResult with a PlaceResult object from Google's Location Selection API. See:
         https://developers.google.com/maps/documentation/mobility/location-selection-api/reference/rest/v1beta/PlaceResult
+
+        If using the Place Details (Legacy) API, take the key "result" as the Place.
+        That Place has the same structure as a PlaceResult. See:
+        https://developers.google.com/maps/documentation/places/web-service/legacy/details
         """
         self.place_result: dict = place_result
 
