@@ -37,9 +37,19 @@ def get_stops(trip_id: int):
 def get_stop(trip_id: int, stop_id: int):
     stop = stop_repo.get_stop(trip_id=trip_id, stop_id=stop_id)
 
+    detail = GOOGLE_MAPS_CLIENT.place(  # type: ignore
+        place_id=stop["place_id"],  # type: ignore
+        fields=[
+            "name",
+            "formatted_address",
+            "geometry",
+            "place_id"
+        ]
+    )["result"]
+
     return jsonify({
         "success": True,
-        "stop": stop,
+        "stop": detail,
         "message": "Stop successfully obtained"
     }), 200
 
