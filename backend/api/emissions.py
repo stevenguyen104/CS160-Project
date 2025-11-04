@@ -19,7 +19,7 @@ def calculate_emissions():
     # TODO store directions so we don't have to call the Directions API again.
     directions_service: DirectionsService = DirectionsService(place_results)
     directions_response: DirectionsResponse = directions_service.obtain_directions()
-    total_distance_meters: int = sum(directions_response.get_distances())
+    total_distance_meters: int = directions_response.get_total_distance()
     distance_value: float = total_distance_meters / 1000.0
     distance_unit: str = "km"
     emissions_service: EmissionsService = EmissionsService(

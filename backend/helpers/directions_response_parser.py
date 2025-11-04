@@ -20,8 +20,17 @@ class DirectionsResponse:
 
     def get_distances(self) -> list[int]:
         """
-        Obtains a list of distances in meters
+        Obtains a list of distances in meters.
+        :return: list[int]
         """
         legs: list = self.directions_response["legs"]
         distance_meters: list[int] = [leg["distance"]["value"] for leg in legs]
         return distance_meters
+
+    def get_total_distance(self) -> int:
+        """
+        Obtains the total distance in meters.
+        :return: int
+        """
+        distance_meters: list[int] = self.get_distances()
+        return sum(distance_meters)
