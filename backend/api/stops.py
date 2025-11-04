@@ -13,10 +13,7 @@ stop_repo = StopRepository(supabase_client=supabase)
 def get_stops(trip_id: int):
     stops = stop_repo.get_stops(trip_id=trip_id)
 
-    details = [{
-        "place": GOOGLE_MAPS_CLIENT.place(place_id=stop["place_id"]),  # type: ignore
-        "distance_meters": 200
-    } for stop in stops]
+    details = [GOOGLE_MAPS_CLIENT.place(place_id=stop["place_id"])["result"] for stop in stops] # type: ignore
 
     return jsonify({
         "success": True,
