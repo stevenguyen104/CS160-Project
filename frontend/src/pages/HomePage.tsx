@@ -255,6 +255,32 @@ function HomePage() {
         }
     }
 
+    const handleDeleteStops = async (getTripID: number) => {
+        setIsLoading(true);
+        try {
+            const response = await fetch("http://127.0.0.1:5000/trips/" + getTripID + "/stops/", {
+                method: "DELETE",
+                mode: "cors",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({}),
+                credentials: "include",
+            });
+
+            const data = await response.json();
+            console.log(data);
+
+            if (response.ok) {
+                console.log(data.message);
+            } else {
+                console.error(data.error);
+            }
+        } catch (error) {
+            console.error(error);
+        } finally {
+            setIsLoading(false);
+        }
+    }
+
     const handleSaveTrip = async (name: string) => {
         if (!name.trim()) return;
         // No trip selected (tripID starts at 1)
@@ -262,6 +288,7 @@ function HomePage() {
             const newTripID: number = await handleAddTrip(name);
             await handleAddStops(newTripID);
         } else {
+            await handleDeleteStops(tripID);
             await handleAddStops(tripID);
         }
         // save trip logic goes here
