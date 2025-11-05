@@ -12,7 +12,7 @@ class PlacesService:
         """
         self.place_ids: list[str] = place_ids
 
-    def obtain_place_details(self, fields: list[str] = None) -> list[PlaceResult]:
+    def obtain_place_details(self, fields: list[str] | None = None) -> list[PlaceResult]:
         """
         Get more details about the place using Google's Place Details (Legacy) API.
 

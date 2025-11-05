@@ -12,7 +12,7 @@ stop_repo = StopRepository(supabase_client=supabase)
 @stops_bp.route("/", methods=["GET"])
 def get_stops(trip_id: int):
     stops = stop_repo.get_stops(trip_id=trip_id)
-    formatted_stops: list[str] = [stop["place_id"] for stop in stops]
+    formatted_stops: list[str] = [stop["place_id"] for stop in stops]  # type: ignore[attr-defined]
     places_services: PlacesService = PlacesService(formatted_stops)
     place_results: list[PlaceResult] = places_services.obtain_place_details()
     formatted_places: list[dict] = [place_result.get_place() for place_result in place_results]
@@ -27,7 +27,7 @@ def get_stops(trip_id: int):
 @stops_bp.route("/<int:stop_id>", methods=["GET"])
 def get_stop(trip_id: int, stop_id: int):
     stop = stop_repo.get_stop(trip_id=trip_id, stop_id=stop_id)
-    places_service: PlacesService = PlacesService([stop["place_id"]])
+    places_service: PlacesService = PlacesService([stop["place_id"]])  # type: ignore[attr-defined]
     place_result: PlaceResult = places_service.obtain_place_details()[0]
     formatted_place: dict = place_result.get_place()
 
