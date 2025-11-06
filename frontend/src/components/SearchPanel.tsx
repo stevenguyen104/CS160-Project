@@ -6,7 +6,7 @@ interface SearchPanelProps {
     google: typeof window.google;
     onSearch?: (results: google.maps.places.PlaceResult[]) => void;
     onSelectPlace?: (place: google.maps.places.PlaceResult) => void;
-    searchMode: "start" | "add";
+    searchMode: "start" | "add" | "edit";
     focusSearch?: boolean;
     setFocusSearch?: (focused: boolean) => void;
 }

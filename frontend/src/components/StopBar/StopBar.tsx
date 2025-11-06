@@ -6,28 +6,27 @@ import { useRef, useState, useEffect } from "react";
 import StartCard from "./StartCard";
 
 interface Places{
-    placeLocations: any[];
+    placeLocations: google.maps.places.PlaceResult[];
     onItemsChange?: (updatedItems: any[]) => void;
-    startLocation?: google.maps.places.PlaceResult | null;
     onEnterClick?: () => void;
+    onEditPlace?: (place: any) => void;
 
 }
 
 
-export default function StopBar({placeLocations, onItemsChange, startLocation, onEnterClick}: Places){
+export default function StopBar({placeLocations, onItemsChange, onEnterClick, onEditPlace}: Places){
 
     const [items, setItems] = useState<any[]>(placeLocations || []);
+
+
     useEffect(() => {
         setItems(placeLocations || []);
     }, [placeLocations]);
 
     useEffect(() => {
         onItemsChange?.(items);
+        console.log(items);
     }, [items]);
-
-    useEffect(() => {
-        startLocation ? setItems((prev) => [...prev, { id: Date.now() + Math.random(), name: startLocation.name, address: startLocation.formatted_address }]) : null;
-    }, [startLocation]);
 
     const containerRef = useRef<HTMLDivElement | null>(null);
     const placeholderIndexRef = useRef<number | null>(null);
@@ -155,9 +154,18 @@ export default function StopBar({placeLocations, onItemsChange, startLocation, o
     };
 
     const onDelete = (id: number) => {
-        console.log(id);
-        setItems(prevItems => prevItems.filter(item => item.id !== id)
+        setItems(prevItems => prevItems.filter(item => item.place_id !== id)
         );
+    }
+
+    const onEdit = (id: number) => {
+        console.log(id);
+        console.log(items);
+        const itemEdited = items.find((item) => item.place_id === id);
+        if (itemEdited){
+            console.log("found");
+            onEditPlace?.(itemEdited);
+        }
     }
 
 
@@ -174,12 +182,12 @@ export default function StopBar({placeLocations, onItemsChange, startLocation, o
             }}>
                 <div className="stopbarScrollContainer" ref={containerRef}>
                 <StartCard 
-                    id = {0}
-                    startLocation={startLocation}
+                    placeLocations = {placeLocations}
+                    // startLocation={startLocation}
                     onEnterStartLocation={onEnterClick}
                     />
                 {items
-                .filter((place) => place.name !== startLocation?.name) // exclude startlocation from being mdae into stopcompoentn
+                // .filter((place) => place.name !== startLocation?.name) // exclude startlocation from being mdae into stopcompoentn
                 .map((place, index) => (
                     <React.Fragment key={place.id}>
                     {placeholderIndexRef.current === index && (
@@ -192,11 +200,12 @@ export default function StopBar({placeLocations, onItemsChange, startLocation, o
                         />
                     )}
                     <StopComponent
-                        id={place.id}
+                        id={place.place_id}
                         name={place.name}
-                        address={place.adddress}
+                        address={place.formatted_address}
                         onPointerDown={(e) => handlePointerDown(e, index)}
                         onDelete={onDelete}
+                        onEdit={onEdit}
                     />
                     </React.Fragment>
                 ))}

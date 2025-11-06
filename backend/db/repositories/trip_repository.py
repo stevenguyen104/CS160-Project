@@ -1,4 +1,5 @@
-import uuid
+from datetime import datetime, timezone
+from uuid import UUID
 
 from supabase import Client
 
@@ -13,20 +14,20 @@ class TripRepository:
         """
         self.supabase: Client = supabase_client
 
-    def create_trip(self, user_id: uuid.UUID, emissions: list[float] = None) -> dict:
+    def create_trip(self, user_id: UUID, name: str):
         """
         Create a new trip.
 
         :param user_id: User ID
         :type user_id: UUID
-        :param emissions: Emissions to add to the trip, stored individually between two stops
-        :type emissions: list[float]
+        :param name: The name of the trip
+        :type name: str
         :return: The newly created trip data
-        :rtype: dict
         """
         data = {
             "user_id": str(user_id),
-            "emissions": emissions or [0.0]
+            "name": name,
+            "last_modified": str(datetime.now(timezone.utc))
         }
 
         response = (self.supabase.table("trips")
@@ -34,14 +35,13 @@ class TripRepository:
                     .execute())
         return response.data[0] if response.data else None
 
-    def get_trip(self, trip_id: int) -> dict:
+    def get_trip(self, trip_id: int):
         """
         Get a trip by its ID.
 
         :param trip_id: Trip ID
         :type trip_id: int
         :return: Trip data
-        :rtype: dict
         """
         response = (self.supabase.table("trips")
                     .select("*")
@@ -51,14 +51,13 @@ class TripRepository:
                     .execute())
         return response.data
 
-    def get_trips(self, user_id: uuid.UUID) -> list[dict]:
+    def get_trips(self, user_id: UUID):
         """
         Get all trips for a user.
 
         :param user_id: User ID
         :type user_id: UUID
         :return: All trips belonging to a user
-        :rtype: list[dict]
         """
         response = (self.supabase.table("trips")
                     .select("*")
@@ -66,19 +65,19 @@ class TripRepository:
                     .execute())
         return response.data
 
-    def update_trip(self, trip_id: int, emissions: list[float] = None) -> dict:
+    def update_trip(self, trip_id: int, new_name: str):
         """
-        Update trip attributes (emissions in this case).
+        Update trip attributes (last modified in this case).
 
         :param trip_id: Trip ID
         :type trip_id: int
-        :param emissions: Emissions to add to the trip, stored individually between two stops
-        :type emissions: list[float]
+        :param new_name: The new name of the trip
+        :type new_name: str
         :return: The updated trip data
-        :rtype: dict
         """
         new_data = {
-            "emissions": emissions or [0.0]
+            "last_modified": str(datetime.now(timezone.utc)),
+            "name": new_name
         }
 
         response = (self.supabase.table("trips")
@@ -87,14 +86,13 @@ class TripRepository:
                     .execute())
         return response.data[0] if response.data else None
 
-    def delete_trip(self, trip_id: int) -> dict:
+    def delete_trip(self, trip_id: int):
         """
         Delete a trip by its ID.
 
         :param trip_id: Trip ID
         :type trip_id: int
-        :return: The trip that was deleted.
-        :rtype: dict
+        :return: The trip that was deleted
         """
         response = (self.supabase.table("trips")
                     .delete()

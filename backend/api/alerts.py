@@ -1,49 +1,25 @@
-import requests
-
 from flask import Blueprint, jsonify, request
 
-from backend import GOOGLE_MAPS_API_KEY
-from placeresult import PlaceResult
+from ..helpers.place_result_parser import PlaceResult
+from ..helpers.aqi_response_parser import AQIResponse
+from ..services.aqi_service import AQIService
 
 alerts_bp = Blueprint("alerts", __name__, url_prefix="/stops/alerts")
-
-
-def get_alert(data: dict):
-    url = "https://airquality.googleapis.com/v1/currentConditions:lookup"
-
-    params = {
-        "key": GOOGLE_MAPS_API_KEY
-    }
-
-    # data = request.get_json()  # google.maps.places.PlaceResult
-    place_result = PlaceResult(data)
-
-    json_data = {
-        "location": {
-            "latitude": place_result.get_latitude(),
-            "longitude": place_result.get_longitude()
-        }
-    }
-
-    headers = {
-        "Content-Type": "application/json"
-    }
-
-    response = requests.post(url, params=params, json=json_data, headers=headers)
-    return response.json()
 
 
 @alerts_bp.route("/", methods=["POST"])
 def get_alerts():
     data = request.get_json()
-    places: list[dict] = data.get("places")  # list[google.maps.places.PlaceResult]
-    alerts = [get_alert(place) for place in places]
+    places = data.get("places")  # list[google.maps.places.PlaceResult]
+    place_results: list[PlaceResult] = [PlaceResult(place) for place in places]
+    aqi_service: AQIService = AQIService(place_results)
+    aqi_responses: list[AQIResponse] = aqi_service.obtain_multiple_aqi()
 
+    # TODO change how alerts are shown
     num_abnormal_conditions = 0
     bad_aqi_threshold = 100  # TODO make this customizable by the user
-    for alert in alerts:
-        indexes = alert.get("indexes")
-        aqi = indexes[0].get("aqi")
+    for aqi_response in aqi_responses:
+        aqi: int = aqi_response.get_aqi()
         if aqi >= bad_aqi_threshold:
             num_abnormal_conditions += 1
 
