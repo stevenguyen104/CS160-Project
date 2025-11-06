@@ -36,16 +36,14 @@ class DirectionsService:
             result.get_latitude(),
             result.get_longitude())
             for result in rest_of_place_results]
-        mode = "driving"  # TODO let users customize; examples are cycling, driving
-        departure_time = "now"  # TODO let users customize
         units = "imperial"  # TODO let users customize
 
         directions = GOOGLE_MAPS_CLIENT.directions(  # type: ignore[attr-defined]
             origin=origin,
             destination=destination,
             waypoints=waypoints,
-            mode=mode,
-            departure_time=departure_time,
+            mode="driving",
+            departure_time="now",
             units=units
         )
 

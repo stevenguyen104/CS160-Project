@@ -10,6 +10,9 @@ import { Window, WindowHeader, WindowContent, Button, Frame, TextInput, Tooltip 
 import { Awfxex32Info, Settings, Wab321016, Mute, Unmute } from "@react95/icons";
 import DirectionBar from "../components/DirectionBar/DirectionBar";
 import SideWindow from "../components/RouteOverlay/SideWindow";
+import DefaultSave from "../components/SavePopUp/DefaultSave";
+import SelectedTripSave from "../components/SavePopUp/SelectedTripSave";
+import NewTripButton from "../components/NewTripButton/NewTripButton";
 const libraries: ("places")[] = ["places"];
 
 function HomePage() {
@@ -210,7 +213,7 @@ function HomePage() {
         }
     }
 
-    const handleDeleteUser = async () => {
+    const User = async () => {
         // pass
     }
 
@@ -230,6 +233,7 @@ function HomePage() {
 
             if (response.ok) {
                 setTripID(data.trip["trip_id"]);
+                console.log(tripID);
                 console.log(data.message);
                 return data.trip["trip_id"];
             } else {
@@ -270,13 +274,42 @@ function HomePage() {
         }
     }
 
-    const handleSaveTrip = async (name: string) => {
-        if (!name.trim()) return;
+    const handleDeleteStops = async (getTripID: number) => {
+        setIsLoading(true);
+        try {
+            const response = await fetch("http://127.0.0.1:5000/trips/" + getTripID + "/stops/", {
+                method: "DELETE",
+                mode: "cors",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({}),
+                credentials: "include",
+            });
+            // these are prolly unnecessary
+            const data = await response.json();
+            console.log(data);
+
+            if (response.ok) {
+                console.log(data.message);
+            } else {
+                console.error(data.error);
+            }
+        } catch (error) {
+            console.error(error);
+        } finally {
+            setIsLoading(false);
+        }
+    }
+
+    const handleSaveTrip = async (name: string, isNew: boolean) => {
+        // if (!name.trim()) return;
         // No trip selected (tripID starts at 1)
-        if (tripID <= 0) {
+        if (tripID <= 0 || isNew) {
+            console.log("here");
             const newTripID: number = await handleAddTrip(name);
             await handleAddStops(newTripID);
         } else {
+            console.log("saving")
+            await handleDeleteStops(tripID);
             await handleAddStops(tripID);
         }
         // save trip logic goes here
@@ -376,6 +409,7 @@ function HomePage() {
             if (response.ok) {
                 setPlaces(data.stops);
                 setSavedOpen(false);
+                setTripID(trip_id);
             } else {
                 console.error("Error loading stops:", data.error);
             }
@@ -771,6 +805,40 @@ function HomePage() {
         </div>
         )}
 
+        {/* Confirm Delete Trip Window */}
+        {confirmDeleteTrip.open && (
+            <div className="overlay-backdrop" onClick={() => setConfirmDeleteTrip({ open: false, tripId: null })}>
+                <Window
+                    style={{ width: 350, height: 150, position: "relative" }}
+                    onClick={(e) => e.stopPropagation()}
+                >
+                    <WindowHeader>
+                        <span>Delete Trip</span>
+                        <Button
+                            square
+                            size="sm"
+                            onClick={() => setConfirmDeleteTrip({ open: false, tripId: null })}
+                            style={{ position: "absolute", top: 5, right: 5 }}
+                        >
+                            ✕
+                        </Button>
+                    </WindowHeader>
+                    <WindowContent>
+                        <p>Are you sure you want to delete this trip?</p>
+                        <div style={{ display: "flex", flexDirection: "row", gap: "8px", width: "100%", marginTop: "15px" }}>
+                            <Button
+                                style={{ flex: 1 }}
+                                onClick={() => handleDeleteTrip(confirmDeleteTrip.tripId!)}
+                            >
+                                Confirm
+                            </Button>
+                            <Button style={{ flex: 1}} onClick={() => setConfirmDeleteTrip({ open: false, tripId: null })}>Cancel</Button>
+                        </div>
+                    </WindowContent>
+                </Window>
+            </div>
+        )}
+
         {/* Volume Window */}
         {volumeOpen && (
             <div className="overlay-backdrop" onClick={() => setVolumeOpen(false)}>
@@ -810,47 +878,30 @@ function HomePage() {
         )}
 
         {/* Confirm Save Trip Window */}
+        {/* check tripID if == -1 then have this code, otherwise otehr shit */}
         {saveTripOpen && (
-            <div className="overlay-backdrop" onClick={() => setSaveTripOpen(false)}>
-                <Window
-                    style={{ width: 300, height: 200, position: "relative" }}
-                    onClick={(e) => e.stopPropagation()}
+            tripID === -1 ? (
+                <DefaultSave
+                    setSaveTripOpen={setSaveTripOpen}
+                    tripName={tripName}
+                    setTripName={setTripName}
+                    isLoading={isLoading}
+                    handleSaveTrip={handleSaveTrip}
+                    onCancel={() => setSaveTripOpen(false)}
                 >
-                    <WindowHeader>
-                        <span>Save Trip</span>
-                        <Button
-                            square
-                            size="sm"
-                            onClick={() => setSaveTripOpen(false)}
-                            style={{ position: "absolute", top: 5, right: 5 }}
-                        >
-                            ✕
-                        </Button>
-                    </WindowHeader>
-                    <WindowContent>
-                        <p>Enter a name for your trip:</p>
-                        <TextInput
-                            placeholder="Trip Name"
-                            value={tripName}
-                            onChange={(e) => setTripName(e.target.value)}
-                            fullWidth
-                            autoFocus
-                            style={{ marginTop: 10, marginBottom: 20 }}
-                        />
-                        <div style={{ display: "flex", flexDirection: "row", gap: "8px", width: "100%", marginTop: "10px" }}>
-                            <Button
-                                style={{ flex: 1 }}
-                                onClick={() => handleSaveTrip(tripName)}
-                                disabled={isLoading || !tripName.trim()}
-                            >
-                                Confirm
-                            </Button>
-                            <Button style={{ flex: 1}} onClick={() => setSaveTripOpen(false)}>Cancel</Button>
-                        </div>
-                    </WindowContent>
-                </Window>
-            </div>
-        )}
+
+                </DefaultSave>
+            ) 
+            : (
+                <SelectedTripSave
+                    setSaveTripOpen={setSaveTripOpen}
+                    tripName={tripName}
+                    setTripName={setTripName}
+                    isLoading={isLoading}
+                    handleSaveTrip={handleSaveTrip}>
+
+                </SelectedTripSave>
+        ))}
 
         {/* Login Window */}
         {loginOpen && (
@@ -945,6 +996,19 @@ function HomePage() {
                     </Tooltip>
                 </div>)
                 }
+                {
+                    tripID !== -1 && !directionsMode && (
+                        <div className="new-trip-button">
+                        <NewTripButton
+                            setPlaces={setPlaces}
+                            setTripID={setTripID}
+                            setSaveTripOpen={setSaveTripOpen}>
+
+                        </NewTripButton>
+                        </div>
+                    )
+                }
+                
                 
 
                 {/* Confirm Route Window */}
@@ -1044,7 +1108,7 @@ function HomePage() {
                     setFocusSearch={setFocusSearch}
                     />
                 )}
-                </div>
+                </div>             
                 {directionsMode && <SideWindow alerts={alerts} emissions={emissions} directions={directions}/>}
             </div>
 

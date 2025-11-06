@@ -10,7 +10,7 @@ alerts_bp = Blueprint("alerts", __name__, url_prefix="/stops/alerts")
 @alerts_bp.route("/", methods=["POST"])
 def get_alerts():
     data = request.get_json()
-    places = data.get("places")  # list[google.maps.places.PlaceResult]
+    places = data.get("places")
     place_results: list[PlaceResult] = [PlaceResult(place) for place in places]
     aqi_service: AQIService = AQIService(place_results)
     aqi_responses: list[AQIResponse] = aqi_service.obtain_multiple_aqi()
