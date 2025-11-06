@@ -45,7 +45,7 @@ export default function StopComponent({ id, name, address, onPointerDown, onDele
                                 e.stopPropagation();
                                 onEdit?.(id);
                         }}>
-                            ✏️
+                            ✍️
                         </Button>
 
                         <Button

@@ -6,7 +6,7 @@ import SearchPanel from "../components/SearchPanel";
 import StopBar from "../components/StopBar/StopBar";
 import Sidebar from "../components/SideBar/SideBar";
 import CustomCursor from "../components/CustomCursor/CustomCursor";
-import { Window, WindowHeader, WindowContent, Button, Frame, TextInput, Tooltip } from "react95";
+import { Window, WindowHeader, WindowContent, Button, Frame, TextInput, Tooltip , Checkbox, Select} from "react95";
 import { Awfxex32Info, Settings, Wab321016, Mute, Unmute } from "@react95/icons";
 import DirectionBar from "../components/DirectionBar/DirectionBar";
 import SideWindow from "../components/RouteOverlay/SideWindow";
@@ -22,6 +22,7 @@ function HomePage() {
     const [volumeOpen, setVolumeOpen] = useState(false);
     const [settingsOpen, setSettingsOpen] = useState(false);
     const [saveTripOpen, setSaveTripOpen] = useState(false);
+    const [vehicleInfoOpen, setVehicleInfoOpen] = useState(false);
     const [infoOpen, setInfoOpen] = useState(false);
     const [selectedPlace, setSelectedPlace] = useState<google.maps.LatLngLiteral | null>(null);
     const [places, setPlaces] = useState<google.maps.places.PlaceResult[]>([]);
@@ -44,6 +45,8 @@ function HomePage() {
     const [password, setPassword] = useState("");
     const [userID, setUserID] = useState("");
     const [tripID, setTripID] = useState(-1);
+    const [vehicle_make, setMake] = useState("");
+    const [vehicle_model, setModel] = useState("");
 
     const [directions, setDirections] = useState(null);
     const [alerts, setAlerts] = useState(null);
@@ -122,6 +125,12 @@ function HomePage() {
         */
 
     const handleLogin = async() => {
+
+        if (password.length < 6) {
+            window.alert("Password must be at least 6 characters long.");
+            return;
+        }
+
         try {
             const response = await fetch("http://127.0.0.1:5000/users/login", {
                 method: "POST",
@@ -149,6 +158,12 @@ function HomePage() {
     }
 
     const handleRegister = async () => {
+
+        if (password.length < 6) {
+            window.alert("Password must be at least 6 characters long.");
+            return;
+        }
+
         try {
             const response = await fetch("http://127.0.0.1:5000/users/register", {
                 method: "POST",
@@ -480,6 +495,7 @@ function HomePage() {
         onLoginOpen={() => setLoginOpen(true)}
         onVolumeOpen={() => setVolumeOpen(true)}
         onSaveTripOpen={() => setSaveTripOpen(true)}
+        onVehicleInfoOpen={() => setVehicleInfoOpen(true)}
         />
 
         {/* Menu Window */}
@@ -532,7 +548,51 @@ function HomePage() {
                 </Button>
             </WindowHeader>
             <WindowContent>
-                {/* todo */}
+                {/* ADD SOME CHECKED VALUE, ONCHANGE CALL SOME FUNC */}
+                <Checkbox
+                    value='routeType'
+                    label='Prefer fastest route'
+                    onChange={() => {
+                    // CALL FUNC
+
+                    }}
+                />
+
+                <br />
+                <Checkbox
+                    value='blank'
+                    label='blank'
+                    onChange={() => {
+                    // CALL FUNC
+
+                    }}
+                />
+                <br />
+                <Checkbox
+                    value='blank'
+                    label='blank'
+                    onChange={() => {
+                    // CALL FUNC
+
+                    }}
+                />
+                <br />
+                <br />
+                <p>Preferred units:</p>
+                {/* ADD SOME UNIT VALUE, ONCHANGE CALL SOME FUNC */}
+                <Select
+                    defaultValue={1}
+                    options={[
+                        { value: 1, label: "miles" },
+                        { value: 2, label: "km" },
+                    ]}
+                    menuMaxHeight={160}
+                    width={160}
+                    onChange={() => {
+                    // CALL FUNC
+                        
+                    }}
+                />
             </WindowContent>
             </Window>
         </div>
@@ -695,6 +755,90 @@ function HomePage() {
             </div>
         )}
 
+        {/* Vehicle Info Window */}
+        {vehicleInfoOpen && (
+        <div className="overlay-backdrop" onClick={() => setVehicleInfoOpen(false)}>
+            <Window style={{ width: 500, height: 500, position: "relative" }} onClick={(e) => e.stopPropagation()}>
+            <WindowHeader>
+                <span>Vehicle Info</span>
+                <Button
+                square
+                size="sm"
+                onClick={() => setVehicleInfoOpen(false)}
+                style={{ position: "absolute", top: 5, right: 5 }}
+                >
+                ✕
+                </Button>
+            </WindowHeader>
+            <WindowContent>
+                <p>Enter your vehicle's make (brand):</p>
+                <TextInput
+                placeholder="Make Name"
+                value={vehicle_make}
+                onChange={(e) => setMake(e.target.value)}
+                fullWidth
+                autoFocus
+                style={{ marginTop: 10, marginBottom: 20 }}
+                />
+                <p>Enter your vehicle's model:</p>
+                <TextInput
+                placeholder="Model Name"
+                value={vehicle_model}
+                onChange={(e) => setModel(e.target.value)}
+                fullWidth
+                autoFocus
+                style={{ marginTop: 10, marginBottom: 20 }}
+                />
+                {/* PUT VEHICLE API CONFIRM HERE AND CHANGE CALL TO USE VARS*/}
+                <Button
+                fullWidth
+                disabled={!vehicle_make.trim() || !vehicle_model.trim()}
+                onClick={() => {
+                    // CALL API, IF NOT FOUND, USE DEFAULTS (?)
+
+                }}
+                >
+                    Confirm
+                </Button>
+            </WindowContent>
+            </Window>
+        </div>
+        )}
+
+        {/* Confirm Delete Trip Window */}
+        {confirmDeleteTrip.open && (
+            <div className="overlay-backdrop" onClick={() => setConfirmDeleteTrip({ open: false, tripId: null })}>
+                <Window
+                    style={{ width: 350, height: 150, position: "relative" }}
+                    onClick={(e) => e.stopPropagation()}
+                >
+                    <WindowHeader>
+                        <span>Delete Trip</span>
+                        <Button
+                            square
+                            size="sm"
+                            onClick={() => setConfirmDeleteTrip({ open: false, tripId: null })}
+                            style={{ position: "absolute", top: 5, right: 5 }}
+                        >
+                            ✕
+                        </Button>
+                    </WindowHeader>
+                    <WindowContent>
+                        <p>Are you sure you want to delete this trip?</p>
+                        <div style={{ display: "flex", flexDirection: "row", gap: "8px", width: "100%", marginTop: "15px" }}>
+                            <Button
+                                style={{ flex: 1 }}
+                                onClick={() => handleDeleteTrip(confirmDeleteTrip.tripId!)}
+                            >
+                                Confirm
+                            </Button>
+                            <Button style={{ flex: 1}} onClick={() => setConfirmDeleteTrip({ open: false, tripId: null })}>Cancel</Button>
+                        </div>
+                    </WindowContent>
+                </Window>
+            </div>
+        )}
+
         {/* Volume Window */}
         {volumeOpen && (
             <div className="overlay-backdrop" onClick={() => setVolumeOpen(false)}>
@@ -795,6 +939,7 @@ function HomePage() {
                     type="password"
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
+                    title="Password must be at least 6 characters"
                     fullWidth />
                 <Button fullWidth onClick={handleLogin}>
                     Login
