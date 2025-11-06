@@ -12,6 +12,7 @@ import DirectionBar from "../components/DirectionBar/DirectionBar";
 import SideWindow from "../components/RouteOverlay/SideWindow";
 import DefaultSave from "../components/SavePopUp/DefaultSave";
 import SelectedTripSave from "../components/SavePopUp/SelectedTripSave";
+import NewTripButton from "../components/NewTripButton/NewTripButton";
 const libraries: ("places")[] = ["places"];
 
 function HomePage() {
@@ -285,9 +286,6 @@ function HomePage() {
     }
 
     const handleSaveTrip = async (name: string, isNew: boolean) => {
-        console.log("handling");
-        console.log(tripID);
-        console.log(name);
         // if (!name.trim()) return;
         // No trip selected (tripID starts at 1)
         if (tripID <= 0 || isNew) {
@@ -853,6 +851,19 @@ function HomePage() {
                     </Tooltip>
                 </div>)
                 }
+                {
+                    tripID !== -1 && !directionsMode && (
+                        <div className="new-trip-button">
+                        <NewTripButton
+                            setPlaces={setPlaces}
+                            setTripID={setTripID}
+                            setSaveTripOpen={setSaveTripOpen}>
+
+                        </NewTripButton>
+                        </div>
+                    )
+                }
+                
                 
 
                 {/* Confirm Route Window */}
@@ -952,7 +963,7 @@ function HomePage() {
                     setFocusSearch={setFocusSearch}
                     />
                 )}
-                </div>
+                </div>             
                 {directionsMode && <SideWindow alerts={alerts} emissions={emissions} directions={directions}/>}
             </div>
 

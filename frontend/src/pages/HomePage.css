@@ -102,6 +102,13 @@ html, body, #root {
     z-index: 20;
 }
 
+.new-trip-button {
+    position: absolute;
+    bottom: 152.5px;
+    left: 75px; 
+    z-index: 20;
+}
+
 .animated-bg {
     position: fixed;
     top: 0;
