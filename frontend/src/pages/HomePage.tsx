@@ -982,7 +982,7 @@ function HomePage() {
                 {/* Start Route button */}
                 {
                     !directionsMode && (<div className="start-route-button">
-                    <Tooltip text='Start Route' style={{ zIndex: 20 }} enterDelay={100} leaveDelay={100} position="right">
+                    <Tooltip text='Start Route' style={{ zIndex: 25 }} enterDelay={100} leaveDelay={100} position="right">
                         <Button 
                             disabled = {places.length < 2 && startLocation === null}
                             style = {{

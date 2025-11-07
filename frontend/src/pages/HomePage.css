@@ -91,13 +91,13 @@ html, body, #root {
     position: absolute;
     bottom: 152.5px;
     left: 5px;
-    z-index: 20;
+    z-index: 21;
 }
 
 .new-trip-button {
     position: absolute;
-    bottom: 152.5px;
-    left: 75px; 
+    bottom: 157px;
+    left: 65px; 
     z-index: 20;
 }
 

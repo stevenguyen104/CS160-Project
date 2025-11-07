@@ -1,4 +1,5 @@
 import { Button, Tooltip } from "react95";
+import { Circle } from "@react95/icons"
 
 interface NewTripProps{
     setPlaces: React.Dispatch<React.SetStateAction<google.maps.places.PlaceResult[]>>;
@@ -16,7 +17,7 @@ export default function NewTripButton({setPlaces, setTripID, setSaveTripOpen}: N
                 setTripID(-1);
                 setSaveTripOpen(false);
             }}>
-                ⟳
+                <Circle/>
             </Button>
         </Tooltip>
         </>

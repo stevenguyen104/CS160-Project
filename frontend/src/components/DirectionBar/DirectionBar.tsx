@@ -14,6 +14,7 @@ export default function DirectionBar({mode, setMode, places}: DirectionBarProps)
         };
     });
     const onClick = () => {
+        // FUTURE EXPORT ROUTE TO .WHATEVER FILE
         console.log(places);
     }
 
@@ -25,7 +26,7 @@ export default function DirectionBar({mode, setMode, places}: DirectionBarProps)
         <>
         <div className="direction-bar" style={{padding: '10px', width: mode ? '300px' : '0px', height: '100%', overflowY: 'auto', transition: 'width 0.3s ease-in-out', boxSizing: 'border-box', backgroundColor: '#c3c7cb'}}>
             <Button onClick={onClick}>
-                Expand all  
+                Export Route 
             </Button>
 
             <GroupBox>
@@ -37,7 +38,7 @@ export default function DirectionBar({mode, setMode, places}: DirectionBarProps)
                 ))} */}
             </GroupBox>
 
-            <Button onClick={endRoute}>
+            <Button style={{ marginTop: '5px' }} onClick={endRoute}>
                 End Route
             </Button>
 

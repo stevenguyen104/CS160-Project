@@ -47,6 +47,7 @@ export default function SelectedTripSave({setSaveTripOpen, tripName, setTripName
                         </Button>
                     </WindowHeader>
                         <WindowContent>
+                        <br/>
                         <div style={{ display: "flex", flexDirection: "row", gap: "8px", width: "100%", marginTop: "10px" }}>
                              {/* diff function  */}
                             <Button
@@ -55,10 +56,6 @@ export default function SelectedTripSave({setSaveTripOpen, tripName, setTripName
                             >
                                 Confirm
                             </Button>
-                            <Button style={{ flex: 1}} onClick={() => setSaveTripOpen(false)}>
-                                Cancel
-                            </Button>
-
                             <Button onClick={() => setSaveNew(true)}>
                                 Save as New Trip
                             </Button>

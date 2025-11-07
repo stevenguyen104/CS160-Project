@@ -16,9 +16,6 @@ export default function Navbar({ onAboutClick }: NavbarProps) {
                 <Button onClick={onAboutClick}>
                     About
                 </Button>
-                <Button>
-                    Login
-                </Button>
             </div>
         </Toolbar>
     </AppBar>

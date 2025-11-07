@@ -70,13 +70,12 @@ useEffect(() => {
                                             zIndex: 0,
                                         }}
                                     />
-                                    <button
+                                    <span
                                         onClick={() => navigate('/home')}
                                         style={{
                                             position: 'absolute',
                                             top: '10px',
                                             left: '10px',
-                                            background: 'blue',
                                         }}
                                     >
                                         <Avatar square size={50} style={{ backgroundColor: '#d8f8f3' }}>
@@ -87,7 +86,7 @@ useEffect(() => {
                                                 />
                                             </span>
                                         </Avatar>
-                                    </button>
+                                    </span>
                                 </Monitor>
                             </div>
                         </div>
