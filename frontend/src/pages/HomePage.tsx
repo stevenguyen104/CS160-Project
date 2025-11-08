@@ -667,6 +667,9 @@ function HomePage() {
                                     </div>
                                 ) : (
                                     <>
+                                    <div style={{position: "relative"}}>
+
+                                    
                                     <Button
                                         fullWidth
                                         onClick={() => handleLoadTrip(trip.trip_id)}
@@ -682,33 +685,36 @@ function HomePage() {
                                     <div
                                         style={{
                                             position: "absolute",
-                                            top: "8px",
-                                            right: "-5px",
+                                            top: "50%",
+                                            right: 0,
+                                            transform: "translateY(-50%)",
                                             display: hoveredTrip === trip.trip_id ? "flex" : "none",
-                                            gap: "3px",
+                                            
                                        }}
                                     >
-                                        <Button
-                                            square
-                                            size="sm"
-                                            onClick={(e) => {
-                                                e.stopPropagation();
-                                                setEditingTripId(trip.trip_id);
-                                                setEditTripName(trip.name || "");
-                                            }}
-                                        >
-                                            ✏️
-                                        </Button>
-                                        <Button
-                                            square
-                                            size="sm"
-                                            onClick={(e) => {
-                                                e.stopPropagation();
-                                                setConfirmDeleteTrip({ open: true, tripId: trip.trip_id });
-                                            }}
-                                        >
-                                            ✕
-                                        </Button>
+                                            <Button
+                                                square
+                                                size="sm"
+                                                onClick={(e) => {
+                                                    e.stopPropagation();
+                                                    setEditingTripId(trip.trip_id);
+                                                    setEditTripName(trip.name || "");
+                                                }}
+                                            >
+                                                ✏️
+                                            </Button>
+                                            <Button
+                                                square
+                                                size="sm"
+                                                onClick={(e) => {
+                                                    e.stopPropagation();
+                                                    setConfirmDeleteTrip({ open: true, tripId: trip.trip_id });
+                                                }}
+                                            >
+                                                ✕
+                                            </Button>
+                                        
+                                    </div>
                                     </div>
                                     </>
                                 )}
