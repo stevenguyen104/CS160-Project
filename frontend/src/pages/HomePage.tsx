@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect } from "react";
-import { useJsApiLoader } from "@react-google-maps/api";
+import { useJsApiLoader, DirectionsRenderer } from "@react-google-maps/api";
 import "./HomePage.css";
 import Map from "../components/Map";
 import SearchPanel from "../components/SearchPanel";
@@ -330,7 +330,10 @@ function HomePage() {
             });
 
             const data = await response.json();
-            setDirections(data);
+            setDirections({
+                routes: [data],
+                status: "OK"
+            });
             console.log(data);
 
             if (response.ok) {
@@ -966,7 +969,7 @@ function HomePage() {
                     variant="well"
                     style={{ width: "100%", height: "100%" }}
                 >
-                    <Map selectedPlace={selectedPlace} />
+                    <Map selectedPlace={selectedPlace} directions={directions}/>
                 </Frame>
 
                 {!directionsMode && (

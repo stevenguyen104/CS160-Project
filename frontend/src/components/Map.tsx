@@ -1,4 +1,4 @@
-import { GoogleMap, Marker } from "@react-google-maps/api";
+import { GoogleMap, Marker, DirectionsRenderer } from "@react-google-maps/api";
 
 const containerStyle = {
     width: "100%",
@@ -11,9 +11,10 @@ const defaultCenter = {
 
 interface MapProps {
     selectedPlace?: { lat: number; lng: number } | null;
+    directions?: google.maps.DirectionsResult | null;
 }
 
-export default function Map({ selectedPlace }: MapProps) {
+export default function Map({ selectedPlace, directions }: MapProps) {
     const center = selectedPlace || defaultCenter;
 
     return (
@@ -29,6 +30,18 @@ export default function Map({ selectedPlace }: MapProps) {
             }}
         >
             {selectedPlace && <Marker position={selectedPlace} />}
+
+            {/* Show directions if trip is loaded*/}
+            {directions && (
+                <DirectionsRenderer options={{
+                    directions,
+                    preserveViewport: false,
+                    polylineOptions: {
+                        strokeColor: "#1E90FF",
+                        strokeWeight: 5
+                    }
+                }}/>
+                )}
         </GoogleMap>
     );
 }
