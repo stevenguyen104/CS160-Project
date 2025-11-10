@@ -3,8 +3,9 @@ import { useState } from "react";
 
 interface SideWindowProps {
     alerts: any;
-    directions: any;
+    directions: google.maps.DirectionsRoute;
     emissions: any;
+    units: string;
 }
 
 type Alert = {
@@ -12,7 +13,7 @@ type Alert = {
     AQI_display: string;
 }
 
-export default function SideWindow({ alerts, directions, emissions}: SideWindowProps) {
+export default function SideWindow({ alerts, directions, emissions, units}: SideWindowProps) {
     const [show, setShow] = useState(true);
 
     return (
@@ -44,7 +45,7 @@ export default function SideWindow({ alerts, directions, emissions}: SideWindowP
                     Emissions info
                 </WindowHeader>
                 <WindowContent>
-                    {emissions ? JSON.stringify(emissions.message, null, 2) : "Loading..."}
+                    {emissions ? (units == "km" ? `${emissions.data.co2e_kg} kilograms` : `${emissions.data.co2e_lb} pounds`) : "Loading..."}
                 </WindowContent>
 
             </Window>

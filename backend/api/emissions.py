@@ -2,8 +2,6 @@ from flask import Blueprint, jsonify, request
 
 from ..helpers.directions_response_parser import DirectionsResponse
 from ..helpers.emissions_estimate_parser import EmissionsEstimate
-from ..helpers.place_result_parser import PlaceResult
-from ..services.directions_service import DirectionsService
 from ..services.emissions_service import EmissionsService
 
 emissions_bp = Blueprint("emissions", __name__, url_prefix="/trips/emissions")
@@ -14,11 +12,8 @@ def calculate_emissions():
     data = request.get_json()
     vehicle_make = data.get("vehicle_make")
     vehicle_model = data.get("vehicle_model")
-    places = data.get("place_results")
-    place_results: list[PlaceResult] = [PlaceResult(place) for place in places]
-    # TODO store directions so we don't have to call the Directions API again.
-    directions_service: DirectionsService = DirectionsService(place_results)
-    directions_response: DirectionsResponse = directions_service.obtain_directions()
+    directions = data.get("directions")
+    directions_response: DirectionsResponse = DirectionsResponse(directions)
     total_distance_meters: int = directions_response.get_total_distance()
     distance_value: float = total_distance_meters / 1000.0
     distance_unit: str = "km"
