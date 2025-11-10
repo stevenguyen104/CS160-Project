@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect } from "react";
-import { useJsApiLoader, DirectionsRenderer } from "@react-google-maps/api";
+import { useJsApiLoader } from "@react-google-maps/api";
 import "./HomePage.css";
 import Map from "../components/Map";
 import SearchPanel from "../components/SearchPanel";
@@ -13,7 +13,7 @@ import SideWindow from "../components/RouteOverlay/SideWindow";
 import DefaultSave from "../components/SavePopUp/DefaultSave";
 import SelectedTripSave from "../components/SavePopUp/SelectedTripSave";
 import NewTripButton from "../components/NewTripButton/NewTripButton";
-const libraries: ("places")[] = ["places"];
+const libraries: ("places" | "geometry")[] = ["places", "geometry"];
 
 function HomePage() {
     const [menuOpen, setMenuOpen] = useState(false);
@@ -1043,7 +1043,7 @@ function HomePage() {
                                         // route logic goes here
                                         handleGetDirections();
                                         handleGetAlerts();
-                                        handleGetEmissions();
+                                        // handleGetEmissions();
                                         console.log("Route confirmed!");
                                         setShowConfirmRoute(false);
                                         setDirectionsMode(true);
