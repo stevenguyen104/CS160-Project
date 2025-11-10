@@ -12,13 +12,11 @@ const defaultCenter = {
 interface MapProps {
     selectedPlace?: { lat: number; lng: number } | null;
     directions?: google.maps.DirectionsRoute | null;
+    polylinePoints: google.maps.LatLng[] | undefined;
 }
 
-export default function Map({ selectedPlace, directions }: MapProps) {
+export default function Map({ selectedPlace, directions, polylinePoints }: MapProps) {
     const center = selectedPlace || defaultCenter;
-    const polylinePoints = directions ? google.maps.geometry.encoding.decodePath(
-        directions.overview_polyline.points
-    ) : undefined;
 
     return (
         <GoogleMap
@@ -32,20 +30,18 @@ export default function Map({ selectedPlace, directions }: MapProps) {
                 zoomControl: false
             }}
         >
-            {selectedPlace && <Marker position={selectedPlace} />}
 
             {/* Show directions if trip is loaded*/}
-            {directions && polylinePoints && (
-                <>
-                    <Polyline
-                        path={polylinePoints}
-                        options={{ strokeColor: "#1976D2", strokeOpacity: 0.8, strokeWeight: 5 }}
-                    />
-                    {directions.legs.map((leg, i) => (
-                        <Marker position={leg.start_location} label={String.fromCharCode(65 + i)}/>
-                    ))}
-                </>
-            )}
+            <Polyline
+                path={polylinePoints}
+                options={{ strokeColor: "#1976D2", strokeOpacity: 0.8, strokeWeight: 5 }}
+            > 
+            </Polyline>
+            {directions?.legs.map((leg, i) => (
+                <Marker position={leg.start_location} label={String.fromCharCode(65 + i)}/>
+            ))}
+            
+            {selectedPlace && <Marker position={selectedPlace} />}
         </GoogleMap>
     );
 }

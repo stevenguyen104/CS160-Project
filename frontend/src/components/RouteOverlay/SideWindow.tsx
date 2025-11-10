@@ -18,7 +18,7 @@ export default function SideWindow({ alerts, directions, emissions}: SideWindowP
     return (
         <>
         <div style={{ position: "absolute", top: 20, right: 20, zIndex: 20 }}>
-            <Button onClick={() => setShow(!show)}> le button </Button>
+            <Button onClick={() => setShow(!show)}> {show ? "Collapse" : "Expand"} </Button>
             <br></br>
             {show && (
                 <>

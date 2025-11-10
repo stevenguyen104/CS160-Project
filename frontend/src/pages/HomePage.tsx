@@ -49,6 +49,7 @@ function HomePage() {
     const [vehicle_model, setModel] = useState("");
 
     const [directions, setDirections] = useState<google.maps.DirectionsRoute | null>(null);
+    const [polylinePoints, setPolylinePoints] = useState<google.maps.LatLng[] | undefined>(undefined);
     const [alerts, setAlerts] = useState(null);
     const [emissions, setEmissions] = useState(null);
 
@@ -59,6 +60,15 @@ function HomePage() {
     const [confirmDeleteTrip, setConfirmDeleteTrip] = useState({ open: false, tripId: null });
 
     const audioRef = useRef<HTMLAudioElement>(null);
+
+    useEffect(() => {
+        if (!directionsMode) {
+            setDirections(null);
+            setPolylinePoints(undefined);
+        } else {
+            // setPolylinePoints(google.maps.geometry.encoding.decodePath(directions!.overview_polyline.points));
+        }
+    }, [directionsMode]);
 
     useEffect(() => {
         if (audioRef.current) {
@@ -331,6 +341,7 @@ function HomePage() {
 
             const data = await response.json();
             setDirections(data);
+            setPolylinePoints(google.maps.geometry.encoding.decodePath(data.overview_polyline.points));
             console.log(data);
 
             if (response.ok) {
@@ -966,7 +977,7 @@ function HomePage() {
                     variant="well"
                     style={{ width: "100%", height: "100%" }}
                 >
-                    <Map selectedPlace={selectedPlace} directions={directions}/>
+                    <Map selectedPlace={selectedPlace} directions={directions} polylinePoints={polylinePoints}/>
                 </Frame>
 
                 {!directionsMode && (
