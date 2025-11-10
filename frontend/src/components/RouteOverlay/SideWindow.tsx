@@ -3,7 +3,7 @@ import { useState } from "react";
 
 interface SideWindowProps {
     alerts: any;
-    directions: google.maps.DirectionsRoute;
+    directions: google.maps.DirectionsRoute | null;
     emissions: any;
     units: string;
 }
@@ -15,6 +15,12 @@ type Alert = {
 
 export default function SideWindow({ alerts, directions, emissions, units}: SideWindowProps) {
     const [show, setShow] = useState(true);
+    const legs: google.maps.DirectionsLeg[] = directions!.legs;
+    const distances: number[] = legs.map(leg => leg.distance!.value);
+    const totalDistance: number = distances.reduce((a, b) => a + b, 0);
+    const unit = units === "km" ? "kilograms" : "pounds";
+    const totalEmissions = units === "km" ? emissions?.data.co2e_kg : emissions?.data.co2e_lb;
+    const emissionsPerLeg = distances.map(d => (d / totalDistance) * totalEmissions);
 
     return (
         <>
@@ -30,7 +36,7 @@ export default function SideWindow({ alerts, directions, emissions, units}: Side
                 <WindowContent>
                     {alerts ? alerts.message : "Loading..."}
                     {alerts && alerts.alerts.map((alert: Alert, index: number) => (
-                        <div key={index}>
+                        <div key={`${alert} ${index}`}>
                             {alert.location}: {alert.AQI_display}
                         </div>
                     ))}
@@ -45,7 +51,12 @@ export default function SideWindow({ alerts, directions, emissions, units}: Side
                     Emissions info
                 </WindowHeader>
                 <WindowContent>
-                    {emissions ? (units == "km" ? `${emissions.data.co2e_kg} kilograms` : `${emissions.data.co2e_lb} pounds`) : "Loading..."}
+                    {emissions && emissionsPerLeg.map((e, i) => (
+                        <div key={`${e} ${i}}`}>
+                            {`Segment ${i + 1}: ${e.toFixed(2)} ${unit}`}
+                        </div>
+                    ))}
+                    {emissions ? `Total: ${totalEmissions} ${unit}` : "Loading..."}
                 </WindowContent>
 
             </Window>
