@@ -42,8 +42,9 @@ export default function Map({ selectedPlace, directions }: MapProps) {
                         path={polylinePoints}
                         options={{ strokeColor: "#1976D2", strokeOpacity: 0.8, strokeWeight: 5 }}
                     />
-                    <Marker position={directions.legs[0].start_location} label="A" />
-                    <Marker position={directions.legs[directions.legs.length - 1].end_location} label="B" />
+                    {directions.legs.map((leg, i) => (
+                        <Marker position={leg.start_location} label={String.fromCharCode(65 + i)}/>
+                    ))}
                 </>
             )}
         </GoogleMap>

@@ -1,16 +1,18 @@
 import { Button, GroupBox, TreeView} from "react95";
+import type { TreeLeaf} from "react95";
 interface DirectionBarProps {
     mode: boolean;   
     setMode: (value: boolean) => void 
-    places: any[];
+    places: google.maps.places.PlaceResult[];
 }
 
 export default function DirectionBar({mode, setMode, places}: DirectionBarProps) {
-    const adjustedPlaces = (places || []).map((place) => {
-        const { name, label, ...rest } = place || {};
+    const adjustedPlaces: TreeLeaf<google.maps.places.PlaceResult>[] = (places || []).map((place) => {
+        // const { name, ...rest } = place || {};
         return {
-            ...rest,
-            label: label ?? name ?? "",
+            // ...rest,
+            id: place,
+            label: place.name ?? ""
         };
     });
     const onClick = () => {
