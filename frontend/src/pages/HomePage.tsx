@@ -48,7 +48,7 @@ function HomePage() {
     const [vehicle_make, setMake] = useState("");
     const [vehicle_model, setModel] = useState("");
 
-    const [directions, setDirections] = useState(null);
+    const [directions, setDirections] = useState<google.maps.DirectionsRoute | null>(null);
     const [alerts, setAlerts] = useState(null);
     const [emissions, setEmissions] = useState(null);
 
@@ -330,10 +330,7 @@ function HomePage() {
             });
 
             const data = await response.json();
-            setDirections({
-                routes: [data],
-                status: "OK"
-            });
+            setDirections(data);
             console.log(data);
 
             if (response.ok) {
