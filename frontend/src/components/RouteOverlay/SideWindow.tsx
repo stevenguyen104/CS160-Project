@@ -7,6 +7,11 @@ interface SideWindowProps {
     emissions: any;
 }
 
+type Alert = {
+    location: string;
+    AQI_display: string;
+}
+
 export default function SideWindow({ alerts, directions, emissions}: SideWindowProps) {
     const [show, setShow] = useState(true);
 
@@ -22,7 +27,12 @@ export default function SideWindow({ alerts, directions, emissions}: SideWindowP
                     Alerts
                 </WindowHeader>
                 <WindowContent>
-                    {alerts ? JSON.stringify(alerts, null, 2) : "Loading..."}
+                    {alerts ? alerts.message : "Loading..."}
+                    {alerts && alerts.alerts.map((alert: Alert, index: number) => (
+                        <div key={index}>
+                            {alert.location}: {alert.AQI_display}
+                        </div>
+                    ))}
                 </WindowContent>
 
             </Window>
@@ -34,7 +44,7 @@ export default function SideWindow({ alerts, directions, emissions}: SideWindowP
                     Emissions info
                 </WindowHeader>
                 <WindowContent>
-                    {emissions ? JSON.stringify(emissions, null, 2) : "Loading..."}
+                    {emissions ? JSON.stringify(emissions.message, null, 2) : "Loading..."}
                 </WindowContent>
 
             </Window>

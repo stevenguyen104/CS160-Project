@@ -16,7 +16,6 @@ interface MapProps {
 
 export default function Map({ selectedPlace, directions }: MapProps) {
     const center = selectedPlace || defaultCenter;
-
     const polylinePoints = directions ? google.maps.geometry.encoding.decodePath(
         directions.overview_polyline.points
     ) : undefined;
