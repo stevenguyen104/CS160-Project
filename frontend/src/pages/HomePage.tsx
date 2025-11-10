@@ -1048,8 +1048,8 @@ function HomePage() {
                         <Button 
                             disabled = {(places.length < 2 && startLocation === null) || vehicleMake == "" || vehicleModel == ""}
                             style = {{
-                                filter: places.length < 2 && startLocation === null ? 'grayscale(100%)' : 'none',
-                                cursor: places.length < 2 && startLocation === null ? 'not-allowed' : 'pointer',
+                                filter: (places.length < 2 && startLocation === null) || vehicleMake == "" || vehicleModel == ""? 'grayscale(100%)' : 'none',
+                                cursor: (places.length < 2 && startLocation === null) || vehicleMake == "" || vehicleModel == ""? 'not-allowed' : 'pointer',
                             }}
                             onClick={() => setShowConfirmRoute(true)}
                         > 
