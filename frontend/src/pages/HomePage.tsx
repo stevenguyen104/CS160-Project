@@ -123,6 +123,7 @@ function HomePage() {
     }, [volume, muted]);
 
     useEffect(() => {
+        console.log("selectedpalce" + selectedPlace);
         console.log("tripID updated:", tripID);
     }, [tripID]);
 
@@ -1051,7 +1052,24 @@ function HomePage() {
                                 filter: (places.length < 2 && startLocation === null) || vehicleMake == "" || vehicleModel == ""? 'grayscale(100%)' : 'none',
                                 cursor: (places.length < 2 && startLocation === null) || vehicleMake == "" || vehicleModel == ""? 'not-allowed' : 'pointer',
                             }}
-                            onClick={() => setShowConfirmRoute(true)}
+                            onClick={() => {setShowConfirmRoute(true);
+                                                const location = places[0]?.geometry?.location;
+                                                // tripID condition? Since helps center on save trips 
+                                                if (location){
+                                                    // lol this gets rid of type safety
+                                                    const locationAsAny = location as any;
+                                                    const newPlace: google.maps.LatLngLiteral = {
+                                                        lat: locationAsAny.lat,
+                                                        lng: locationAsAny.lng,
+                                                    };
+                                                    setSelectedPlace(newPlace);
+                                                    console.log("Setting selected place to:", newPlace);                                                
+                                                
+                                                }
+                                                
+
+                                }
+                            }
                         > 
                             <Wab321016 /> 
                         </Button>
