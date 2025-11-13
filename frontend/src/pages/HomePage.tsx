@@ -109,7 +109,8 @@ function HomePage() {
     useEffect(() => {
         if (!directionsMode) {
             setDirections(null);
-            setPolylinePoints(undefined);
+            setPolylinePoints([]);
+            setSelectedPlace(null);
         } else {
             // setPolylinePoints(google.maps.geometry.encoding.decodePath(directions!.overview_polyline.points));
         }
@@ -137,6 +138,7 @@ function HomePage() {
       return () => window.removeEventListener("click", startAudio);
     }, []);
 
+ 
     useEffect(() => {
       if (savedOpen && userID) {
         const getTrips = async () => {
@@ -1023,7 +1025,10 @@ function HomePage() {
                     variant="well"
                     style={{ width: "100%", height: "100%" }}
                 >
-                    <Map selectedPlace={selectedPlace} directions={directions} polylinePoints={polylinePoints}/>
+                    <Map 
+                        selectedPlace={selectedPlace} 
+                        directions={directions} 
+                        polylinePoints={polylinePoints}/>
                 </Frame>
 
                 {!directionsMode && (
@@ -1082,8 +1087,9 @@ function HomePage() {
                         <NewTripButton
                             setPlaces={setPlaces}
                             setTripID={setTripID}
-                            setSaveTripOpen={setSaveTripOpen}>
-
+                            setSaveTripOpen={setSaveTripOpen}
+                            setDirectionsMode={setDirectionsMode}
+>
                         </NewTripButton>
                         </div>
                     )
