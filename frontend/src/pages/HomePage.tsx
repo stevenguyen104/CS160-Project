@@ -99,8 +99,9 @@ function HomePage() {
 
     useEffect(() => {
         if (directions != null) {
-            handleGetEmissions();
-            handleGetAlerts();
+            console.log("directions" , directions);
+            // handleGetEmissions();
+            // handleGetAlerts();
             setShowConfirmRoute(false);
             setDirectionsMode(true);
         }
@@ -1141,7 +1142,8 @@ function HomePage() {
                     <DirectionBar 
                     mode={directionsMode} 
                     setMode={setDirectionsMode}
-                    places={places} />
+                    places={places}
+                    directions={directions} />
                     
                 ) : (
                     <SearchPanel

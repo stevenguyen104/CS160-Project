@@ -4,17 +4,28 @@ interface DirectionBarProps {
     mode: boolean;   
     setMode: (value: boolean) => void 
     places: google.maps.places.PlaceResult[];
+    directions: google.maps.DirectionsRoute | null;
 }
 
-export default function DirectionBar({mode, setMode, places}: DirectionBarProps) {
-    const adjustedPlaces: TreeLeaf<google.maps.places.PlaceResult>[] = (places || []).map((place) => {
-        // const { name, ...rest } = place || {};
-        return {
-            // ...rest,
-            id: place,
-            label: place.name ?? ""
-        };
+export default function DirectionBar({mode, setMode, places, directions}: DirectionBarProps) {
+
+    const combined: TreeLeaf<string>[] =
+    directions?.legs.map((leg, i) => ({
+        id: places[i].name!,       
+        label: places[i].name!,  
+        items: leg.steps.map(step => ({
+        id: (step as any).html_instructions.replace(/<[^>]*>/g, ""),
+        label: (step as any).html_instructions.replace(/<[^>]*>/g, ""),
+        items: [] // steps are leaves, so empty children
+        }))
+    })) ?? [];
+
+    combined.push({
+        id: places[places.length - 1].name!,
+    label: places[places.length - 1].name,
+    items: []
     });
+
     const onClick = () => {
         // FUTURE EXPORT ROUTE TO .WHATEVER FILE
         console.log(places);
@@ -32,7 +43,7 @@ export default function DirectionBar({mode, setMode, places}: DirectionBarProps)
             </Button>
 
             <GroupBox>
-                <TreeView tree={adjustedPlaces} />
+                <TreeView tree={combined} />
                 {/* {places.map((place, index) => (
                     <div key={index} style={{marginBottom: '10px'}}>
                         <strong>Step {index + 1}:</strong> {place.name} - {place.address}
