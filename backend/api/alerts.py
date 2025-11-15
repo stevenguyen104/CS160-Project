@@ -27,6 +27,6 @@ def get_alerts():
     return jsonify({
         "success": True,
         "alerts": displayed_alerts,
-        "message": f"{len(displayed_alerts)} location{"" if len(displayed_alerts) == 1 else "s"}"
+        "message": f"{len(displayed_alerts)} location{'' if len(displayed_alerts) == 1 else 's'}"
                    f" have a moderate AQI or worse."
     }), 200
