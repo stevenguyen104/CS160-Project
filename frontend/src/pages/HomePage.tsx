@@ -13,7 +13,19 @@ import SideWindow from "../components/RouteOverlay/SideWindow";
 import DefaultSave from "../components/SavePopUp/DefaultSave";
 import SelectedTripSave from "../components/SavePopUp/SelectedTripSave";
 import NewTripButton from "../components/NewTripButton/NewTripButton";
-const libraries: ("places")[] = ["places"];
+const libraries: ("places" | "geometry")[] = ["places", "geometry"];
+interface Settings {
+    preferFastestRoute: boolean;
+    avoidTolls: boolean;
+    darkTheme: boolean;
+    units: "miles" | "km";
+}
+const defaultSettings: Settings = {
+    preferFastestRoute: false,
+    avoidTolls: false,
+    darkTheme: false,
+    units: "miles"
+};
 
 function HomePage() {
     const [menuOpen, setMenuOpen] = useState(false);
@@ -45,10 +57,11 @@ function HomePage() {
     const [password, setPassword] = useState("");
     const [userID, setUserID] = useState("");
     const [tripID, setTripID] = useState(-1);
-    const [vehicle_make, setMake] = useState("");
-    const [vehicle_model, setModel] = useState("");
+    const [vehicleMake, setVehicleMake] = useState(localStorage.getItem("vehicleMake") || "");
+    const [vehicleModel, setVehicleModel] = useState(localStorage.getItem("vehicleModel") || "");
 
-    const [directions, setDirections] = useState(null);
+    const [directions, setDirections] = useState<google.maps.DirectionsRoute | null>(null);
+    const [polylinePoints, setPolylinePoints] = useState<google.maps.LatLng[] | undefined>(undefined);
     const [alerts, setAlerts] = useState(null);
     const [emissions, setEmissions] = useState(null);
 
@@ -58,7 +71,51 @@ function HomePage() {
     const [editTripName, setEditTripName] = useState("");
     const [confirmDeleteTrip, setConfirmDeleteTrip] = useState({ open: false, tripId: null });
 
+    const [settings, setSettings] = useState(() => {
+        const saved = localStorage.getItem("routeSettings");
+        return saved ? JSON.parse(saved) : defaultSettings;
+    });
+    const handleCheckboxChange = (key: keyof Settings, value: boolean) => {
+        setSettings((prev: Settings) => ({ ...prev, [key]: value} ));
+    };
+    const handleSelectChange = (key: keyof Settings, value: string) => {
+        setSettings((prev: Settings) => ({ ...prev, [key]: value }));
+    };
+
     const audioRef = useRef<HTMLAudioElement>(null);
+
+    useEffect(() => {
+        localStorage.setItem("routeSettings", JSON.stringify(settings));
+    }, [settings]);
+
+    useEffect(() => {
+        localStorage.setItem("vehicleMake", vehicleMake);
+    }, [vehicleMake]);
+
+    useEffect(() => {
+        localStorage.setItem("vehicleModel", vehicleModel);
+    }, [vehicleModel]);
+
+
+    useEffect(() => {
+        if (directions != null) {
+            console.log("directions" , directions);
+            handleGetEmissions();
+            handleGetAlerts();
+            setShowConfirmRoute(false);
+            setDirectionsMode(true);
+        }
+    }, [directions]);
+
+    useEffect(() => {
+        if (!directionsMode) {
+            setDirections(null);
+            setPolylinePoints([]);
+            setSelectedPlace(null);
+        } else {
+            // setPolylinePoints(google.maps.geometry.encoding.decodePath(directions!.overview_polyline.points));
+        }
+    }, [directionsMode]);
 
     useEffect(() => {
         if (audioRef.current) {
@@ -68,8 +125,9 @@ function HomePage() {
     }, [volume, muted]);
 
     useEffect(() => {
+        console.log("selectedpalce" + selectedPlace);
         console.log("tripID updated:", tripID);
-    }, [tripID])
+    }, [tripID]);
 
     // play on action
     useEffect(() => {
@@ -81,6 +139,7 @@ function HomePage() {
       return () => window.removeEventListener("click", startAudio);
     }, []);
 
+ 
     useEffect(() => {
       if (savedOpen && userID) {
         const getTrips = async () => {
@@ -331,6 +390,7 @@ function HomePage() {
 
             const data = await response.json();
             setDirections(data);
+            setPolylinePoints(google.maps.geometry.encoding.decodePath(data.overview_polyline.points));
             console.log(data);
 
             if (response.ok) {
@@ -376,9 +436,9 @@ function HomePage() {
                 mode: "cors",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({
-                    "vehicle_make": "Honda",  // example
-                    "vehicle_model": "Accord", 
-                    "place_results": places
+                    "vehicle_make": vehicleMake,
+                    "vehicle_model": vehicleModel, 
+                    "directions": directions
                 }),
                 credentials: "include"
             });
@@ -550,30 +610,30 @@ function HomePage() {
             <WindowContent>
                 {/* ADD SOME CHECKED VALUE, ONCHANGE CALL SOME FUNC */}
                 <Checkbox
-                    value='routeType'
+                    value='preferFastestRoute'
                     label='Prefer fastest route'
-                    onChange={() => {
-                    // CALL FUNC
-
+                    checked={settings.preferFastestRoute}
+                    onChange={(e) => {
+                        handleCheckboxChange("preferFastestRoute", e.target.checked);
                     }}
                 />
 
                 <br />
                 <Checkbox
-                    value='blank'
-                    label='blank'
-                    onChange={() => {
-                    // CALL FUNC
-
+                    value='avoidTolls'
+                    label='Avoid tolls'
+                    checked={settings.avoidTolls}
+                    onChange={(e) => {
+                        handleCheckboxChange("avoidTolls", e.target.checked)
                     }}
                 />
                 <br />
                 <Checkbox
-                    value='blank'
-                    label='blank'
-                    onChange={() => {
-                    // CALL FUNC
-
+                    value='themeType'
+                    label='Enable dark theme'
+                    checked={settings.darkTheme}
+                    onChange={(e) => {
+                        handleCheckboxChange("darkTheme", e.target.checked);
                     }}
                 />
                 <br />
@@ -581,16 +641,16 @@ function HomePage() {
                 <p>Preferred units:</p>
                 {/* ADD SOME UNIT VALUE, ONCHANGE CALL SOME FUNC */}
                 <Select
-                    defaultValue={1}
+                    defaultValue={settings.units}
                     options={[
-                        { value: 1, label: "miles" },
-                        { value: 2, label: "km" },
+                        { value: "miles", label: "miles" },
+                        { value: "km", label: "km" },
                     ]}
                     menuMaxHeight={160}
                     width={160}
-                    onChange={() => {
+                    onChange={(option) => {
                     // CALL FUNC
-                        
+                        handleSelectChange("units", option.value);
                     }}
                 />
             </WindowContent>
@@ -667,6 +727,9 @@ function HomePage() {
                                     </div>
                                 ) : (
                                     <>
+                                    <div style={{position: "relative"}}>
+
+                                    
                                     <Button
                                         fullWidth
                                         onClick={() => handleLoadTrip(trip.trip_id)}
@@ -682,33 +745,36 @@ function HomePage() {
                                     <div
                                         style={{
                                             position: "absolute",
-                                            top: "8px",
-                                            right: "-5px",
+                                            top: "50%",
+                                            right: 0,
+                                            transform: "translateY(-50%)",
                                             display: hoveredTrip === trip.trip_id ? "flex" : "none",
-                                            gap: "3px",
+                                            
                                        }}
                                     >
-                                        <Button
-                                            square
-                                            size="sm"
-                                            onClick={(e) => {
-                                                e.stopPropagation();
-                                                setEditingTripId(trip.trip_id);
-                                                setEditTripName(trip.name || "");
-                                            }}
-                                        >
-                                            ✏️
-                                        </Button>
-                                        <Button
-                                            square
-                                            size="sm"
-                                            onClick={(e) => {
-                                                e.stopPropagation();
-                                                setConfirmDeleteTrip({ open: true, tripId: trip.trip_id });
-                                            }}
-                                        >
-                                            ✕
-                                        </Button>
+                                            <Button
+                                                square
+                                                size="sm"
+                                                onClick={(e) => {
+                                                    e.stopPropagation();
+                                                    setEditingTripId(trip.trip_id);
+                                                    setEditTripName(trip.name || "");
+                                                }}
+                                            >
+                                                ✏️
+                                            </Button>
+                                            <Button
+                                                square
+                                                size="sm"
+                                                onClick={(e) => {
+                                                    e.stopPropagation();
+                                                    setConfirmDeleteTrip({ open: true, tripId: trip.trip_id });
+                                                }}
+                                            >
+                                                ✕
+                                            </Button>
+                                        
+                                    </div>
                                     </div>
                                     </>
                                 )}
@@ -774,8 +840,8 @@ function HomePage() {
                 <p>Enter your vehicle's make (brand):</p>
                 <TextInput
                 placeholder="Make Name"
-                value={vehicle_make}
-                onChange={(e) => setMake(e.target.value)}
+                value={vehicleMake}
+                onChange={(e) => setVehicleMake(e.target.value)}
                 fullWidth
                 autoFocus
                 style={{ marginTop: 10, marginBottom: 20 }}
@@ -783,8 +849,8 @@ function HomePage() {
                 <p>Enter your vehicle's model:</p>
                 <TextInput
                 placeholder="Model Name"
-                value={vehicle_model}
-                onChange={(e) => setModel(e.target.value)}
+                value={vehicleModel}
+                onChange={(e) => setVehicleModel(e.target.value)}
                 fullWidth
                 autoFocus
                 style={{ marginTop: 10, marginBottom: 20 }}
@@ -792,7 +858,7 @@ function HomePage() {
                 {/* PUT VEHICLE API CONFIRM HERE AND CHANGE CALL TO USE VARS*/}
                 <Button
                 fullWidth
-                disabled={!vehicle_make.trim() || !vehicle_model.trim()}
+                disabled={!vehicleMake.trim() || !vehicleModel.trim()}
                 onClick={() => {
                     // CALL API, IF NOT FOUND, USE DEFAULTS (?)
 
@@ -960,7 +1026,10 @@ function HomePage() {
                     variant="well"
                     style={{ width: "100%", height: "100%" }}
                 >
-                    <Map selectedPlace={selectedPlace} />
+                    <Map 
+                        selectedPlace={selectedPlace} 
+                        directions={directions} 
+                        polylinePoints={polylinePoints}/>
                 </Frame>
 
                 {!directionsMode && (
@@ -984,12 +1053,29 @@ function HomePage() {
                     !directionsMode && (<div className="start-route-button">
                     <Tooltip text='Start Route' style={{ zIndex: 25 }} enterDelay={100} leaveDelay={100} position="right">
                         <Button 
-                            disabled = {places.length < 2 && startLocation === null}
+                            disabled = {(places.length < 2 && startLocation === null) || vehicleMake == "" || vehicleModel == ""}
                             style = {{
-                                filter: places.length < 2 && startLocation === null ? 'grayscale(100%)' : 'none',
-                                cursor: places.length < 2 && startLocation === null ? 'not-allowed' : 'pointer',
+                                filter: (places.length < 2 && startLocation === null) || vehicleMake == "" || vehicleModel == ""? 'grayscale(100%)' : 'none',
+                                cursor: (places.length < 2 && startLocation === null) || vehicleMake == "" || vehicleModel == ""? 'not-allowed' : 'pointer',
                             }}
-                            onClick={() => setShowConfirmRoute(true)}
+                            onClick={() => {setShowConfirmRoute(true);
+                                                const location = places[0]?.geometry?.location;
+                                                // tripID condition? Since helps center on save trips 
+                                                if (location){
+                                                    // lol this gets rid of type safety
+                                                    const locationAsAny = location as any;
+                                                    const newPlace: google.maps.LatLngLiteral = {
+                                                        lat: locationAsAny.lat,
+                                                        lng: locationAsAny.lng,
+                                                    };
+                                                    setSelectedPlace(newPlace);
+                                                    console.log("Setting selected place to:", newPlace);                                                
+                                                
+                                                }
+                                                
+
+                                }
+                            }
                         > 
                             <Wab321016 /> 
                         </Button>
@@ -1002,8 +1088,9 @@ function HomePage() {
                         <NewTripButton
                             setPlaces={setPlaces}
                             setTripID={setTripID}
-                            setSaveTripOpen={setSaveTripOpen}>
-
+                            setSaveTripOpen={setSaveTripOpen}
+                            setDirectionsMode={setDirectionsMode}
+>
                         </NewTripButton>
                         </div>
                     )
@@ -1033,15 +1120,11 @@ function HomePage() {
                                 <p>Do you want to confirm this route?</p>
                                 <div style={{ marginTop: "25%", display: "flex", justifyContent: "space-between", width: "100%" }}>
                                     <Button
+                                        disabled={isLoading}
                                         onClick={() => {
                                         // route logic goes here
                                         handleGetDirections();
-                                        handleGetAlerts();
-                                        handleGetEmissions();
                                         console.log("Route confirmed!");
-                                        setShowConfirmRoute(false);
-                                        setDirectionsMode(true);
-
                                         }}
                                     >
                                         Confirm
@@ -1059,7 +1142,9 @@ function HomePage() {
                     <DirectionBar 
                     mode={directionsMode} 
                     setMode={setDirectionsMode}
-                    places={places} />
+                    places={places}
+                    directions={directions} 
+                    polylinePoints={polylinePoints}/>
                     
                 ) : (
                     <SearchPanel
@@ -1109,7 +1194,7 @@ function HomePage() {
                     />
                 )}
                 </div>             
-                {directionsMode && <SideWindow alerts={alerts} emissions={emissions} directions={directions}/>}
+                {directionsMode && <SideWindow alerts={alerts} emissions={emissions} directions={directions} units={settings.units}/>}
             </div>
 
         </div>

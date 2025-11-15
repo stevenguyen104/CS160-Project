@@ -1,4 +1,3 @@
-import { useState } from "react";
 import {Window, WindowHeader, WindowContent, Button } from "react95";
 import "./StartCard.css";
 

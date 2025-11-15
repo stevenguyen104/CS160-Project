@@ -55,6 +55,7 @@ export default function StopComponent({ id, name, address, onPointerDown, onDele
                             onPointerDown={(e) => { e.stopPropagation(); }}
                             onPointerUp={(e) => { e.stopPropagation(); }}
                             onClick={(e) => {
+                                e.stopPropagation();
                                 onDelete?.(id);
                         }}>
                             ✕
