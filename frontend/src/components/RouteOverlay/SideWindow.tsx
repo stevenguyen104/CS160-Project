@@ -51,12 +51,25 @@ export default function SideWindow({ alerts, directions, emissions, units}: Side
                     Emissions info
                 </WindowHeader>
                 <WindowContent>
-                    {emissions && emissionsPerLeg.map((e, i) => (
-                        <div key={`${e} ${i}}`}>
-                            {`Segment ${i + 1}: ${e.toFixed(2)} ${unit}`}
-                        </div>
-                    ))}
-                    {emissions ? `Total: ${totalEmissions} ${unit}` : "Loading..."}
+                    {
+                        emissions ? (
+                            emissions.success ? (
+                                <>
+                                    {emissionsPerLeg.map((e, i) => (
+                                        <div key={`${e}-${i}`}>
+                                            {`Segment ${i + 1}: ${e.toFixed(2)} ${unit}`}
+                                        </div>
+                                    ))}
+
+                                    <div>{`Total: ${totalEmissions} ${unit}`}</div>
+                                </>
+                            ) : (
+                                emissions.error
+                            )
+                        ) : (
+                            "Loading..."
+                        )
+                    }
                 </WindowContent>
 
             </Window>

@@ -1,6 +1,6 @@
 import { Window, WindowHeader, WindowContent, Button } from "react95";
 import "./StopCard.css";
-import { useState } from "react";
+import React, { useState } from "react";
 
 interface StopDetails{
     id: number;

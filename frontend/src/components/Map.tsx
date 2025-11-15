@@ -12,7 +12,7 @@ const defaultCenter = {
 interface MapProps {
     selectedPlace?: { lat: number; lng: number } | null;
     directions?: google.maps.DirectionsRoute | null;
-    polylinePoints: google.maps.LatLng[] | undefined;
+    polylinePoints?: google.maps.LatLng[] | undefined;
 }
 
 export default function Map({ selectedPlace, directions, polylinePoints }: MapProps) {

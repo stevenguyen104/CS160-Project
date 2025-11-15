@@ -942,7 +942,7 @@ function HomePage() {
         {/* Confirm Save Trip Window */}
         {/* check tripID if == -1 then have this code, otherwise otehr shit */}
         {saveTripOpen && (
-            tripID === -1 ? (
+            tripID <= 0 ? (
                 <DefaultSave
                     setSaveTripOpen={setSaveTripOpen}
                     tripName={tripName}

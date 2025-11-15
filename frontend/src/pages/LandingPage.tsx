@@ -80,7 +80,8 @@ useEffect(() => {
                                     >
                                         <Avatar square size={50} style={{ backgroundColor: '#d8f8f3' }}>
                                             <span role="img">
-                                                <img 
+                                                <img
+                                                    alt="Carbon Compass Logo"
                                                     src="/Carbon Compass Logo.png" 
                                                     style={{ width: '100%', height: '100%', verticalAlign: 'middle' }} 
                                                 />

@@ -1,5 +1,6 @@
 import { Button, Tooltip } from "react95";
 import { Circle } from "@react95/icons"
+import React from "react";
 
 interface NewTripProps{
     setPlaces: React.Dispatch<React.SetStateAction<google.maps.places.PlaceResult[]>>;
