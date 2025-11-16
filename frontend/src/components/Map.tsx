@@ -1,5 +1,5 @@
 import { GoogleMap, Marker, Polyline } from "@react-google-maps/api";
-
+import { useEffect, useState } from "react";
 const containerStyle = {
     width: "100%",
     height: "100%"
@@ -12,11 +12,20 @@ const defaultCenter = {
 interface MapProps {
     selectedPlace?: { lat: number; lng: number } | null;
     directions?: google.maps.DirectionsRoute | null;
-    polylinePoints?: google.maps.LatLng[] | undefined;
+    polylinePoints: google.maps.LatLng[] | undefined;
 }
 
 export default function Map({ selectedPlace, directions, polylinePoints }: MapProps) {
-    const center = selectedPlace || defaultCenter;
+    const [center, setCenter] = useState<google.maps.LatLngLiteral>(defaultCenter);
+
+    useEffect (() => {
+        if (selectedPlace) {
+            setCenter(selectedPlace);
+
+        }
+    }, [selectedPlace])
+
+    // const center = selectedPlace || defaultCenter;
 
     return (
         <GoogleMap

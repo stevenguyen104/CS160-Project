@@ -99,6 +99,7 @@ function HomePage() {
 
     useEffect(() => {
         if (directions != null) {
+            console.log("directions", directions);
             handleGetEmissions();
             handleGetAlerts();
             setShowConfirmRoute(false);
@@ -109,7 +110,8 @@ function HomePage() {
     useEffect(() => {
         if (!directionsMode) {
             setDirections(null);
-            setPolylinePoints(undefined);
+            setPolylinePoints([]);
+            setSelectedPlace(null);
         } else {
             // setPolylinePoints(google.maps.geometry.encoding.decodePath(directions!.overview_polyline.points));
         }
@@ -123,6 +125,7 @@ function HomePage() {
     }, [volume, muted]);
 
     useEffect(() => {
+        console.log("selectedpalce" + selectedPlace);
         console.log("tripID updated:", tripID);
     }, [tripID]);
 
@@ -136,6 +139,7 @@ function HomePage() {
       return () => window.removeEventListener("click", startAudio);
     }, []);
 
+ 
     useEffect(() => {
       if (savedOpen && userID) {
         const getTrips = async () => {
@@ -1022,7 +1026,10 @@ function HomePage() {
                     variant="well"
                     style={{ width: "100%", height: "100%" }}
                 >
-                    <Map selectedPlace={selectedPlace} directions={directions} polylinePoints={polylinePoints}/>
+                    <Map 
+                        selectedPlace={selectedPlace} 
+                        directions={directions} 
+                        polylinePoints={polylinePoints}/>
                 </Frame>
 
                 {!directionsMode && (
@@ -1048,10 +1055,27 @@ function HomePage() {
                         <Button 
                             disabled = {(places.length < 2 && startLocation === null) || vehicleMake == "" || vehicleModel == ""}
                             style = {{
-                                filter: places.length < 2 && startLocation === null ? 'grayscale(100%)' : 'none',
-                                cursor: places.length < 2 && startLocation === null ? 'not-allowed' : 'pointer',
+                                filter: (places.length < 2 && startLocation === null) || vehicleMake == "" || vehicleModel == ""? 'grayscale(100%)' : 'none',
+                                cursor: (places.length < 2 && startLocation === null) || vehicleMake == "" || vehicleModel == ""? 'not-allowed' : 'pointer',
                             }}
-                            onClick={() => setShowConfirmRoute(true)}
+                            onClick={() => {setShowConfirmRoute(true);
+                                                const location = places[0]?.geometry?.location;
+                                                // tripID condition? Since helps center on save trips 
+                                                if (location){
+                                                    // lol this gets rid of type safety
+                                                    const locationAsAny = location as any;
+                                                    const newPlace: google.maps.LatLngLiteral = {
+                                                        lat: locationAsAny.lat,
+                                                        lng: locationAsAny.lng,
+                                                    };
+                                                    setSelectedPlace(newPlace);
+                                                    console.log("Setting selected place to:", newPlace);                                                
+                                                
+                                                }
+                                                
+
+                                }
+                            }
                         > 
                             <Wab321016 /> 
                         </Button>
@@ -1064,8 +1088,9 @@ function HomePage() {
                         <NewTripButton
                             setPlaces={setPlaces}
                             setTripID={setTripID}
-                            setSaveTripOpen={setSaveTripOpen}>
-
+                            setSaveTripOpen={setSaveTripOpen}
+                            setDirectionsMode={setDirectionsMode}
+>
                         </NewTripButton>
                         </div>
                     )
@@ -1117,7 +1142,9 @@ function HomePage() {
                     <DirectionBar 
                     mode={directionsMode} 
                     setMode={setDirectionsMode}
-                    places={places} />
+                    places={places}
+                    directions={directions} 
+                    polylinePoints={polylinePoints}/>
                     
                 ) : (
                     <SearchPanel
