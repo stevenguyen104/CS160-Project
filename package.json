@@ -1,0 +1,10 @@
+{
+  "name": "cs160-project",
+  "private": true,
+  "scripts": {
+    "dev": "concurrently -k -n BACKEND,FRONTEND -c yellow,cyan \"python -m backend.app\" \"npm run dev --prefix frontend\""
+  },
+  "devDependencies": {
+    "concurrently": "^9.0.0"
+  }
+}
