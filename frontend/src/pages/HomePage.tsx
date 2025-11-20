@@ -125,7 +125,7 @@ function HomePage() {
     }, [volume, muted]);
 
     useEffect(() => {
-        console.log("selectedpalce" + selectedPlace);
+        console.log("selectedPlace", selectedPlace);
         console.log("tripID updated:", tripID);
     }, [tripID]);
 
@@ -164,8 +164,8 @@ function HomePage() {
     }, [savedOpen, userID]);
 
 
+    const handleGetUser = async () => {
         // Get current user logged in
-        /*
         try {
             const response = await fetch("http://127.0.0.1:5000/users/", {
                 method: "GET",
@@ -176,12 +176,14 @@ function HomePage() {
 
             const data = await response.json();
             if (response.ok) {
-                setUserID(data.user_id);
+                console.log(data);
+            } else {
+                console.error(data.error);
             }
         } catch (error) {
             console.error(error);
         }
-        */
+    }
 
     const handleLogin = async() => {
 
@@ -270,10 +272,6 @@ function HomePage() {
         } catch (error) {
             console.error(error);
         }
-    }
-
-    const User = async () => {
-        // pass
     }
 
     const handleAddTrip = async (name: string) => {
@@ -787,40 +785,6 @@ function HomePage() {
         </div>
         )}
 
-        {/* Confirm Delete Trip Window */}
-        {confirmDeleteTrip.open && (
-            <div className="overlay-backdrop" onClick={() => setConfirmDeleteTrip({ open: false, tripId: null })}>
-                <Window
-                    style={{ width: 350, height: 150, position: "relative" }}
-                    onClick={(e) => e.stopPropagation()}
-                >
-                    <WindowHeader>
-                        <span>Delete Trip</span>
-                        <Button
-                            square
-                            size="sm"
-                            onClick={() => setConfirmDeleteTrip({ open: false, tripId: null })}
-                            style={{ position: "absolute", top: 5, right: 5 }}
-                        >
-                            ✕
-                        </Button>
-                    </WindowHeader>
-                    <WindowContent>
-                        <p>Are you sure you want to delete this trip?</p>
-                        <div style={{ display: "flex", flexDirection: "row", gap: "8px", width: "100%", marginTop: "15px" }}>
-                            <Button
-                                style={{ flex: 1 }}
-                                onClick={() => handleDeleteTrip(confirmDeleteTrip.tripId!)}
-                            >
-                                Confirm
-                            </Button>
-                            <Button style={{ flex: 1}} onClick={() => setConfirmDeleteTrip({ open: false, tripId: null })}>Cancel</Button>
-                        </div>
-                    </WindowContent>
-                </Window>
-            </div>
-        )}
-
         {/* Vehicle Info Window */}
         {vehicleInfoOpen && (
         <div className="overlay-backdrop" onClick={() => setVehicleInfoOpen(false)}>
@@ -944,7 +908,7 @@ function HomePage() {
         )}
 
         {/* Confirm Save Trip Window */}
-        {/* check tripID if == -1 then have this code, otherwise otehr shit */}
+        {/* check tripID <= 0 then have this code, otherwise other stuff */}
         {saveTripOpen && (
             tripID <= 0 ? (
                 <DefaultSave
@@ -1083,7 +1047,7 @@ function HomePage() {
                 </div>)
                 }
                 {
-                    tripID !== -1 && !directionsMode && (
+                    tripID > 0 && !directionsMode && (
                         <div className="new-trip-button">
                         <NewTripButton
                             setPlaces={setPlaces}
@@ -1121,11 +1085,7 @@ function HomePage() {
                                 <div style={{ marginTop: "25%", display: "flex", justifyContent: "space-between", width: "100%" }}>
                                     <Button
                                         disabled={isLoading}
-                                        onClick={() => {
-                                        // route logic goes here
-                                        handleGetDirections();
-                                        console.log("Route confirmed!");
-                                        }}
+                                        onClick={handleGetDirections()}
                                     >
                                         Confirm
                                     </Button>
