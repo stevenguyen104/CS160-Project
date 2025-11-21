@@ -1,5 +1,5 @@
 import {Window, WindowHeader, Button, WindowContent} from 'react95'
-import { Bookmark, Password1000, Logo, Mmsys101, FilePick, Progman14 } from "@react95/icons";
+import { Bookmark, Password1000, Logo, Mmsys101, FilePick, Progman14, Wab321016 } from "@react95/icons";
 
 interface HelpProps{
     setInfoOpen: (val: boolean) => void
@@ -50,6 +50,11 @@ export default function HelpButton({setInfoOpen}: HelpProps) {
                     <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
                         <Password1000 style={{ fontSize: "32px" }}/>
                         <p style={{ margin: 0 }}>Login or register an account to save trips.</p>
+                    </div>
+
+                    <div style={{ display: "flex", alignItems: "flex-start", gap: "12px" }}>
+                        <Wab321016 style={{ fontSize: "32px", flexShrink: 0 }}/>
+                        <p style={{ margin: 0 }}>Start a route with the stops in the StopBar. Must have at lesat 2 stops and a vehicle make and model selected. </p>
                     </div>
                 </div>
             </WindowContent>

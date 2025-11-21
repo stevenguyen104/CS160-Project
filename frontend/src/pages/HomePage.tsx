@@ -13,6 +13,7 @@ import SideWindow from "../components/RouteOverlay/SideWindow";
 import DefaultSave from "../components/SavePopUp/DefaultSave";
 import SelectedTripSave from "../components/SavePopUp/SelectedTripSave";
 import NewTripButton from "../components/NewTripButton/NewTripButton";
+import HelpButton from "../components/Help/HelpButton";
 const libraries: ("places" | "geometry")[] = ["places", "geometry"];
 interface Settings {
     preferFastestRoute: boolean;
@@ -200,7 +201,7 @@ function HomePage() {
         label: make
     }))] : [];
 
-    const vehicleModelOptions = vehicleMake && vehicleData ? [{ value: "", label: ""}, ...vehicleData[vehicleMake].map((model) => ({
+    const vehicleModelOptions = vehicleMake && vehicleData && vehicleData[vehicleMake] ? [{ value: "", label: ""}, ...vehicleData[vehicleMake].map((model) => ({
         value: model,
         label: model
     }))] : [];
@@ -707,24 +708,11 @@ function HomePage() {
 
         {/* Info Window */}
         {infoOpen && (
-        <div className="overlay-backdrop" onClick={() => setInfoOpen(false)}>
-            <Window style={{ width: 500, height: 500, position: "relative" }} onClick={(e) => e.stopPropagation()}>
-            <WindowHeader>
-                <span>Info</span>
-                <Button
-                square
-                size="sm"
-                onClick={() => setInfoOpen(false)}
-                style={{ position: "absolute", top: 5, right: 5 }}
-                >
-                ✕
-                </Button>
-            </WindowHeader>
-            <WindowContent>
-                {/* todo */}
-            </WindowContent>
-            </Window>
-        </div>
+            <HelpButton
+                setInfoOpen={setInfoOpen}
+            >
+
+            </HelpButton>
         )}
 
         {/* Saved Trips Window */}
