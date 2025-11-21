@@ -65,7 +65,7 @@ export default function DirectionBar({mode, setMode, places, directions, polylin
     items: []
     });
 
-    const onClick = () => {
+    const exportRoute = () => {
         if (!polylinePoints || polylinePoints.length === 0) {
             alert("No route available to export.");
             return;
@@ -82,7 +82,7 @@ export default function DirectionBar({mode, setMode, places, directions, polylin
     return (
         <>
         <div className="direction-bar" style={{padding: '10px', width: mode ? '300px' : '0px', height: '100%', overflowY: 'auto', transition: 'width 0.3s ease-in-out', boxSizing: 'border-box', backgroundColor: '#c3c7cb'}}>
-            <Button onClick={onClick}>
+            <Button onClick={exportRoute}>
                 Export Route 
             </Button>
 

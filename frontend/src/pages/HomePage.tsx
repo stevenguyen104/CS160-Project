@@ -26,6 +26,9 @@ const defaultSettings: Settings = {
     darkTheme: false,
     units: "miles"
 };
+interface Vehicles {
+    [make: string]: string[];
+}
 
 function HomePage() {
     const [menuOpen, setMenuOpen] = useState(false);
@@ -57,6 +60,7 @@ function HomePage() {
     const [password, setPassword] = useState("");
     const [userID, setUserID] = useState("");
     const [tripID, setTripID] = useState(-1);
+    const [vehicleData, setVehicleData] = useState<Vehicles | null>(null);
     const [vehicleMake, setVehicleMake] = useState(localStorage.getItem("vehicleMake") || "");
     const [vehicleModel, setVehicleModel] = useState(localStorage.getItem("vehicleModel") || "");
 
@@ -99,7 +103,7 @@ function HomePage() {
 
     useEffect(() => {
         if (directions != null) {
-            console.log("directions" , directions);
+            console.log("directions", directions);
             handleGetEmissions();
             handleGetAlerts();
             setShowConfirmRoute(false);
@@ -125,7 +129,7 @@ function HomePage() {
     }, [volume, muted]);
 
     useEffect(() => {
-        console.log("selectedpalce" + selectedPlace);
+        console.log("selectedPlace", selectedPlace);
         console.log("tripID updated:", tripID);
     }, [tripID]);
 
@@ -137,6 +141,23 @@ function HomePage() {
       };
       window.addEventListener("click", startAudio);
       return () => window.removeEventListener("click", startAudio);
+    }, []);
+
+    // perform once when webpage loads
+    useEffect(() => {
+        loadVehicleData();
+    }, []);
+
+    useEffect(() => {
+        const fetchUser = async () => {
+            try {
+                const user = await handleGetCurrentUser();
+                setUserID(user?.user_id ?? "");
+            } catch (error) {
+                console.error(error);
+            }
+        }
+        fetchUser();
     }, []);
 
  
@@ -163,25 +184,51 @@ function HomePage() {
       }
     }, [savedOpen, userID]);
 
+    const loadVehicleData = async () => {
+        if (vehicleData || isLoading) {
+            return;
+        } 
 
+        setIsLoading(true);
+        const data = await import("./vehicles.json");
+        setVehicleData(data.default);
+        setIsLoading(false);
+    }
+
+    const vehicleMakeOptions = vehicleData ? [{ value: "", label: ""}, ...Object.keys(vehicleData).map((make) => ({
+        value: make,
+        label: make
+    }))] : [];
+
+    const vehicleModelOptions = vehicleMake && vehicleData ? [{ value: "", label: ""}, ...vehicleData[vehicleMake].map((model) => ({
+        value: model,
+        label: model
+    }))] : [];
+
+
+    const handleGetCurrentUser = async () => {
         // Get current user logged in
-        /*
         try {
             const response = await fetch("http://127.0.0.1:5000/users/", {
                 method: "GET",
                 mode: "cors",
                 headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({})
+                credentials: "include"
             });
 
             const data = await response.json();
             if (response.ok) {
-                setUserID(data.user_id);
+                console.log(data);
+                return data;
+            } else {
+                console.error(data.error);
+                return data.error;
             }
         } catch (error) {
             console.error(error);
+            return error;
         }
-        */
+    }
 
     const handleLogin = async() => {
 
@@ -272,10 +319,6 @@ function HomePage() {
         }
     }
 
-    const User = async () => {
-        // pass
-    }
-
     const handleAddTrip = async (name: string) => {
         setIsLoading(true);
         try {
@@ -362,17 +405,21 @@ function HomePage() {
     const handleSaveTrip = async (name: string, isNew: boolean) => {
         // if (!name.trim()) return;
         // No trip selected (tripID starts at 1)
-        if (tripID <= 0 || isNew) {
-            console.log("here");
-            const newTripID: number = await handleAddTrip(name);
-            await handleAddStops(newTripID);
+        if (userID) {
+            if (tripID <= 0 || isNew) {
+                console.log("here");
+                const newTripID: number = await handleAddTrip(name);
+                await handleAddStops(newTripID);
+            } else {
+                console.log("saving");
+                await handleDeleteStops(tripID);
+                await handleAddStops(tripID);
+            }
+            console.log("Trip saved!");
         } else {
-            console.log("saving")
-            await handleDeleteStops(tripID);
-            await handleAddStops(tripID);
+            alert("You must be logged in to save trips.");
         }
         // save trip logic goes here
-        console.log("Trip saved!");
         setSaveTripOpen(false);
     };
 
@@ -787,40 +834,6 @@ function HomePage() {
         </div>
         )}
 
-        {/* Confirm Delete Trip Window */}
-        {confirmDeleteTrip.open && (
-            <div className="overlay-backdrop" onClick={() => setConfirmDeleteTrip({ open: false, tripId: null })}>
-                <Window
-                    style={{ width: 350, height: 150, position: "relative" }}
-                    onClick={(e) => e.stopPropagation()}
-                >
-                    <WindowHeader>
-                        <span>Delete Trip</span>
-                        <Button
-                            square
-                            size="sm"
-                            onClick={() => setConfirmDeleteTrip({ open: false, tripId: null })}
-                            style={{ position: "absolute", top: 5, right: 5 }}
-                        >
-                            ✕
-                        </Button>
-                    </WindowHeader>
-                    <WindowContent>
-                        <p>Are you sure you want to delete this trip?</p>
-                        <div style={{ display: "flex", flexDirection: "row", gap: "8px", width: "100%", marginTop: "15px" }}>
-                            <Button
-                                style={{ flex: 1 }}
-                                onClick={() => handleDeleteTrip(confirmDeleteTrip.tripId!)}
-                            >
-                                Confirm
-                            </Button>
-                            <Button style={{ flex: 1}} onClick={() => setConfirmDeleteTrip({ open: false, tripId: null })}>Cancel</Button>
-                        </div>
-                    </WindowContent>
-                </Window>
-            </div>
-        )}
-
         {/* Vehicle Info Window */}
         {vehicleInfoOpen && (
         <div className="overlay-backdrop" onClick={() => setVehicleInfoOpen(false)}>
@@ -838,22 +851,28 @@ function HomePage() {
             </WindowHeader>
             <WindowContent>
                 <p>Enter your vehicle's make (brand):</p>
-                <TextInput
-                placeholder="Make Name"
-                value={vehicleMake}
-                onChange={(e) => setVehicleMake(e.target.value)}
-                fullWidth
-                autoFocus
-                style={{ marginTop: 10, marginBottom: 20 }}
+                <Select
+                    defaultValue={vehicleMake}
+                    value={vehicleMake}
+                    options={vehicleMakeOptions}
+                    menuMaxHeight={160}
+                    width={160}
+                    onChange={(e) => {
+                        setVehicleMake(e.value);
+                        setVehicleModel(""); // Reset model
+                    }}
                 />
                 <p>Enter your vehicle's model:</p>
-                <TextInput
-                placeholder="Model Name"
-                value={vehicleModel}
-                onChange={(e) => setVehicleModel(e.target.value)}
-                fullWidth
-                autoFocus
-                style={{ marginTop: 10, marginBottom: 20 }}
+                <Select
+                    defaultValue={vehicleModel}
+                    disabled={!vehicleMake}
+                    value={vehicleModel}
+                    options={vehicleModelOptions}
+                    menuMaxHeight={160}
+                    width={160}
+                    onChange={(e) => {
+                        setVehicleModel(e.value);
+                    }}
                 />
                 {/* PUT VEHICLE API CONFIRM HERE AND CHANGE CALL TO USE VARS*/}
                 <Button
@@ -944,9 +963,9 @@ function HomePage() {
         )}
 
         {/* Confirm Save Trip Window */}
-        {/* check tripID if == -1 then have this code, otherwise otehr shit */}
+        {/* check tripID <= 0 then have this code, otherwise other stuff */}
         {saveTripOpen && (
-            tripID === -1 ? (
+            tripID <= 0 ? (
                 <DefaultSave
                     setSaveTripOpen={setSaveTripOpen}
                     tripName={tripName}
@@ -1083,7 +1102,7 @@ function HomePage() {
                 </div>)
                 }
                 {
-                    tripID !== -1 && !directionsMode && (
+                    tripID > 0 && !directionsMode && (
                         <div className="new-trip-button">
                         <NewTripButton
                             setPlaces={setPlaces}
@@ -1121,11 +1140,7 @@ function HomePage() {
                                 <div style={{ marginTop: "25%", display: "flex", justifyContent: "space-between", width: "100%" }}>
                                     <Button
                                         disabled={isLoading}
-                                        onClick={() => {
-                                        // route logic goes here
-                                        handleGetDirections();
-                                        console.log("Route confirmed!");
-                                        }}
+                                        onClick={() => handleGetDirections()}
                                     >
                                         Confirm
                                     </Button>

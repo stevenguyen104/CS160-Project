@@ -12,6 +12,13 @@ def calculate_emissions():
     data = request.get_json()
     vehicle_make = data.get("vehicle_make")
     vehicle_model = data.get("vehicle_model")
+
+    if not vehicle_make or not vehicle_model:
+        return jsonify({
+            "success": False,
+            "error": "Please enter your vehicle make and model."
+        }), 400
+
     directions = data.get("directions")
     directions_response: DirectionsResponse = DirectionsResponse(directions)
     total_distance_meters: int = directions_response.get_total_distance()

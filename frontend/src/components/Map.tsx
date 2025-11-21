@@ -28,17 +28,17 @@ export default function Map({ selectedPlace, directions, polylinePoints }: MapPr
     // const center = selectedPlace || defaultCenter;
 
     return (
-<GoogleMap
-    mapContainerStyle={containerStyle}
-    center={center}
-    zoom={12}
-    options={{
-        mapTypeControl: false,
-        streetViewControl: false,
-        fullscreenControl: false,
-        zoomControl: false
-    }}
->
+        <GoogleMap
+            mapContainerStyle={containerStyle}
+            center={center}
+            zoom={12}
+            options={{
+                mapTypeControl: false,
+                streetViewControl: false,
+                fullscreenControl: false,
+                zoomControl: false
+            }}
+        >
 
             {/* Show directions if trip is loaded*/}
             <Polyline

@@ -18,3 +18,6 @@ Desktop.ini
 # VSCode
 .vscode/*
 !.vscode/extensions.json
+
+# NodeJS
+node_modules/
