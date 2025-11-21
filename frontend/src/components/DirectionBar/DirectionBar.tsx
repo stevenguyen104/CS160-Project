@@ -4,20 +4,75 @@ interface DirectionBarProps {
     mode: boolean;   
     setMode: (value: boolean) => void 
     places: google.maps.places.PlaceResult[];
+    directions: google.maps.DirectionsRoute | null
+    polylinePoints?: google.maps.LatLng[];
 }
 
-export default function DirectionBar({mode, setMode, places}: DirectionBarProps) {
-    const adjustedPlaces: TreeLeaf<google.maps.places.PlaceResult>[] = (places || []).map((place) => {
-        // const { name, ...rest } = place || {};
-        return {
-            // ...rest,
-            id: place,
-            label: place.name ?? ""
-        };
+export default function DirectionBar({mode, setMode, places, directions, polylinePoints}: DirectionBarProps) {
+
+    // Functions to export gpx
+    function buildGPX(polylinePoints: google.maps.LatLng[], places: google.maps.places.PlaceResult[]) {
+        const header = `<?xml version="1.0" encoding="UTF-8"?>\n<gpx version="1.1" creator="route-app">`;
+        const footer = `</gpx>`;
+
+        const wpts = places
+            .map(p =>
+                `<wpt lat="${p.geometry?.location?.lat()}" lon="${p.geometry?.location?.lng()}">
+                    <name>${p.name}</name>
+                </wpt>`
+            )
+            .join("\n");
+
+        const trkpts = polylinePoints
+            .map(pt => `<trkpt lat="${pt.lat()}" lon="${pt.lng()}"></trkpt>`)
+            .join("\n");
+
+        const track = `
+        <trk>
+            <name>Route Export</name>
+            <trkseg>
+                ${trkpts}
+            </trkseg>
+        </trk>`;
+
+        return `${header}\n${wpts}\n${track}\n${footer}`;
+    }
+
+    function downloadFile(filename: string, content: string) {
+        const blob = new Blob([content], { type: "application/gpx+xml" });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement("a");
+        a.href = url;
+        a.download = filename;
+        a.click();
+        URL.revokeObjectURL(url);
+    }
+
+    const combined: TreeLeaf<string>[] =
+    directions?.legs.map((leg, i) => ({
+        id: places[i].name!,       
+        label: places[i].name!,  
+        items: leg.steps.map(step => ({
+        id: (step as any).html_instructions.replace(/<[^>]*>/g, ""),
+        label: (step as any).html_instructions.replace(/<[^>]*>/g, ""),
+        items: [] // steps are leaves, so empty children
+        }))
+    })) ?? [];
+
+    combined.push({
+        id: places[places.length - 1].name!,
+    label: places[places.length - 1].name,
+    items: []
     });
+
     const onClick = () => {
-        // FUTURE EXPORT ROUTE TO .WHATEVER FILE
-        console.log(places);
+        if (!polylinePoints || polylinePoints.length === 0) {
+            alert("No route available to export.");
+            return;
+        }
+
+        const gpx = buildGPX(polylinePoints, places);
+        downloadFile("route.gpx", gpx);
     }
 
     const endRoute = () => {
@@ -32,7 +87,7 @@ export default function DirectionBar({mode, setMode, places}: DirectionBarProps)
             </Button>
 
             <GroupBox>
-                <TreeView tree={adjustedPlaces} />
+                <TreeView tree={combined} />
                 {/* {places.map((place, index) => (
                     <div key={index} style={{marginBottom: '10px'}}>
                         <strong>Step {index + 1}:</strong> {place.name} - {place.address}

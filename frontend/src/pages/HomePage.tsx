@@ -99,6 +99,7 @@ function HomePage() {
 
     useEffect(() => {
         if (directions != null) {
+            console.log("directions" , directions);
             handleGetEmissions();
             handleGetAlerts();
             setShowConfirmRoute(false);
@@ -1141,7 +1142,9 @@ function HomePage() {
                     <DirectionBar 
                     mode={directionsMode} 
                     setMode={setDirectionsMode}
-                    places={places} />
+                    places={places}
+                    directions={directions} 
+                    polylinePoints={polylinePoints}/>
                     
                 ) : (
                     <SearchPanel
