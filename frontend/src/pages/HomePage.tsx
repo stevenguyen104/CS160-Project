@@ -148,6 +148,18 @@ function HomePage() {
         loadVehicleData();
     }, []);
 
+    useEffect(() => {
+        const fetchUser = async () => {
+            try {
+                const user = await handleGetCurrentUser();
+                setUserID(user?.user_id ?? "");
+            } catch (error) {
+                console.error(error);
+            }
+        }
+        fetchUser();
+    }, []);
+
  
     useEffect(() => {
       if (savedOpen && userID) {
@@ -194,24 +206,27 @@ function HomePage() {
     }))] : [];
 
 
-    const handleGetUser = async () => {
+    const handleGetCurrentUser = async () => {
         // Get current user logged in
         try {
             const response = await fetch("http://127.0.0.1:5000/users/", {
                 method: "GET",
                 mode: "cors",
                 headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({})
+                credentials: "include"
             });
 
             const data = await response.json();
             if (response.ok) {
                 console.log(data);
+                return data;
             } else {
                 console.error(data.error);
+                return data.error;
             }
         } catch (error) {
             console.error(error);
+            return error;
         }
     }
 
@@ -837,7 +852,6 @@ function HomePage() {
             <WindowContent>
                 <p>Enter your vehicle's make (brand):</p>
                 <Select
-                    onFocus={loadVehicleData}
                     defaultValue={vehicleMake}
                     value={vehicleMake}
                     options={vehicleMakeOptions}
