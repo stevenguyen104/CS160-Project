@@ -55,7 +55,7 @@ export default function SideBar({
                     </Button>
                 </Tooltip>
 
-                <Tooltip text='Login' style={{ zIndex: 25 }} enterDelay={100} leaveDelay={100} position="right">
+                <Tooltip text='Login/Logout' style={{ zIndex: 25 }} enterDelay={100} leaveDelay={100} position="right">
                     <Button style={{ width: "100%" }} onClick={onLoginOpen}>
                         <Password1000 />
                     </Button>

@@ -29,6 +29,9 @@ def register_user():
         return jsonify({
             "success": True,
             "user_id": user.id,
+            "email": user.email,
+            "created_at": user.created_at,
+            "last_sign_in_at": user.last_sign_in_at,
             "message": "User successfully registered"
         }), 201
     except AuthApiError as err:
@@ -60,6 +63,9 @@ def login_user():
         return jsonify({
             "success": True,
             "user_id": user.id,
+            "email": user.email,
+            "created_at": user.created_at,
+            "last_sign_in_at": user.last_sign_in_at,
             "message": "User successfully logged in"
         }), 200
     except AuthApiError as err:
@@ -95,9 +101,13 @@ def get_current_user():
                 "error": "Cannot get current user"
             }), 401
 
+        user = response.user
         return jsonify({
             "success": True,
-            "user_id": response.user.id,
+            "user_id": user.id,
+            "email": user.email,
+            "created_at": user.created_at,
+            "last_sign_in_at": user.last_sign_in_at,
             "message": "User successfully obtained"
         }), 200
     except AuthApiError as err:

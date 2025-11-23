@@ -46,8 +46,8 @@ function HomePage() {
     const [showSearchResults, setShowSearchResults] = useState(false);
     const [showConfirmRoute, setShowConfirmRoute] = useState(false);
     const [savedTrips, setSavedTrips] = useState<any[]>([]);
-    const [volume, setVolume] = useState(50);
-    const [muted, setMuted] = useState(false);
+    const [volume, setVolume] = useState(parseInt(localStorage.getItem("volume") ?? "0") || 50);
+    const [muted, setMuted] = useState(localStorage.getItem("muted") === "true");
     const [isLoading, setIsLoading] = useState(false);
 
     const [startLocation, setStartLocation] = useState<google.maps.places.PlaceResult | null>(null);
@@ -60,6 +60,10 @@ function HomePage() {
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
     const [userID, setUserID] = useState("");
+    const [userEmail, setUserEmail] = useState("");
+    const [userCreatedAt, setUserCreatedAt] = useState("");
+    const [userLastSignIn, setUserLastSignIn] = useState("");
+    const [successMessage, setSuccessMessage] = useState(""); // messages for logging in, registering, logging out
     const [tripID, setTripID] = useState(-1);
     const [vehicleData, setVehicleData] = useState<Vehicles | null>(null);
     const [vehicleMake, setVehicleMake] = useState(localStorage.getItem("vehicleMake") || "");
@@ -134,6 +138,19 @@ function HomePage() {
         console.log("tripID updated:", tripID);
     }, [tripID]);
 
+    useEffect(() => {
+        if (!loginOpen) {
+            setSuccessMessage("");
+        }
+    }, [loginOpen]);
+
+    useEffect(() => {
+        if (!volumeOpen) {
+            localStorage.setItem("volume", volume.toString());
+            localStorage.setItem("muted", muted.toString());
+        }
+    }, [volumeOpen]);
+
     // play on action
     useEffect(() => {
       const startAudio = () => {
@@ -154,6 +171,9 @@ function HomePage() {
             try {
                 const user = await handleGetCurrentUser();
                 setUserID(user?.user_id ?? "");
+                setUserEmail(user?.email ?? "");
+                setUserCreatedAt(user?.created_at ?? "");
+                setUserLastSignIn(user?.last_sign_in_at ?? "");
             } catch (error) {
                 console.error(error);
             }
@@ -255,7 +275,10 @@ function HomePage() {
 
             if (response.ok) {
                 setUserID(data.user_id);
-                alert(data.message);
+                setUserEmail(data.email);
+                setUserCreatedAt(data.created_at);
+                setUserLastSignIn(data.last_sign_in_at);
+                setSuccessMessage(data.message);
             } else {
                 alert(data.error);
             }
@@ -287,7 +310,7 @@ function HomePage() {
             console.log(data);
 
             if (response.ok) {
-                alert(data.message);
+                setSuccessMessage(data.message);
             } else {
                 alert(data.error);
             }
@@ -310,8 +333,11 @@ function HomePage() {
             console.log(data);
 
             if (response.ok) {
-                alert(data.message);
                 setUserID("");
+                setUserEmail("");
+                setUserCreatedAt("");
+                setUserLastSignIn("");
+                setSuccessMessage(data.message);
             } else {
                 alert(data.error);
             }
@@ -710,13 +736,11 @@ function HomePage() {
 
         {/* Info Window */}
         {infoOpen && (
-            <HelpButton
+            <HelpButton 
                 setInfoOpen={setInfoOpen}
             >
-
             </HelpButton>
         )}
-
         {/* Saved Trips Window */}
         {savedOpen && (
         <div className="overlay-backdrop" onClick={() => setSavedOpen(false)}>
@@ -983,7 +1007,7 @@ function HomePage() {
         <div className="overlay-backdrop" onClick={() => setLoginOpen(false)}>
             <Window style={{ width: 320, position: "relative" }} onClick={(e) => e.stopPropagation()}>
             <WindowHeader>
-                <span>Login</span>
+                <span>{userID ? "Logout": "Login"}</span>
                 <Button
                 square
                 size="sm"
@@ -994,35 +1018,69 @@ function HomePage() {
                 </Button>
             </WindowHeader>
             <WindowContent>
-                <form
-                style={{
-                    display: "flex",
-                    flexDirection: "column",
-                    gap: "10px",
-                    marginTop: "10px",
-                }}
-                >
-                <TextInput
-                    placeholder="Email"
-                    type="email"
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                    autoFocus
-                    fullWidth />
-                <TextInput
-                    placeholder="Password"
-                    type="password"
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                    title="Password must be at least 6 characters"
-                    fullWidth />
-                <Button fullWidth onClick={handleLogin}>
-                    Login
-                </Button>
-                <Button fullWidth onClick={handleRegister}>
-                    Register Account
-                </Button>
+                {!userID ? ( 
+                    <form
+                    style={{
+                        display: "flex",
+                        flexDirection: "column",
+                        gap: "10px",
+                        marginTop: "10px",
+                    }}
+                    >
+                    <p style={{ marginTop: "-8px", fontWeight: "bold", color: "green" }}>
+                        {successMessage}
+                    </p>
+                    <TextInput
+                        placeholder="Email"
+                        type="email"
+                        value={email}
+                        onChange={(e) => setEmail(e.target.value)}
+                        autoFocus
+                        fullWidth />
+                    <TextInput
+                        placeholder="Password"
+                        type="password"
+                        value={password}
+                        onChange={(e) => setPassword(e.target.value)}
+                        title="Password must be at least 6 characters"
+                        fullWidth />
+                    <Button fullWidth onClick={handleLogin}>
+                        Login
+                    </Button>
+                    <Button fullWidth onClick={handleRegister}>
+                        Register Account
+                    </Button>
+                    </form>
+                ) : (
+                    <form
+                    style={{
+                        display: "flex",
+                        flexDirection: "column",
+                        gap: "10px",
+                        marginTop: "10px",
+                    }}
+                    >
+                    <p style={{ marginTop: "-8px", fontWeight: "bold", color: "green" }}>
+                        {successMessage}
+                    </p>
+                    <p style={{ marginTop: "-8px", fontWeight: "bold" }}>
+                        Hello, {userEmail ? userEmail : "guest"}
+                    </p>
+                    {userCreatedAt &&
+                    <p style={{ marginTop: "-8px", fontWeight: "bold" }}>
+                        You created this account on {new Date(userCreatedAt).toLocaleString()}
+                    </p>
+                    }
+                    {userLastSignIn &&
+                    <p style={{ marginTop: "-8px", fontWeight: "bold" }}>
+                        Your last sign in was on {new Date(userLastSignIn).toLocaleString()}
+                    </p>
+                    }
+                    <Button fullWidth onClick={handleLogout}>
+                        Logout
+                    </Button>
                 </form>
+                )}
             </WindowContent>
             </Window>
         </div>
