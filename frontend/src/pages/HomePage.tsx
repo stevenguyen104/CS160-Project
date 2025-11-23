@@ -63,7 +63,7 @@ function HomePage() {
     const [userEmail, setUserEmail] = useState("");
     const [userCreatedAt, setUserCreatedAt] = useState("");
     const [userLastSignIn, setUserLastSignIn] = useState("");
-    const [successMessage, setSuccessMessage] = useState(""); // messages for logging in, registering, logging out
+    const [successMessage, setSuccessMessage] = useState(["", "black"]); // messages for logging in, registering, logging out
     const [tripID, setTripID] = useState(-1);
     const [vehicleData, setVehicleData] = useState<Vehicles | null>(null);
     const [vehicleMake, setVehicleMake] = useState(localStorage.getItem("vehicleMake") || "");
@@ -140,7 +140,7 @@ function HomePage() {
 
     useEffect(() => {
         if (!loginOpen) {
-            setSuccessMessage("");
+            setSuccessMessage(["", "black"]);
         }
     }, [loginOpen]);
 
@@ -183,27 +183,40 @@ function HomePage() {
 
  
     useEffect(() => {
-      if (savedOpen && userID) {
-        const getTrips = async () => {
-          try {
+        if (savedOpen && userID) {
+            getTrips();
+        }
+    }, [savedOpen, userID]);
+
+    useEffect(() => {
+        if (!confirmDeleteTrip) {
+            getTrips();
+        }
+    }, [confirmDeleteTrip]);
+
+    useEffect(() => {
+        if (!editingTripId) {
+            getTrips();
+        }
+    }, [editingTripId]);
+
+    const getTrips = async () => {
+        try {
             const response = await fetch("http://127.0.0.1:5000/trips/", {
-              method: "GET",
-              mode: "cors",
-              credentials: "include",
+                method: "GET",
+                mode: "cors",
+                credentials: "include",
             });
             const data = await response.json();
             if (response.ok) {
-              setSavedTrips(data.trips);
+                setSavedTrips(data.trips);
             } else {
-              console.error("Error getting trips:", data.error);
+                console.error("Error getting trips:", data.error);
             }
-          } catch (error) {
+        } catch (error) {
             console.error("Error getting trips:", error);
-          }
-        };
-        getTrips();
-      }
-    }, [savedOpen, userID]);
+        }
+    };
 
     const loadVehicleData = async () => {
         if (vehicleData || isLoading) {
@@ -252,12 +265,6 @@ function HomePage() {
     }
 
     const handleLogin = async() => {
-
-        if (password.length < 6) {
-            window.alert("Password must be at least 6 characters long.");
-            return;
-        }
-
         try {
             const response = await fetch("http://127.0.0.1:5000/users/login", {
                 method: "POST",
@@ -278,9 +285,9 @@ function HomePage() {
                 setUserEmail(data.email);
                 setUserCreatedAt(data.created_at);
                 setUserLastSignIn(data.last_sign_in_at);
-                setSuccessMessage(data.message);
+                setSuccessMessage([data.message, "green"]);
             } else {
-                alert(data.error);
+                setSuccessMessage([data.error, "red"]);
             }
         } catch (error) {
             console.error(error);
@@ -288,11 +295,11 @@ function HomePage() {
     }
 
     const handleRegister = async () => {
-
+/*
         if (password.length < 6) {
             window.alert("Password must be at least 6 characters long.");
             return;
-        }
+        }*/
 
         try {
             const response = await fetch("http://127.0.0.1:5000/users/register", {
@@ -310,9 +317,9 @@ function HomePage() {
             console.log(data);
 
             if (response.ok) {
-                setSuccessMessage(data.message);
+                setSuccessMessage([data.message, "green"]);
             } else {
-                alert(data.error);
+                setSuccessMessage([data.error, "red"]);
             }
         } catch (error) {
             console.error(error);
@@ -337,9 +344,9 @@ function HomePage() {
                 setUserEmail("");
                 setUserCreatedAt("");
                 setUserLastSignIn("");
-                setSuccessMessage(data.message);
+                setSuccessMessage([data.message, "green"]);
             } else {
-                alert(data.error);
+                setSuccessMessage([data.error, "red"]);
             }
         } catch (error) {
             console.error(error);
@@ -390,7 +397,6 @@ function HomePage() {
 
             const data = await response.json();
             console.log(data);
-
             if (response.ok) {
                 console.log(data.message);
             } else {
@@ -888,7 +894,8 @@ function HomePage() {
                         setVehicleModel(e.value);
                     }}
                 />
-                {/* PUT VEHICLE API CONFIRM HERE AND CHANGE CALL TO USE VARS*/}
+                {/* PUT VEHICLE API CONFIRM HERE AND CHANGE CALL TO USE VARS
+                Uh I don't think we need this, the changes are saved automatically*/}
                 <Button
                 fullWidth
                 disabled={!vehicleMake.trim() || !vehicleModel.trim()}
@@ -1027,8 +1034,8 @@ function HomePage() {
                         marginTop: "10px",
                     }}
                     >
-                    <p style={{ marginTop: "-8px", fontWeight: "bold", color: "green" }}>
-                        {successMessage}
+                    <p style={{ marginTop: "-16px", fontWeight: "bold", color: successMessage[1] }}>
+                        {successMessage[0]}
                     </p>
                     <TextInput
                         placeholder="Email"
@@ -1060,8 +1067,8 @@ function HomePage() {
                         marginTop: "10px",
                     }}
                     >
-                    <p style={{ marginTop: "-8px", fontWeight: "bold", color: "green" }}>
-                        {successMessage}
+                    <p style={{ marginTop: "-16px", fontWeight: "bold", color: successMessage[1] }}>
+                        {successMessage[0]}
                     </p>
                     <p style={{ marginTop: "-8px", fontWeight: "bold" }}>
                         Hello, {userEmail ? userEmail : "guest"}

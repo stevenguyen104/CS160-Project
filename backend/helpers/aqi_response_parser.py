@@ -29,6 +29,3 @@ class AQIResponse:
 
     def get_dominant_pollutant(self) -> str:
         return self.aqi_response["dominantPollutant"]
-
-    def get_routes(self) -> list[dict]:
-        return self.aqi_response["routes"]

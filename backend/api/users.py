@@ -1,8 +1,9 @@
 from flask import Blueprint, jsonify, request
 
-from supabase import AuthApiError
+from supabase import AuthApiError, AuthWeakPasswordError
 
 from ..db.supabase_client import supabase
+from ..utils.string_utils import StringUtils
 
 users_bp = Blueprint("users", __name__, url_prefix="/users")
 
@@ -34,10 +35,11 @@ def register_user():
             "last_sign_in_at": user.last_sign_in_at,
             "message": "User successfully registered"
         }), 201
-    except AuthApiError as err:
+    except (AuthApiError, AuthWeakPasswordError) as err:
+        code = StringUtils(err.code, None)
         return jsonify({
             "success": False,
-            "error": f"{err.name}: {err.code}"
+            "error": f"{err.name}: {code.snake_case_to_human()}"
         }), err.status
 
 
@@ -69,9 +71,10 @@ def login_user():
             "message": "User successfully logged in"
         }), 200
     except AuthApiError as err:
+        code = StringUtils(err.code, None)
         return jsonify({
             "success": False,
-            "error": f"{err.name}: {err.code}"
+            "error": f"{err.name}: {code.snake_case_to_human()}"
         }), err.status
 
 
@@ -85,9 +88,10 @@ def logout_user():
             "message": "User successfully signed out"
         }), 200
     except AuthApiError as err:
+        code = StringUtils(err.code, None)
         return jsonify({
             "success": False,
-            "error": f"{err.name}: {err.code}"
+            "error": f"{err.name}: {code.snake_case_to_human()}"
         }), err.status
 
 
@@ -111,9 +115,10 @@ def get_current_user():
             "message": "User successfully obtained"
         }), 200
     except AuthApiError as err:
+        code = StringUtils(err.code, None)
         return jsonify({
             "success": False,
-            "error": f"{err.name}: {err.code}"
+            "error": f"{err.name}: {code.snake_case_to_human()}"
         }), err.status
 
 
@@ -134,7 +139,8 @@ def delete_user():
             "message": "User account successfully deleted"
         }), 204
     except AuthApiError as err:
+        code = StringUtils(err.code, None)
         return jsonify({
             "success": False,
-            "error": f"{err.name}: {err.code}"
+            "error": f"{err.name}: {code.snake_case_to_human()}"
         }), err.status
