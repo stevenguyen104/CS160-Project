@@ -430,7 +430,9 @@ function HomePage() {
                 mode: "cors",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({
-                    places
+                    "places": places,
+                    "avoid_tolls": settings.avoidTolls,
+                    "alternatives": settings.preferFastestRoute
                 }),
                 credentials: "include"
             });

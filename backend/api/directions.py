@@ -11,7 +11,9 @@ directions_bp = Blueprint("directions", __name__, url_prefix="/trips/directions"
 def get_directions():
     data = request.get_json()
     places = data.get("places")
+    avoid_tolls = data.get("avoid_tolls", False)
+    alternatives = data.get("alternatives", False)
     place_results: list[PlaceResult] = [PlaceResult(place) for place in places]
     directions_service: DirectionsService = DirectionsService(place_results)
-    directions_response: DirectionsResponse = directions_service.obtain_directions()
+    directions_response: DirectionsResponse = directions_service.obtain_directions(avoid_tolls=avoid_tolls, alternatives=alternatives)
     return jsonify(directions_response.get_dict()), 200

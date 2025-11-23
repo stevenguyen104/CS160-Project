@@ -16,7 +16,7 @@ class DirectionsService:
 
         self.place_results: list[PlaceResult] = place_results
 
-    def obtain_directions(self) -> DirectionsResponse:
+    def obtain_directions(self, avoid_tolls: bool = False, alternatives: bool = False) -> DirectionsResponse:
         """
         Compute directions using Google Maps Directions API.
 
@@ -37,6 +37,7 @@ class DirectionsService:
             result.get_longitude())
             for result in rest_of_place_results]
         units = "imperial"  # TODO let users customize
+        avoid = "tolls" if avoid_tolls else None
 
         directions = GOOGLE_MAPS_CLIENT.directions(  # type: ignore[attr-defined]
             origin=origin,
@@ -44,7 +45,12 @@ class DirectionsService:
             waypoints=waypoints,
             mode="driving",
             departure_time="now",
-            units=units
+            units=units,
+            avoid=avoid,
+            alternatives=alternatives
         )
 
-        return DirectionsResponse(directions[0])
+        # If alternatives is False, then len(directions) == 0 is True
+        responses = [DirectionsResponse(direction) for direction in directions]
+        shortest_route = min(responses, key=lambda x: x.get_total_distance())
+        return shortest_route
