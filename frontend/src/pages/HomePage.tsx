@@ -15,6 +15,7 @@ import SelectedTripSave from "../components/SavePopUp/SelectedTripSave";
 import NewTripButton from "../components/NewTripButton/NewTripButton";
 import HelpButton from "../components/Help/HelpButton";
 const libraries: ("places" | "geometry")[] = ["places", "geometry"];
+const URL: string = "http://127.0.0.1:5000";
 interface Settings {
     preferFastestRoute: boolean;
     avoidTolls: boolean;
@@ -32,52 +33,52 @@ interface Vehicles {
 }
 
 function HomePage() {
-    const [menuOpen, setMenuOpen] = useState(false);
-    const [savedOpen, setSavedOpen] = useState(false);
-    const [loginOpen, setLoginOpen] = useState(false);
-    const [volumeOpen, setVolumeOpen] = useState(false);
-    const [settingsOpen, setSettingsOpen] = useState(false);
-    const [saveTripOpen, setSaveTripOpen] = useState(false);
-    const [vehicleInfoOpen, setVehicleInfoOpen] = useState(false);
-    const [infoOpen, setInfoOpen] = useState(false);
+    const [menuOpen, setMenuOpen] = useState<boolean>(false);
+    const [savedOpen, setSavedOpen] = useState<boolean>(false);
+    const [loginOpen, setLoginOpen] = useState<boolean>(false);
+    const [volumeOpen, setVolumeOpen] = useState<boolean>(false);
+    const [settingsOpen, setSettingsOpen] = useState<boolean>(false);
+    const [saveTripOpen, setSaveTripOpen] = useState<boolean>(false);
+    const [vehicleInfoOpen, setVehicleInfoOpen] = useState<boolean>(false);
+    const [infoOpen, setInfoOpen] = useState<boolean>(false);
     const [selectedPlace, setSelectedPlace] = useState<google.maps.LatLngLiteral | null>(null);
     const [places, setPlaces] = useState<google.maps.places.PlaceResult[]>([]);
     const [searchResults, setSearchResults] = useState<google.maps.places.PlaceResult[]>([]);
-    const [showSearchResults, setShowSearchResults] = useState(false);
-    const [showConfirmRoute, setShowConfirmRoute] = useState(false);
+    const [showSearchResults, setShowSearchResults] = useState<boolean>(false);
+    const [showConfirmRoute, setShowConfirmRoute] = useState<boolean>(false);
     const [savedTrips, setSavedTrips] = useState<any[]>([]);
-    const [volume, setVolume] = useState(parseInt(localStorage.getItem("volume") ?? "0") || 50);
-    const [muted, setMuted] = useState(localStorage.getItem("muted") === "true");
-    const [isLoading, setIsLoading] = useState(false);
+    const [volume, setVolume] = useState<number>(parseInt(localStorage.getItem("volume") ?? "0") || 50);
+    const [muted, setMuted] = useState<boolean>(localStorage.getItem("muted") === "true");
+    const [isLoading, setIsLoading] = useState<boolean>(false);
 
     const [startLocation, setStartLocation] = useState<google.maps.places.PlaceResult | null>(null);
 
-    const [focusSearch, setFocusSearch] = useState(false);
+    const [focusSearch, setFocusSearch] = useState<boolean>(false);
     const [searchMode, setSearchMode] = useState<"add" | "start" | "edit">("add");
-    const [directionsMode, setDirectionsMode] = useState(false);
+    const [directionsMode, setDirectionsMode] = useState<boolean>(false);
     const [editingPlace, setEditingPlace] = useState<any | null>(null);
 
-    const [email, setEmail] = useState("");
-    const [password, setPassword] = useState("");
-    const [userID, setUserID] = useState("");
-    const [userEmail, setUserEmail] = useState("");
-    const [userCreatedAt, setUserCreatedAt] = useState("");
-    const [userLastSignIn, setUserLastSignIn] = useState("");
-    const [successMessage, setSuccessMessage] = useState(["", "black"]); // messages for logging in, registering, logging out
-    const [tripID, setTripID] = useState(-1);
+    const [email, setEmail] = useState<string>("");
+    const [password, setPassword] = useState<string>("");
+    const [userID, setUserID] = useState<string>("");
+    const [userEmail, setUserEmail] = useState<string>("");
+    const [userCreatedAt, setUserCreatedAt] = useState<string>("");
+    const [userLastSignIn, setUserLastSignIn] = useState<string>("");
+    const [successMessage, setSuccessMessage] = useState<[string, string]>(["", "black"]); // messages for logging in, registering, logging out
+    const [tripID, setTripID] = useState<number>(-1);
     const [vehicleData, setVehicleData] = useState<Vehicles | null>(null);
-    const [vehicleMake, setVehicleMake] = useState(localStorage.getItem("vehicleMake") || "");
-    const [vehicleModel, setVehicleModel] = useState(localStorage.getItem("vehicleModel") || "");
+    const [vehicleMake, setVehicleMake] = useState<string>(localStorage.getItem("vehicleMake") || "");
+    const [vehicleModel, setVehicleModel] = useState<string>(localStorage.getItem("vehicleModel") || "");
 
     const [directions, setDirections] = useState<google.maps.DirectionsRoute | null>(null);
     const [polylinePoints, setPolylinePoints] = useState<google.maps.LatLng[] | undefined>(undefined);
     const [alerts, setAlerts] = useState(null);
     const [emissions, setEmissions] = useState(null);
 
-    const [tripName, setTripName] = useState("");
+    const [tripName, setTripName] = useState<string>("");
     const [hoveredTrip, setHoveredTrip] = useState<number | null>(null);
     const [editingTripId, setEditingTripId] = useState<number | null>(null);
-    const [editTripName, setEditTripName] = useState("");
+    const [editTripName, setEditTripName] = useState<string>("");
     const [confirmDeleteTrip, setConfirmDeleteTrip] = useState({ open: false, tripId: null });
 
     const [settings, setSettings] = useState(() => {
@@ -134,15 +135,10 @@ function HomePage() {
     }, [volume, muted]);
 
     useEffect(() => {
-        console.log("selectedPlace", selectedPlace);
-        console.log("tripID updated:", tripID);
-    }, [tripID]);
-
-    useEffect(() => {
-        if (!loginOpen) {
+        if (!loginOpen || !saveTripOpen || !savedOpen || !menuOpen || !settingsOpen || !infoOpen || !vehicleInfoOpen || !volumeOpen) {
             setSuccessMessage(["", "black"]);
         }
-    }, [loginOpen]);
+    }, [loginOpen, saveTripOpen, savedOpen, menuOpen, settingsOpen, infoOpen, vehicleInfoOpen, volumeOpen]);
 
     useEffect(() => {
         if (!volumeOpen) {
@@ -154,7 +150,11 @@ function HomePage() {
     // play on action
     useEffect(() => {
       const startAudio = () => {
-        audioRef.current?.play().catch(console.log);
+        if (audioRef.current) {
+            audioRef.current.volume = volume / 100;
+            audioRef.current.muted = muted;
+        }
+        audioRef.current?.play().catch(console.error);
         window.removeEventListener("click", startAudio);
       };
       window.addEventListener("click", startAudio);
@@ -163,58 +163,50 @@ function HomePage() {
 
     // perform once when webpage loads
     useEffect(() => {
-        loadVehicleData();
-    }, []);
-
-    useEffect(() => {
-        const fetchUser = async () => {
+        const fetchData = async () => {
             try {
-                const user = await handleGetCurrentUser();
-                setUserID(user?.user_id ?? "");
-                setUserEmail(user?.email ?? "");
-                setUserCreatedAt(user?.created_at ?? "");
-                setUserLastSignIn(user?.last_sign_in_at ?? "");
+                await loadVehicleData();
+                await handleGetCurrentUser();
             } catch (error) {
                 console.error(error);
             }
         }
-        fetchUser();
+        fetchData();
     }, []);
 
  
     useEffect(() => {
         if (savedOpen && userID) {
             getTrips();
+            return;
         }
-    }, [savedOpen, userID]);
-
-    useEffect(() => {
-        if (!confirmDeleteTrip) {
+        
+        if (!confirmDeleteTrip || !editingTripId) {
             getTrips();
         }
-    }, [confirmDeleteTrip]);
-
-    useEffect(() => {
-        if (!editingTripId) {
-            getTrips();
-        }
-    }, [editingTripId]);
+    }, [savedOpen, userID, confirmDeleteTrip, editingTripId]);
 
     const getTrips = async () => {
+        setIsLoading(true);
         try {
-            const response = await fetch("http://127.0.0.1:5000/trips/", {
+            const response = await fetch(`${URL}/trips/`, {
                 method: "GET",
                 mode: "cors",
                 credentials: "include",
             });
+
             const data = await response.json();
+
             if (response.ok) {
                 setSavedTrips(data.trips);
+                // setSuccessMessage([data.message, "green"]);
             } else {
-                console.error("Error getting trips:", data.error);
+                // setSuccessMessage([data.error, "red"]);
             }
         } catch (error) {
-            console.error("Error getting trips:", error);
+            // setSuccessMessage([`${error}`, "red"]);
+        } finally {
+            setIsLoading(false);
         }
     };
 
@@ -241,9 +233,9 @@ function HomePage() {
 
 
     const handleGetCurrentUser = async () => {
-        // Get current user logged in
+        setIsLoading(true);
         try {
-            const response = await fetch("http://127.0.0.1:5000/users/", {
+            const response = await fetch(`${URL}/users/`, {
                 method: "GET",
                 mode: "cors",
                 headers: { "Content-Type": "application/json" },
@@ -252,21 +244,24 @@ function HomePage() {
 
             const data = await response.json();
             if (response.ok) {
-                console.log(data);
-                return data;
+                setUserID(data.user_id);
+                setUserEmail(data.email);
+                setUserCreatedAt(data.created_at);
+                setUserLastSignIn(data.last_sign_in_at);
+                // setSuccessMessage([data.message, "green"]);
             } else {
-                console.error(data.error);
-                return data.error;
+                // setSuccessMessage([data.error, "red"]);
             }
         } catch (error) {
-            console.error(error);
-            return error;
+            // setSuccessMessage([`${error}`, "red"]);
+        } finally {
+            setIsLoading(false);
         }
     }
 
     const handleLogin = async() => {
         try {
-            const response = await fetch("http://127.0.0.1:5000/users/login", {
+            const response = await fetch(`${URL}/users/login`, {
                 method: "POST",
                 mode: "cors",
                 headers: { "Content-Type": "application/json" },
@@ -278,8 +273,6 @@ function HomePage() {
             });
 
             const data = await response.json();
-            console.log(data);
-
             if (response.ok) {
                 setUserID(data.user_id);
                 setUserEmail(data.email);
@@ -290,19 +283,14 @@ function HomePage() {
                 setSuccessMessage([data.error, "red"]);
             }
         } catch (error) {
-            console.error(error);
-        }
+            setSuccessMessage([`${error}`, "red"]);
+        } 
     }
 
     const handleRegister = async () => {
-/*
-        if (password.length < 6) {
-            window.alert("Password must be at least 6 characters long.");
-            return;
-        }*/
-
+        setIsLoading(true);
         try {
-            const response = await fetch("http://127.0.0.1:5000/users/register", {
+            const response = await fetch(`${URL}/users/register`, {
                 method: "POST",
                 mode: "cors",
                 headers: { "Content-Type": "application/json" },
@@ -314,7 +302,6 @@ function HomePage() {
             });
 
             const data = await response.json();
-            console.log(data);
 
             if (response.ok) {
                 setSuccessMessage([data.message, "green"]);
@@ -322,13 +309,16 @@ function HomePage() {
                 setSuccessMessage([data.error, "red"]);
             }
         } catch (error) {
-            console.error(error);
+            setSuccessMessage([`${error}`, "red"]);
+        } finally {
+            setIsLoading(false);
         }
     }
 
     const handleLogout = async () => {
+        setIsLoading(true);
         try {
-            const response = await fetch("http://127.0.0.1:5000/users/logout", {
+            const response = await fetch(`${URL}/users/logout`, {
                 method: "POST",
                 mode: "cors",
                 headers: { "Content-Type": "application/json" },
@@ -337,7 +327,6 @@ function HomePage() {
             })
 
             const data = await response.json();
-            console.log(data);
 
             if (response.ok) {
                 setUserID("");
@@ -349,14 +338,16 @@ function HomePage() {
                 setSuccessMessage([data.error, "red"]);
             }
         } catch (error) {
-            console.error(error);
+            setSuccessMessage([`${error}`, "red"]);
+        } finally {
+            setIsLoading(false);
         }
     }
 
     const handleAddTrip = async (name: string) => {
         setIsLoading(true);
         try {
-            const response = await fetch("http://127.0.0.1:5000/trips/", {
+            const response = await fetch(`${URL}/trips/`, {
                 method: "POST",
                 mode: "cors",
                 headers: { "Content-Type": "application/json" },
@@ -365,18 +356,17 @@ function HomePage() {
             });
 
             const data = await response.json();
-            console.log(data);
 
             if (response.ok) {
-                setTripID(data.trip["trip_id"]);
-                console.log(tripID);
-                console.log(data.message);
-                return data.trip["trip_id"];
+                const id = data.trip["trip_id"];
+                setTripID(id);
+                setSuccessMessage([data.message, "green"]);
+                return id;
             } else {
-                console.error(data.error);
+                setSuccessMessage([data.error, "red"]);
             }
         } catch (error) {
-            console.error(error);
+            setSuccessMessage([`${error}`, "red"]);
         } finally {
             setIsLoading(false);
         }
@@ -385,7 +375,7 @@ function HomePage() {
     const handleAddStops = async (getTripID: number) => {
         setIsLoading(true);
         try {
-            const response = await fetch("http://127.0.0.1:5000/trips/" + getTripID + "/stops/add", {
+            const response = await fetch(`${URL}/trips/${getTripID}/stops/add`, {
                 method: "POST",
                 mode: "cors",
                 headers: { "Content-Type": "application/json" },
@@ -396,14 +386,14 @@ function HomePage() {
             });
 
             const data = await response.json();
-            console.log(data);
+
             if (response.ok) {
-                console.log(data.message);
+               setSuccessMessage([data.message, "green"]);
             } else {
-                console.error(data.error);
+                setSuccessMessage([data.error, "red"]);
             }
         } catch (error) {
-            console.error(error);
+            setSuccessMessage([`${error}`, "red"]);
         } finally {
             setIsLoading(false);
         }
@@ -412,24 +402,21 @@ function HomePage() {
     const handleDeleteStops = async (getTripID: number) => {
         setIsLoading(true);
         try {
-            const response = await fetch("http://127.0.0.1:5000/trips/" + getTripID + "/stops/", {
+            const response = await fetch(`${URL}/trips/${getTripID}/stops/`, {
                 method: "DELETE",
                 mode: "cors",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({}),
                 credentials: "include",
             });
-            // these are prolly unnecessary
             const data = await response.json();
-            console.log(data);
-
             if (response.ok) {
-                console.log(data.message);
+                setSuccessMessage([data.message, "green"]);
             } else {
-                console.error(data.error);
+                setSuccessMessage([data.error, "red"]);
             }
         } catch (error) {
-            console.error(error);
+            setSuccessMessage([`${error}`, "red"]);
         } finally {
             setIsLoading(false);
         }
@@ -438,27 +425,35 @@ function HomePage() {
     const handleSaveTrip = async (name: string, isNew: boolean) => {
         // if (!name.trim()) return;
         // No trip selected (tripID starts at 1)
-        if (userID) {
-            if (tripID <= 0 || isNew) {
-                console.log("here");
-                const newTripID: number = await handleAddTrip(name);
-                await handleAddStops(newTripID);
+        setIsLoading(true);
+        try {
+            if (userID) {
+                if (tripID <= 0 || isNew) {
+                    console.log("here");
+                    const newTripID: number = await handleAddTrip(name);
+                    setTripID(newTripID);
+                    await handleAddStops(newTripID);
+                } else {
+                    await handleDeleteStops(tripID);
+                    await handleAddStops(tripID);
+                }
+
+                setSuccessMessage(["Trip saved!", "green"]);
             } else {
-                console.log("saving");
-                await handleDeleteStops(tripID);
-                await handleAddStops(tripID);
+                setSuccessMessage(["You must be logged in to save trips.", "red"]);
             }
-            console.log("Trip saved!");
-        } else {
-            alert("You must be logged in to save trips.");
+        } catch (error) {
+            setSuccessMessage([`${error}`, "red"]);
+        } finally {
+            setIsLoading(false);
         }
-        // save trip logic goes here
-        setSaveTripOpen(false);
+        // setSaveTripOpen(false);
     };
 
     const handleGetDirections = async () => {
+        setIsLoading(true);
         try {
-            const response = await fetch("http://127.0.0.1:5000/trips/directions/", {
+            const response = await fetch(`${URL}/trips/directions/`, {
                 method: "POST",
                 mode: "cors",
                 headers: { "Content-Type": "application/json" },
@@ -471,23 +466,25 @@ function HomePage() {
             });
 
             const data = await response.json();
-            setDirections(data);
-            setPolylinePoints(google.maps.geometry.encoding.decodePath(data.overview_polyline.points));
-            console.log(data);
 
             if (response.ok) {
-                console.log(data.message);
+                setDirections(data);
+                setPolylinePoints(google.maps.geometry.encoding.decodePath(data.overview_polyline.points));
+                setSuccessMessage([data.message, "green"]);
             } else {
-                console.error(data.error);
+                setSuccessMessage([data.error, "red"]);
             }
         } catch (error) {
-            console.error(error);
+            setSuccessMessage([`${error}`, "red"]);
+        } finally {
+            setIsLoading(false);
         }
     }
 
     const handleGetAlerts = async () => {
+        setIsLoading(true);
         try {
-            const response = await fetch("http://127.0.0.1:5000/stops/alerts/", {
+            const response = await fetch(`${URL}/stops/alerts/`, {
                 method: "POST",
                 mode: "cors",
                 headers: { "Content-Type": "application/json" },
@@ -498,22 +495,24 @@ function HomePage() {
             });
 
             const data = await response.json();
-            setAlerts(data);
-            console.log(data);
 
             if (response.ok) {
-                console.log(data.message);
+                setAlerts(data);
+                setSuccessMessage([data.message, "green"]);
             } else {
-                console.error(data.error);
+                setSuccessMessage([data.error, "red"]);
             }
         } catch (error) {
-            console.error(error);
+            setSuccessMessage([`${error}`, "red"]);
+        } finally {
+            setIsLoading(false);
         }
     }
 
     const handleGetEmissions = async () => {
+        setIsLoading(true);
         try {
-            const response = await fetch("http://127.0.0.1:5000/trips/emissions/", {
+            const response = await fetch(`${URL}/trips/emissions/`, {
                 method: "POST",
                 mode: "cors",
                 headers: { "Content-Type": "application/json" },
@@ -526,91 +525,105 @@ function HomePage() {
             });
 
             const data = await response.json();
-            setEmissions(data);
-            console.log(data);
 
             if (response.ok) {
-                console.log(data.message);
+                setEmissions(data);
+                setSuccessMessage([data.message, "green"]);
             } else {
-                console.error(data.error);
+                setSuccessMessage([data.error, "red"]);
             }
         } catch (error) {
-            console.error(error);
+            setSuccessMessage([`${error}`, "red"]);
+        } finally {
+            setIsLoading(false);
         }
     }
 
-    const handleLoadTrip = async (trip_id: number) => {
+    const handleLoadTrip = async (trip_id: number, name: string) => {
+        setIsLoading(true);
         try {
-            const response = await fetch(`http://127.0.0.1:5000/trips/${trip_id}/stops/`, {
+            const response = await fetch(`${URL}/trips/${trip_id}/stops/`, {
               method: "GET",
               mode: "cors",
               credentials: "include",
             });
             const data = await response.json();
-            console.log(data);
+
             if (response.ok) {
                 setPlaces(data.stops);
-                setSavedOpen(false);
                 setTripID(trip_id);
+                setTripName(name);
+                setSuccessMessage([`${data.message} for trip ${name}`, "green"]);
             } else {
-                console.error("Error loading stops:", data.error);
+                setSuccessMessage([data.error, "red"]);
             }
         } catch (error) {
-            console.error("Error loading stops:", error);
+            setSuccessMessage([`${error}`, "red"]);
+        } finally {
+            setIsLoading(false);
+            // setSavedOpen(false);
         }
     };
 
     const handleRenameTrip = async (trip_id: number, newName: string) => {
+        setIsLoading(true);
         try {
-            const response = await fetch(`http://127.0.0.1:5000/trips/${trip_id}`, {
-                method: "PUT",
+            const response = await fetch(`${URL}/trips/${trip_id}`, {
+                method: "PATCH",
                 mode: "cors",
                 headers: { "Content-Type": "application/json"},
                 body: JSON.stringify({ name: newName }),
                 credentials: "include",
             });
             const data = await response.json();
-            console.log(data);
+
             if (response.ok) {
-                setSavedTrips((prev) =>
+                /*setSavedTrips((prev) =>
                     prev.map((t) =>
                         t.trip_id === trip_id ? { ...t, name:newName} : t
                     )
-                );
+                );*/
                 setEditingTripId(null);
+                setSuccessMessage([data.message, "green"]);
             } else {
-                console.error(data.error);
+                setSuccessMessage([data.error, "red"]);
             }
         } catch (error) {
-            console.error(error);
+            setSuccessMessage([`${error}`, "red"]);
+        } finally {
+            setIsLoading(false);
         }
     };
 
     const handleDeleteTrip = async (trip_id: number) => {
+        setIsLoading(true);
         try {
-            const response = await fetch(`http://127.0.0.1:5000/trips/${trip_id}`, {
+            const response = await fetch(`${URL}/trips/${trip_id}`, {
                 method: "DELETE",
                 mode: "cors",
                 credentials: "include",
             });
             const data = await response.json();
-            console.log(data);
+            
             if (response.ok) {
                 setSavedTrips((prev) => prev.filter((t) => t.trip_id !== trip_id));
+                setTripID(-1);
+                setSuccessMessage([data.message, "green"]);
             } else {
-                console.error(data.error);
+                setSuccessMessage([data.error, "red"]);
             }
         } catch (error) {
-            console.error(error);
+            setSuccessMessage([`${error}`, "red"]);
         } finally {
             setConfirmDeleteTrip({ open: false, tripId: null });
+            setIsLoading(false);
         }
     };
 
     // Load Google Maps API once
     const { isLoaded } = useJsApiLoader({
         googleMapsApiKey: import.meta.env.VITE_GOOGLE_MAPS_KEY,
-        libraries,
+        libraries: libraries,
     });
 
     if (!isLoaded) return <div>Loading Map...</div>;
@@ -621,7 +634,6 @@ function HomePage() {
     <CustomCursor />
 
     <audio ref={audioRef} src="/soundtrack.mp3" autoPlay loop />
-
     <div className="animated-bg" >
         <div className="bg-layer" />
         <div className="bg-layer mirrored" />
@@ -631,6 +643,8 @@ function HomePage() {
 
     <div className="app-container">
         {/* First Column */}
+        
+    <p>{tripID} xd {userID}</p>
         <Sidebar
         onMenuToggle={() => setMenuOpen((prev) => !prev)}
         onSavedOpen={() => setSavedOpen(true)}
@@ -763,10 +777,16 @@ function HomePage() {
                     </Button>
                 </WindowHeader>
             <WindowContent style={{ maxHeight: "400px", overflowY: "auto" }}>
+                {
+                }
                 {savedTrips.length === 0 ? (
-                    <p>No saved trips yet.</p>
+                    <p style={{ fontWeight: "bold", color: "black" }}>No saved trips yet.</p>
                 ) : (
                     <ul style={{ listStyle: "none", padding: 0 }}>
+                        
+                    <p style={{ marginTop: "-8px", marginBottom: "8px", fontWeight: "bold", color: successMessage[1] }}>
+                        {successMessage[0]}
+                    </p>
                         {savedTrips.map((trip) => (
                             <li
                                 key={trip.trip_id}
@@ -795,11 +815,9 @@ function HomePage() {
                                 ) : (
                                     <>
                                     <div style={{position: "relative"}}>
-
-                                    
                                     <Button
                                         fullWidth
-                                        onClick={() => handleLoadTrip(trip.trip_id)}
+                                        onClick={() => handleLoadTrip(trip.trip_id, trip.name)}
                                         style={{
                                             textAlign: "left",
                                             whiteSpace: "normal",
@@ -894,18 +912,6 @@ function HomePage() {
                         setVehicleModel(e.value);
                     }}
                 />
-                {/* PUT VEHICLE API CONFIRM HERE AND CHANGE CALL TO USE VARS
-                Uh I don't think we need this, the changes are saved automatically*/}
-                <Button
-                fullWidth
-                disabled={!vehicleMake.trim() || !vehicleModel.trim()}
-                onClick={() => {
-                    // CALL API, IF NOT FOUND, USE DEFAULTS (?)
-
-                }}
-                >
-                    Confirm
-                </Button>
             </WindowContent>
             </Window>
         </div>
@@ -988,6 +994,8 @@ function HomePage() {
         {saveTripOpen && (
             tripID <= 0 ? (
                 <DefaultSave
+                    successMessage={successMessage}
+                    setSuccessMessage={setSuccessMessage}
                     setSaveTripOpen={setSaveTripOpen}
                     tripName={tripName}
                     setTripName={setTripName}
@@ -1000,6 +1008,8 @@ function HomePage() {
             ) 
             : (
                 <SelectedTripSave
+                    successMessage={successMessage}
+                    setSuccessMessage={setSuccessMessage}
                     setSaveTripOpen={setSaveTripOpen}
                     tripName={tripName}
                     setTripName={setTripName}
@@ -1112,7 +1122,6 @@ function HomePage() {
                     onItemsChange={(updatedItems) => setPlaces(updatedItems)}
                     onEnterClick={() => {setFocusSearch(true); }}
                     onEditPlace={(place) => {
-                        console.log('editing place', place);
                         setEditingPlace(place);
                         setSearchMode("edit");
                         setFocusSearch(true);

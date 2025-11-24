@@ -25,7 +25,6 @@ export default function StopBar({placeLocations, onItemsChange, onEnterClick, on
 
     useEffect(() => {
         onItemsChange?.(items);
-        console.log(items);
     }, [items]);
 
     const containerRef = useRef<HTMLDivElement | null>(null);
@@ -159,11 +158,8 @@ export default function StopBar({placeLocations, onItemsChange, onEnterClick, on
     }
 
     const onEdit = (id: number) => {
-        console.log(id);
-        console.log(items);
         const itemEdited = items.find((item) => item.place_id === id);
         if (itemEdited){
-            console.log("found");
             onEditPlace?.(itemEdited);
         }
     }
@@ -189,7 +185,7 @@ export default function StopBar({placeLocations, onItemsChange, onEnterClick, on
                 {items
                 // .filter((place) => place.name !== startLocation?.name) // exclude startlocation from being mdae into stopcompoentn
                 .map((place, index) => (
-                    <React.Fragment key={place.id}>
+                    <React.Fragment key={(place.place_id, index)}>
                     {placeholderIndexRef.current === index && (
                         <div
                         className="placeholder"

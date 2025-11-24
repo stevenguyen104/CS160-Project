@@ -1,5 +1,5 @@
 import { Window, WindowContent, WindowHeader, Button, TextInput } from "react95"
-
+type Success = [string, string];
 interface DefaultSaveProps {
     setSaveTripOpen: (val: boolean) => void;
     tripName: string,
@@ -7,9 +7,11 @@ interface DefaultSaveProps {
     isLoading: boolean;
     handleSaveTrip: (trip: string, isNew: boolean) => void;
     onCancel: () => void;
+    successMessage: Success;
+    setSuccessMessage: React.Dispatch<React.SetStateAction<Success>>;
 }
 
-export default function DefaultSave({setSaveTripOpen, tripName, setTripName, isLoading, handleSaveTrip, onCancel}: DefaultSaveProps){
+export default function DefaultSave({setSaveTripOpen, tripName, setTripName, isLoading, handleSaveTrip, onCancel, successMessage, setSuccessMessage}: DefaultSaveProps){
     return (
             <div className="overlay-backdrop" onClick={() => setSaveTripOpen(false)}>
                 <Window
@@ -30,6 +32,9 @@ export default function DefaultSave({setSaveTripOpen, tripName, setTripName, isL
                         </Button>
                     </WindowHeader>
                     <WindowContent>
+                        <p style={{ marginTop: "-8px", fontWeight: "bold", color: successMessage[1] }}>
+                            {successMessage[0]}
+                        </p>
                         <p>Enter a name for your trip:</p>
                         <TextInput
                             placeholder="Trip Name"
@@ -37,9 +42,9 @@ export default function DefaultSave({setSaveTripOpen, tripName, setTripName, isL
                             onChange={(e) => setTripName(e.target.value)}
                             fullWidth
                             autoFocus
-                            style={{ marginTop: 10, marginBottom: 20 }}
+                            style={{ marginTop: 8, marginBottom: 8 }}
                         />
-                        <div style={{ display: "flex", flexDirection: "row", gap: "8px", width: "100%", marginTop: "10px" }}>
+                        <div style={{ display: "flex", flexDirection: "row", gap: "8px", width: "100%", marginTop: "8px" }}>
                             <Button
                                 style={{ flex: 1 }}
                                 onClick={() => handleSaveTrip(tripName, true)}

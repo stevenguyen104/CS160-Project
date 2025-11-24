@@ -1,6 +1,7 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Window, WindowContent, WindowHeader, Button } from "react95"
 import DefaultSave from "./DefaultSave";
+type Success = [string, string];
 
 interface SelectedTripSaveProps {
     setSaveTripOpen: (val: boolean) => void;
@@ -8,16 +9,26 @@ interface SelectedTripSaveProps {
     setTripName: (name: string) => void;
     isLoading: boolean;
     handleSaveTrip: (trip: string, isNew: boolean) => void;
+    successMessage: Success;
+    setSuccessMessage: React.Dispatch<React.SetStateAction<Success>>;
 }
 
-export default function SelectedTripSave({setSaveTripOpen, tripName, setTripName, isLoading, handleSaveTrip}: SelectedTripSaveProps){
+export default function SelectedTripSave({setSaveTripOpen, tripName, setTripName, isLoading, handleSaveTrip, successMessage, setSuccessMessage}: SelectedTripSaveProps){
     //can prolly move this state up
     const [saveNew, setSaveNew] = useState(false);
+
+    useEffect(() => {
+        if (saveNew) {
+            setSuccessMessage(["", "black"]);
+        }
+    }, [saveNew]);
 
     return (
             <>
             {saveNew && (
                 <DefaultSave
+                    successMessage={successMessage}
+                    setSuccessMessage={setSuccessMessage}
                     setSaveTripOpen={setSaveTripOpen}
                     tripName={tripName}
                     setTripName={setTripName}
@@ -47,7 +58,12 @@ export default function SelectedTripSave({setSaveTripOpen, tripName, setTripName
                         </Button>
                     </WindowHeader>
                         <WindowContent>
-                        <br/>
+                        <p style={{ marginTop: "-8px", marginBottom: "8px", fontWeight: "bold", color: successMessage[1] }}>
+                            {successMessage[0]}
+                        </p>
+                        <p style={{ marginTop: "-8px", marginBottom: "8px", fontWeight: "bold", color: "black" }}>
+                            Trip name: {tripName}
+                        </p>
                         <div style={{ display: "flex", flexDirection: "row", gap: "8px", width: "100%", marginTop: "10px" }}>
                              {/* diff function  */}
                             <Button

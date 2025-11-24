@@ -100,7 +100,7 @@ export default function SearchPanel({ google, onSearch, onSelectPlace, searchMod
             <ul style={{ listStyle: "none", padding: 0, margin: 0 }}>
                 {searchResults.map((r, i) => (
                     <li
-                    key={i}
+                    key={(r.formatted_address, i)}
                     onClick={() => handleSelect(r)}
                     style={{
                         padding: "6px 4px",

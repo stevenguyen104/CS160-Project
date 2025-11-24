@@ -32,7 +32,7 @@ def get_trips():
     except AuthApiError as err:
         return jsonify({
             "success": False,
-            "error": f"{err.name}: {err.code}"
+            "error": f"{err.name}: {err.message}"
         }), err.status
     except APIError as err:
         code = PostgreSQLErrorCode(err.code)
@@ -82,7 +82,7 @@ def create_trip():
     except AuthApiError as err:
         return jsonify({
             "success": False,
-            "error": f"{err.name}: {err.code}"
+            "error": f"{err.name}: {err.message}"
         }), err.status
     except APIError as err:
         code = PostgreSQLErrorCode(err.code)
@@ -92,7 +92,7 @@ def create_trip():
         }), code.to_http_status()
 
 
-@trips_bp.route("/<int:trip_id>", methods=["PUT"])
+@trips_bp.route("/<int:trip_id>", methods=["PATCH"])
 def update_trip(trip_id: int):
     data = request.get_json()
     new_name = data.get("name", "Untitled Trip")
@@ -102,8 +102,8 @@ def update_trip(trip_id: int):
         return jsonify({
             "success": True,
             "trip": trip,
-            "message": "Trip successfully updated"
-        }), 204
+            "message": f"Trip {new_name} successfully renamed"
+        }), 200
     except APIError as err:
         code = PostgreSQLErrorCode(err.code)
         return jsonify({
@@ -122,7 +122,7 @@ def delete_trip(trip_id: int):
             "success": True,
             "trip": deleted_trip,
             "message": "Trip successfully deleted"
-        }), 204
+        }), 200
     except APIError as err:
         code = PostgreSQLErrorCode(err.code)
         return jsonify({

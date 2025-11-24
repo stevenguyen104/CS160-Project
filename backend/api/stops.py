@@ -66,7 +66,7 @@ def add_stop(trip_id: int):
         return jsonify({
             "success": True,
             "stop": stop,
-            "message": "Stop was successfully added to the trip"
+            "message": "Stop was successfully added to the trip."
         }), 201
     except APIError as err:
         code = PostgreSQLErrorCode(err.code)
@@ -83,7 +83,7 @@ def add_stops(trip_id: int):
     if not places:
         return jsonify({
             "success": False,
-            "error": "No stops were added!" 
+            "message": "No stops were added!"
         }), 400
     
     place_results: list[PlaceResult] = [PlaceResult(place) for place in places]
@@ -94,7 +94,7 @@ def add_stops(trip_id: int):
         return jsonify({
             "success": True,
             "stops": stops,
-            "message": "Stops were successfully added to the trip"
+            "message": "Stops were successfully added to the trip."
         }), 201
     except APIError as err:
         code = PostgreSQLErrorCode(err.code)
@@ -115,7 +115,7 @@ def reorder_stop(trip_id: int, stop_id: int):
             "success": True,
             "stop": stop,
             "message": "Stop successfully reordered"
-        }), 204
+        }), 200
     except APIError as err:
         code = PostgreSQLErrorCode(err.code)
         return jsonify({
@@ -133,7 +133,7 @@ def remove_stop(trip_id: int, stop_id: int):
             "success": True,
             "stop": deleted_stop,
             "message": "Stop successfully deleted"
-        }), 204
+        }), 200
     except APIError as err:
         code = PostgreSQLErrorCode(err.code)
         return jsonify({
@@ -151,7 +151,7 @@ def remove_stops(trip_id: int):
             "success": True,
             "stops": deleted_stops,
             "message": "Stops successfully deleted"
-        }), 204
+        }), 200
     except APIError as err:
         code = PostgreSQLErrorCode(err.code)
         return jsonify({

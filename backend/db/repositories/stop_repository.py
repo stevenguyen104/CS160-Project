@@ -49,6 +49,9 @@ class StopRepository:
         :type stops: list[dict]
         :return: The newly added stops
         """
+        if not stops:
+            return None
+
         data = [{
             "trip_id": trip_id,
             "name": stop.get_name(),
