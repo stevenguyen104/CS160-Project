@@ -15,6 +15,7 @@ import SelectedTripSave from "../components/SavePopUp/SelectedTripSave";
 import NewTripButton from "../components/NewTripButton/NewTripButton";
 import HelpButton from "../components/Help/HelpButton";
 const libraries: ("places" | "geometry")[] = ["places", "geometry"];
+const MAX_WAYPOINTS = 25;
 const URL: string = "http://127.0.0.1:5000";
 interface Settings {
     preferFastestRoute: boolean;
@@ -423,7 +424,6 @@ function HomePage() {
     }
 
     const handleSaveTrip = async (name: string, isNew: boolean) => {
-        // if (!name.trim()) return;
         // No trip selected (tripID starts at 1)
         setIsLoading(true);
         try {
@@ -446,8 +446,8 @@ function HomePage() {
             setSuccessMessage([`${error}`, "red"]);
         } finally {
             setIsLoading(false);
+            setSaveTripOpen(false);
         }
-        // setSaveTripOpen(false);
     };
 
     const handleGetDirections = async () => {
@@ -561,7 +561,7 @@ function HomePage() {
             setSuccessMessage([`${error}`, "red"]);
         } finally {
             setIsLoading(false);
-            // setSavedOpen(false);
+            setSavedOpen(false);
         }
     };
 
@@ -644,7 +644,6 @@ function HomePage() {
     <div className="app-container">
         {/* First Column */}
         
-    <p>{tripID} xd {userID}</p>
         <Sidebar
         onMenuToggle={() => setMenuOpen((prev) => !prev)}
         onSavedOpen={() => setSavedOpen(true)}
@@ -735,7 +734,6 @@ function HomePage() {
                 <br />
                 <br />
                 <p>Preferred units:</p>
-                {/* ADD SOME UNIT VALUE, ONCHANGE CALL SOME FUNC */}
                 <Select
                     defaultValue={settings.units}
                     options={[
@@ -745,7 +743,6 @@ function HomePage() {
                     menuMaxHeight={160}
                     width={160}
                     onChange={(option) => {
-                    // CALL FUNC
                         handleSelectChange("units", option.value);
                     }}
                 />
@@ -1258,6 +1255,11 @@ function HomePage() {
                         }
 
                         else {
+                            // add place
+                            if (places.length >= MAX_WAYPOINTS + 2) {
+                                alert(`You cannot have more than ${MAX_WAYPOINTS} waypoints.`);
+                                return;
+                            }
                             setPlaces((prev) => [
                             ...prev,
                             place,
