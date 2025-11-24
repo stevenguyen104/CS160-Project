@@ -129,7 +129,9 @@ html, body, #root {
 }
 
 .volume-slider {
+  appearance: none;
   -webkit-appearance: none;
+  -moz-appearance: none;
   width: 100%;
   cursor: none;
   margin: 0;

@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect } from "react";
+import { useState, useRef, useEffect, useCallback } from "react";
 import { TextInput, Button, Frame } from "react95";
 import { Mshtml32528 } from "@react95/icons";
 
@@ -6,18 +6,23 @@ interface SearchPanelProps {
     google: typeof window.google;
     onSearch?: (results: google.maps.places.PlaceResult[]) => void;
     onSelectPlace?: (place: google.maps.places.PlaceResult) => void;
-    searchMode: "start" | "add" | "edit";
     focusSearch?: boolean;
     setFocusSearch?: (focused: boolean) => void;
 }
 
-export default function SearchPanel({ google, onSearch, onSelectPlace, searchMode, focusSearch, setFocusSearch }: SearchPanelProps) {
+export default function SearchPanel({ google, onSearch, onSelectPlace, focusSearch, setFocusSearch }: SearchPanelProps) {
     const [searchQuery, setSearchQuery] = useState("");
     const [searchResults, setSearchResults] = useState<google.maps.places.PlaceResult[]>([]);
     const [showResults, setShowResults] = useState(false);
     const containerRef = useRef<HTMLDivElement>(null);
-
     const inputRef = useRef<HTMLInputElement>(null);
+    const serviceRef = useRef<google.maps.places.PlacesService | null>(null);
+
+    useEffect(() => {
+        if (google && !serviceRef.current) {
+            serviceRef.current = new google.maps.places.PlacesService(document.createElement("div"));
+        }
+    }, [google]);
 
     useEffect(() => {
         if (focusSearch && inputRef.current) {
@@ -26,7 +31,7 @@ export default function SearchPanel({ google, onSearch, onSelectPlace, searchMod
         }
     }, [focusSearch, setFocusSearch]);
 
-    const handleSearch = () => {
+    const handleSearch = useCallback(() => {
         if (!searchQuery.trim() || !google) return;
 
         const service = new google.maps.places.PlacesService(document.createElement("div"));
@@ -36,17 +41,17 @@ export default function SearchPanel({ google, onSearch, onSelectPlace, searchMod
         if (status === google.maps.places.PlacesServiceStatus.OK && results) {
             setSearchResults(results);
             setShowResults(true);
-            if (onSearch) onSearch(results);
+            onSearch?.(results);
         } else {
             setSearchResults([]);
             setShowResults(false);
-            if (onSearch) onSearch([]);
+            onSearch?.([]);
         }
         });
-    };
+    }, [google, searchQuery, onSearch]);
 
     const handleSelect = (place: google.maps.places.PlaceResult) => {
-        if (onSelectPlace) onSelectPlace(place);
+        onSelectPlace?.(place);
         setShowResults(false);
     };
 
@@ -98,9 +103,9 @@ export default function SearchPanel({ google, onSearch, onSelectPlace, searchMod
             }}
         >
             <ul style={{ listStyle: "none", padding: 0, margin: 0 }}>
-                {searchResults.map((r, i) => (
+                {searchResults.map((r) => (
                     <li
-                    key={`${r.formatted_address}-${i}`}
+                    key={r.place_id}
                     onClick={() => handleSelect(r)}
                     style={{
                         padding: "6px 4px",

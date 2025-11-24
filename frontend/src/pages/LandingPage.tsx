@@ -6,41 +6,41 @@ import { useState, useEffect } from "react";
 import CustomCursor from "../components/CustomCursor/CustomCursor";
 import { Monitor, Avatar, Window, WindowHeader, WindowContent, Button, ScrollView } from "react95";
 
-export default function LandingPage(){
-const navigate = useNavigate();
-const [scale, setScale] = useState(1);
-const baseSize = 540;
-const [showAbout, setShowAbout] = useState(false);
+export default function LandingPage() {
+    const navigate = useNavigate();
+    const [scale, setScale] = useState(1);
+    const baseSize = 540;
+    const [showAbout, setShowAbout] = useState(false);
 
-useEffect(() => {
-    function handleResize() {
-        const baseSizeAt1920 = 3;
-        const vw40 = window.innerWidth * 0.4;
-        const vh40 = window.innerHeight * 0.4;
+    useEffect(() => {
+        function handleResize() {
+            const baseSizeAt1920 = 3;
+            const vw40 = window.innerWidth * 0.4;
+            const vh40 = window.innerHeight * 0.4;
 
-        const refWidth = 768;
-        const refHeight = 432;
+            const refWidth = 768;
+            const refHeight = 432;
 
-        const scaleX = vw40 / refWidth;
-        const scaleY = vh40 / refHeight;
+            const scaleX = vw40 / refWidth;
+            const scaleY = vh40 / refHeight;
 
-        const scale = baseSizeAt1920 * Math.min(scaleX, scaleY);
+            const scale = baseSizeAt1920 * Math.min(scaleX, scaleY);
 
-        setScale(scale);
-    }
+            setScale(scale);
+        }
 
-    handleResize();
-    window.addEventListener("resize", handleResize);
+        handleResize();
+        window.addEventListener("resize", handleResize);
 
-    return () => window.removeEventListener("resize", handleResize);
-}, []);
+        return () => window.removeEventListener("resize", handleResize);
+    }, []);
 
     return (
         <>
             <CustomCursor />
             <div className="page">
-                
-                <div className= "navbar">
+
+                <div className="navbar">
                     <Navbar onAboutClick={() => setShowAbout((prev) => !prev)} />
                 </div>
 
@@ -48,12 +48,12 @@ useEffect(() => {
                     <div className="content-wrapper">
                         <div className="monitor-scale-wrapper">
                             <div className="monitor-visual-scaler"
-                            style={{
-                                width: baseSize,
-                                height: baseSize,
-                                transformOrigin: 'top left',
-                                transform: `scale(${scale})`,
-                            }}
+                                style={{
+                                    width: baseSize,
+                                    height: baseSize,
+                                    transformOrigin: 'top left',
+                                    transform: `scale(${scale})`,
+                                }}
                             >
                                 <Monitor>
                                     <div
@@ -82,8 +82,8 @@ useEffect(() => {
                                             <span role="img">
                                                 <img
                                                     alt="Carbon Compass Logo"
-                                                    src="/Carbon Compass Logo.png" 
-                                                    style={{ width: '100%', height: '100%', verticalAlign: 'middle' }} 
+                                                    src="/Carbon Compass Logo.png"
+                                                    style={{ width: '100%', height: '100%', verticalAlign: 'middle' }}
                                                 />
                                             </span>
                                         </Avatar>
@@ -121,22 +121,29 @@ useEffect(() => {
                                             style={{ position: "absolute", top: 5, right: 5 }}
                                             onClick={() => setShowAbout(false)}
                                         >
-                                        ✕
+                                            ✕
                                         </Button>
                                     </WindowHeader>
 
                                     <WindowContent>
-                                        <div style={{ padding: 10 }}>
-                                            <p style={{ lineHeight: 1.5, fontSize: '14px' }}>
-                                                FOR environmentally conscious travelers, commuters, and individuals WHO need a simple
-                                                way to understand and reduce the environmental impact of their trips, THE Carbon
-                                                Compass is an intuitive web-based trip planner THAT tracks carbon emissions, visualizes
-                                                historical environmental data, and provides suggestions to encourage eco-friendly travel
-                                                decisions. UNLIKE popular mapping services that mainly prioritize speed and convenience,
-                                                such as Google Maps, OUR product aims to rank routes based on the estimated carbon
-                                                emissions and allows for the consideration of other environmental impacts.
-                                            </p>
-                                        </div>
+                                        <ScrollView style={{
+                                            height: 'calc(30vh - 90px)',
+                                            width: '100%',
+                                            overflowY: 'auto',    
+                                            overflowX: 'hidden', 
+                                        }}>
+                                            <div style={{ padding: 10 }}>
+                                                <p style={{ lineHeight: 1.5, fontSize: '16px' }}>
+                                                    FOR environmentally conscious travelers, commuters, and individuals WHO need a simple
+                                                    way to understand and reduce the environmental impact of their trips, THE Carbon
+                                                    Compass is an intuitive web-based trip planner THAT tracks carbon emissions, visualizes
+                                                    historical environmental data, and provides suggestions to encourage eco-friendly travel
+                                                    decisions. UNLIKE popular mapping services that mainly prioritize speed and convenience,
+                                                    such as Google Maps, OUR product aims to rank routes based on the estimated carbon
+                                                    emissions and allows for the consideration of other environmental impacts.
+                                                </p>
+                                            </div>
+                                        </ScrollView>
                                     </WindowContent>
                                 </Window>
                             </div>

@@ -44,8 +44,6 @@ function HomePage() {
     const [infoOpen, setInfoOpen] = useState<boolean>(false);
     const [selectedPlace, setSelectedPlace] = useState<google.maps.LatLngLiteral | null>(null);
     const [places, setPlaces] = useState<google.maps.places.PlaceResult[]>([]);
-    const [searchResults, setSearchResults] = useState<google.maps.places.PlaceResult[]>([]);
-    const [showSearchResults, setShowSearchResults] = useState<boolean>(false);
     const [showConfirmRoute, setShowConfirmRoute] = useState<boolean>(false);
     const [savedTrips, setSavedTrips] = useState<any[]>([]);
     const [volume, setVolume] = useState<number>(parseInt(localStorage.getItem("volume") ?? "0") || 50);
@@ -53,7 +51,7 @@ function HomePage() {
     const [isLoading, setIsLoading] = useState<boolean>(false);
 
     const [focusSearch, setFocusSearch] = useState<boolean>(false);
-    const [searchMode, setSearchMode] = useState<"add" | "start" | "edit">("add");
+    const [editMode, setEditMode] = useState<boolean>(false); // add for false, edit for true
     const [directionsMode, setDirectionsMode] = useState<boolean>(false);
     const [editingPlace, setEditingPlace] = useState<any | null>(null);
 
@@ -133,10 +131,10 @@ function HomePage() {
     }, [volume, muted]);
 
     useEffect(() => {
-        if (!loginOpen || !saveTripOpen || !savedOpen || !menuOpen || !settingsOpen || !infoOpen || !vehicleInfoOpen || !volumeOpen || !showConfirmRoute || !showSearchResults || !directionsMode) {
+        if (!loginOpen || !saveTripOpen || !savedOpen || !menuOpen || !settingsOpen || !infoOpen || !vehicleInfoOpen || !volumeOpen || !showConfirmRoute || !directionsMode) {
             setSuccessMessage(["", "black"]);
         }
-    }, [loginOpen, saveTripOpen, savedOpen, menuOpen, settingsOpen, infoOpen, vehicleInfoOpen, volumeOpen, showConfirmRoute, showSearchResults, directionsMode]);
+    }, [loginOpen, saveTripOpen, savedOpen, menuOpen, settingsOpen, infoOpen, vehicleInfoOpen, volumeOpen, showConfirmRoute, directionsMode]);
 
     useEffect(() => {
         if (!volumeOpen) {
@@ -1115,7 +1113,7 @@ function HomePage() {
                     onEnterClick={() => {setFocusSearch(true); }}
                     onEditPlace={(place) => {
                         setEditingPlace(place);
-                        setSearchMode("edit");
+                        setEditMode(true);
                         setFocusSearch(true);
                     }}
 
@@ -1221,17 +1219,13 @@ function HomePage() {
                 ) : (
                     <SearchPanel
                     google={window.google}
-                    onSearch={(results) => {
-                        setSearchResults(results);
-                        setShowSearchResults(true);
-                    }}
                     onSelectPlace={(place) => {
                         if (place.geometry?.location) {
                         const location = {
                             lat: place.geometry.location.lat(),
                             lng: place.geometry.location.lng(),
                         };
-                        if (searchMode === "edit"){
+                        if (editMode){
                             setPlaces((prev) =>
                             prev.map((p) =>
                             p.place_id === editingPlace.place_id
@@ -1241,10 +1235,8 @@ function HomePage() {
                                 : p
                             ));
                             setEditingPlace(null);
-                            setSearchMode("add");
-                        }
-
-                        else {
+                            setEditMode(false);
+                        } else {
                             // add place
                             if (places.length >= MAX_WAYPOINTS + 2) {
                                 alert(`You cannot have more than ${MAX_WAYPOINTS} waypoints.`);
@@ -1256,10 +1248,8 @@ function HomePage() {
                             ]);
                         }
                         setSelectedPlace(location);
-                        setShowSearchResults(false);
                         }
                     }}
-                    searchMode={searchMode}
                     focusSearch={focusSearch}
                     setFocusSearch={setFocusSearch}
                     />

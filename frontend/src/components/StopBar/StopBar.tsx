@@ -183,7 +183,7 @@ export default function StopBar({placeLocations, onItemsChange, onEnterClick, on
                     />
                 {items
                 .map((place, index) => (
-                    <React.Fragment key={`${place.place_id}-${index}`}>
+                    <React.Fragment key={place.place_id}>
                     {placeholderIndexRef.current === index && (
                         <div
                         className="placeholder"
