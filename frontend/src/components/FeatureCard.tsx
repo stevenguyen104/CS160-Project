@@ -16,7 +16,7 @@ export default function FeatureCard({image, name, desc}:Card){
                 </WindowHeader>
                 <WindowContent>
                     <div className="img">
-                        <img src={image} />
+                        <img src={image} alt={name}/>
                     </div>
 
                     <p>

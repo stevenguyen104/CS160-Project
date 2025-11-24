@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import React, { useState, useEffect } from "react";
 import { Window, WindowContent, WindowHeader, Button } from "react95"
 import DefaultSave from "./DefaultSave";
 type Success = [string, string];
@@ -28,7 +28,6 @@ export default function SelectedTripSave({setSaveTripOpen, tripName, setTripName
             {saveNew && (
                 <DefaultSave
                     successMessage={successMessage}
-                    setSuccessMessage={setSuccessMessage}
                     setSaveTripOpen={setSaveTripOpen}
                     tripName={tripName}
                     setTripName={setTripName}

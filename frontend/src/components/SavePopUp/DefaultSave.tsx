@@ -1,5 +1,4 @@
 import { Window, WindowContent, WindowHeader, Button, TextInput } from "react95"
-type Success = [string, string];
 interface DefaultSaveProps {
     setSaveTripOpen: (val: boolean) => void;
     tripName: string,
@@ -7,11 +6,10 @@ interface DefaultSaveProps {
     isLoading: boolean;
     handleSaveTrip: (trip: string, isNew: boolean) => void;
     onCancel: () => void;
-    successMessage: Success;
-    setSuccessMessage: React.Dispatch<React.SetStateAction<Success>>;
+    successMessage: [string, string];
 }
 
-export default function DefaultSave({setSaveTripOpen, tripName, setTripName, isLoading, handleSaveTrip, onCancel, successMessage, setSuccessMessage}: DefaultSaveProps){
+export default function DefaultSave({setSaveTripOpen, tripName, setTripName, isLoading, handleSaveTrip, onCancel, successMessage}: DefaultSaveProps){
     return (
             <div className="overlay-backdrop" onClick={() => setSaveTripOpen(false)}>
                 <Window

@@ -178,14 +178,12 @@ export default function StopBar({placeLocations, onItemsChange, onEnterClick, on
             }}>
                 <div className="stopbarScrollContainer" ref={containerRef}>
                 <StartCard 
-                    placeLocations = {placeLocations}
-                    // startLocation={startLocation}
+                    placeLocations={placeLocations}
                     onEnterStartLocation={onEnterClick}
                     />
                 {items
-                // .filter((place) => place.name !== startLocation?.name) // exclude startlocation from being mdae into stopcompoentn
                 .map((place, index) => (
-                    <React.Fragment key={(place.place_id, index)}>
+                    <React.Fragment key={`${place.place_id}-${index}`}>
                     {placeholderIndexRef.current === index && (
                         <div
                         className="placeholder"

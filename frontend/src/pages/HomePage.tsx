@@ -111,8 +111,8 @@ function HomePage() {
     useEffect(() => {
         if (directions != null) {
             console.log("directions", directions);
-            handleGetEmissions();
-            handleGetAlerts();
+            void handleGetEmissions();
+            void handleGetAlerts();
             setShowConfirmRoute(false);
             setDirectionsMode(true);
         }
@@ -172,18 +172,18 @@ function HomePage() {
                 console.error(error);
             }
         }
-        fetchData();
+        void fetchData();
     }, []);
 
  
     useEffect(() => {
         if (savedOpen && userID) {
-            getTrips();
+            void getTrips();
             return;
         }
         
         if (!confirmDeleteTrip || !editingTripId) {
-            getTrips();
+            void getTrips();
         }
     }, [savedOpen, userID, confirmDeleteTrip, editingTripId]);
 
@@ -801,7 +801,7 @@ function HomePage() {
                                             autoFocus
                                             onKeyDown={(e) => {
                                                 if (e.key === "Enter" && editTripName.trim()) {
-                                                    handleRenameTrip(trip.trip_id, editTripName.trim());
+                                                    void handleRenameTrip(trip.trip_id, editTripName.trim());
                                                     setEditingTripId(null);
                                                 } else if (e.key === "Escape") {
                                                     setEditingTripId(null);
@@ -992,7 +992,6 @@ function HomePage() {
             tripID <= 0 ? (
                 <DefaultSave
                     successMessage={successMessage}
-                    setSuccessMessage={setSuccessMessage}
                     setSaveTripOpen={setSaveTripOpen}
                     tripName={tripName}
                     setTripName={setTripName}
