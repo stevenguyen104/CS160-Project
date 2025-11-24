@@ -28,3 +28,8 @@ def get_directions():
             "success": False,
             "error": f"Network or HTTP error while obtaining directions: {str(e)}"
         }), 502
+    except ValueError:
+        return jsonify({
+            "success": False,
+            "error": "Could not find a route between the origin and destination."
+        }), 422

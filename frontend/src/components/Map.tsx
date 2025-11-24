@@ -51,6 +51,7 @@ export default function Map({ selectedPlace, directions, polylinePoints }: MapPr
             ))}
             
             {selectedPlace && <Marker position={selectedPlace} />}
+            {directions?.legs && <Marker position={directions.legs[directions.legs.length - 1].end_location}/>}
         </GoogleMap>
     );
 }

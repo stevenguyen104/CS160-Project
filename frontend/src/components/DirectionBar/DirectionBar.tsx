@@ -14,17 +14,20 @@ export default function DirectionBar({mode, setMode, places, directions, polylin
     function buildGPX(polylinePoints: google.maps.LatLng[], places: google.maps.places.PlaceResult[]) {
         const header = `<?xml version="1.0" encoding="UTF-8"?>\n<gpx version="1.1" creator="route-app">`;
         const footer = `</gpx>`;
-
+        const latPlace: any = (p: google.maps.places.PlaceResult) => typeof p.geometry?.location?.lat === "function" ? p.geometry?.location?.lat() : p.geometry?.location?.lat;
+        const lonPlace: any = (p: google.maps.places.PlaceResult) => typeof p.geometry?.location?.lng === "function" ? p.geometry?.location?.lng() : p.geometry?.location?.lng;
+        const latPoint: any = (p: google.maps.LatLng) => typeof p.lat === "function" ? p.lat() : p.lat;
+        const lonPoint: any = (p: google.maps.LatLng) => typeof p.lng === "function" ? p.lng() : p.lng;
         const wpts = places
             .map(p =>
-                `<wpt lat="${p.geometry?.location?.lat()}" lon="${p.geometry?.location?.lng()}">
+                `<wpt lat="${latPlace(p)}" lon="${lonPlace(p)}">
                     <name>${p.name}</name>
                 </wpt>`
             )
             .join("\n");
 
         const trkpts = polylinePoints
-            .map(pt => `<trkpt lat="${pt.lat()}" lon="${pt.lng()}"></trkpt>`)
+            .map(pt => `<trkpt lat="${latPoint(pt)}" lon="${lonPoint(pt)}"></trkpt>`)
             .join("\n");
 
         const track = `
@@ -61,8 +64,8 @@ export default function DirectionBar({mode, setMode, places, directions, polylin
 
     combined.push({
         id: places[places.length - 1].name!,
-    label: places[places.length - 1].name,
-    items: []
+        label: places[places.length - 1].name,
+        items: []
     });
 
     const exportRoute = () => {

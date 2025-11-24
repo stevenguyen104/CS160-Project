@@ -52,8 +52,6 @@ function HomePage() {
     const [muted, setMuted] = useState<boolean>(localStorage.getItem("muted") === "true");
     const [isLoading, setIsLoading] = useState<boolean>(false);
 
-    const [startLocation, setStartLocation] = useState<google.maps.places.PlaceResult | null>(null);
-
     const [focusSearch, setFocusSearch] = useState<boolean>(false);
     const [searchMode, setSearchMode] = useState<"add" | "start" | "edit">("add");
     const [directionsMode, setDirectionsMode] = useState<boolean>(false);
@@ -110,7 +108,6 @@ function HomePage() {
 
     useEffect(() => {
         if (directions != null) {
-            console.log("directions", directions);
             void handleGetEmissions();
             void handleGetAlerts();
             setShowConfirmRoute(false);
@@ -136,10 +133,10 @@ function HomePage() {
     }, [volume, muted]);
 
     useEffect(() => {
-        if (!loginOpen || !saveTripOpen || !savedOpen || !menuOpen || !settingsOpen || !infoOpen || !vehicleInfoOpen || !volumeOpen) {
+        if (!loginOpen || !saveTripOpen || !savedOpen || !menuOpen || !settingsOpen || !infoOpen || !vehicleInfoOpen || !volumeOpen || !showConfirmRoute || !showSearchResults || !directionsMode) {
             setSuccessMessage(["", "black"]);
         }
-    }, [loginOpen, saveTripOpen, savedOpen, menuOpen, settingsOpen, infoOpen, vehicleInfoOpen, volumeOpen]);
+    }, [loginOpen, saveTripOpen, savedOpen, menuOpen, settingsOpen, infoOpen, vehicleInfoOpen, volumeOpen, showConfirmRoute, showSearchResults, directionsMode]);
 
     useEffect(() => {
         if (!volumeOpen) {
@@ -429,7 +426,6 @@ function HomePage() {
         try {
             if (userID) {
                 if (tripID <= 0 || isNew) {
-                    console.log("here");
                     const newTripID: number = await handleAddTrip(name);
                     setTripID(newTripID);
                     await handleAddStops(newTripID);
@@ -1132,24 +1128,22 @@ function HomePage() {
                     !directionsMode && (<div className="start-route-button">
                     <Tooltip text='Start Route' style={{ zIndex: 25 }} enterDelay={100} leaveDelay={100} position="right">
                         <Button 
-                            disabled = {(places.length < 2 && startLocation === null) || vehicleMake == "" || vehicleModel == ""}
+                            disabled = {places.length < 2 || vehicleMake == "" || vehicleModel == ""}
                             style = {{
-                                filter: (places.length < 2 && startLocation === null) || vehicleMake == "" || vehicleModel == ""? 'grayscale(100%)' : 'none',
-                                cursor: (places.length < 2 && startLocation === null) || vehicleMake == "" || vehicleModel == ""? 'not-allowed' : 'pointer',
+                                filter: places.length < 2 || vehicleMake == "" || vehicleModel == ""? 'grayscale(100%)' : 'none',
+                                cursor: places.length < 2 || vehicleMake == "" || vehicleModel == ""? 'not-allowed' : 'pointer',
                             }}
                             onClick={() => {setShowConfirmRoute(true);
-                                                const location = places[0]?.geometry?.location;
+                                                const location = places[places.length - 1]?.geometry?.location;
                                                 // tripID condition? Since helps center on save trips 
                                                 if (location){
-                                                    // lol this gets rid of type safety
-                                                    const locationAsAny = location as any;
+                                                    const lat: any = typeof location.lat === "function" ? location.lat() : location.lat;
+                                                    const lng: any = typeof location.lng === "function" ? location.lng() : location.lng;
                                                     const newPlace: google.maps.LatLngLiteral = {
-                                                        lat: locationAsAny.lat,
-                                                        lng: locationAsAny.lng,
+                                                        lat: lat,
+                                                        lng: lng,
                                                     };
                                                     setSelectedPlace(newPlace);
-                                                    console.log("Setting selected place to:", newPlace);                                                
-                                                
                                                 }
                                                 
 
@@ -1196,6 +1190,9 @@ function HomePage() {
                                 </Button>
                             </WindowHeader>
                             <WindowContent>
+                                <p style={{ marginTop: "-8px", marginBottom: "8px", fontWeight: "bold", color: successMessage[1] }}>
+                                    {successMessage[0]}
+                                </p>
                                 <p>Do you want to confirm this route?</p>
                                 <div style={{ marginTop: "25%", display: "flex", justifyContent: "space-between", width: "100%" }}>
                                     <Button
@@ -1234,18 +1231,12 @@ function HomePage() {
                             lat: place.geometry.location.lat(),
                             lng: place.geometry.location.lng(),
                         };
-                        if (searchMode === "start") {
-                            setStartLocation(place);
-                            setSearchMode("add");
-                        }
-                        else if (searchMode === "edit"){
+                        if (searchMode === "edit"){
                             setPlaces((prev) =>
                             prev.map((p) =>
                             p.place_id === editingPlace.place_id
                                 ? {
-                                    ...p,
-                                    name: place.name,
-                                    formatted_address: place.formatted_address,
+                                    ...place,
                                 }
                                 : p
                             ));

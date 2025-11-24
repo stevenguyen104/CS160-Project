@@ -40,3 +40,8 @@ def calculate_emissions():
             "success": False,
             "error": f"Network or HTTP error while obtaining directions: {str(e)}"
         }), 502
+    except ValueError:
+        return jsonify({
+            "success": False,
+            "error": "Could not calculate emissions, as a route is unavailable."
+        }), 422
