@@ -1,3 +1,5 @@
+import requests
+
 from flask import Blueprint, jsonify, request
 
 from ..helpers.directions_response_parser import DirectionsResponse
@@ -30,5 +32,11 @@ def calculate_emissions():
         distance_value=distance_value,
         distance_unit=distance_unit
     )
-    emissions_estimate: EmissionsEstimate = emissions_service.obtain_emissions()
-    return jsonify(emissions_estimate.get_dict()), 200
+    try:
+        emissions_estimate: EmissionsEstimate = emissions_service.obtain_emissions()
+        return jsonify(emissions_estimate.get_dict()), 200
+    except requests.RequestException as e:
+        return jsonify({
+            "success": False,
+            "error": f"Network or HTTP error while obtaining directions: {str(e)}"
+        }), 502

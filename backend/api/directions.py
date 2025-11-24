@@ -1,3 +1,5 @@
+import requests
+
 from flask import Blueprint, jsonify, request
 
 from ..helpers.directions_response_parser import DirectionsResponse
@@ -15,5 +17,14 @@ def get_directions():
     alternatives = data.get("alternatives", False)
     place_results: list[PlaceResult] = [PlaceResult(place) for place in places]
     directions_service: DirectionsService = DirectionsService(place_results)
-    directions_response: DirectionsResponse = directions_service.obtain_directions(avoid_tolls=avoid_tolls, alternatives=alternatives)
-    return jsonify(directions_response.get_dict()), 200
+    try:
+        directions_response: DirectionsResponse = directions_service.obtain_directions(
+            avoid_tolls=avoid_tolls,
+            alternatives=alternatives
+        )
+        return jsonify(directions_response.get_dict()), 200
+    except requests.RequestException as e:
+        return jsonify({
+            "success": False,
+            "error": f"Network or HTTP error while obtaining directions: {str(e)}"
+        }), 502

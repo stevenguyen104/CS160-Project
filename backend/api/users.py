@@ -3,7 +3,6 @@ from flask import Blueprint, jsonify, request
 from supabase import AuthApiError, AuthWeakPasswordError, AuthInvalidCredentialsError
 
 from ..db.supabase_client import supabase
-from ..utils.string_utils import StringUtils
 
 users_bp = Blueprint("users", __name__, url_prefix="/users")
 
@@ -74,7 +73,6 @@ def login_user():
             "success": False,
             "error": f"{err.name}: {err.message}"
         }), err.status
-
 
 
 @users_bp.route("/logout", methods=["POST"])
