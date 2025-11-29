@@ -54,9 +54,9 @@ http://127.0.0.1:5000
 ### Backend
 Create a `.env` file inside `backend/`:
 ```
-SUPABASE_URL=(Supabase URL)
-SUPABASE_KEY=(The public Supabase key)
-RAPIDAPI_KEY=(your Rapid API key)
+SUPABASE_URL=https://ebwpthlqbcrgcezwjgdd.supabase.co
+SUPABASE_KEY=sb_publishable_jxzeQzgxYod38k0wkpUFWQ_vJsyDUO4
+RAPIDAPI_KEY=(your Rapid API key - see https://rapidapi.com/carbonsutra/api/carbonsutra1)
 GOOGLE_MAPS_API_KEY=(your Google Maps API key)
 ```
 
