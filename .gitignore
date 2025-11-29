@@ -21,3 +21,9 @@ Desktop.ini
 
 # NodeJS
 node_modules/
+
+# Virtual environment
+venv/
+ENV/
+env/
+.venv/
