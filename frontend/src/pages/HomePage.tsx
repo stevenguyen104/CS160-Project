@@ -452,7 +452,7 @@ function HomePage() {
                 body: JSON.stringify({
                     "places": places,
                     "avoid_tolls": settings.avoidTolls,
-                    "alternatives": settings.preferFastestRoute
+                    "alternatives": !settings.preferFastestRoute
                 }),
                 credentials: "include"
             });
