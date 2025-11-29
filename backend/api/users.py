@@ -37,7 +37,7 @@ def register_user():
     except (AuthApiError, AuthWeakPasswordError, AuthInvalidCredentialsError) as err:
         return jsonify({
             "success": False,
-            "error": f"{err.name}: {err.message}"
+            "error": f"{err.message}"
         }), err.status
 
 
@@ -71,7 +71,7 @@ def login_user():
     except (AuthApiError, AuthWeakPasswordError, AuthInvalidCredentialsError) as err:
         return jsonify({
             "success": False,
-            "error": f"{err.name}: {err.message}"
+            "error": f"{err.message}"
         }), err.status
 
 
@@ -87,7 +87,7 @@ def logout_user():
     except AuthApiError as err:
         return jsonify({
             "success": False,
-            "error": f"{err.name}: {err.message}"
+            "error": f"{err.message}"
         }), err.status
 
 
@@ -113,7 +113,7 @@ def get_current_user():
     except (AuthApiError, AuthWeakPasswordError, AuthInvalidCredentialsError) as err:
         return jsonify({
             "success": False,
-            "error": f"{err.name}: {err.message}"
+            "error": f"{err.message}"
         }), err.status
 
 
@@ -136,5 +136,5 @@ def delete_user():
     except (AuthApiError, AuthWeakPasswordError, AuthInvalidCredentialsError) as err:
         return jsonify({
             "success": False,
-            "error": f"{err.name}: {err.message}"
+            "error": f"{err.message}"
         }), err.status

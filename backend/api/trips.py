@@ -32,7 +32,7 @@ def get_trips():
     except AuthApiError as err:
         return jsonify({
             "success": False,
-            "error": f"{err.name}: {err.message}"
+            "error": f"{err.message}"
         }), err.status
     except APIError as err:
         code = PostgreSQLErrorCode(err.code)
@@ -82,7 +82,7 @@ def create_trip():
     except AuthApiError as err:
         return jsonify({
             "success": False,
-            "error": f"{err.name}: {err.message}"
+            "error": f"{err.message}"
         }), err.status
     except APIError as err:
         code = PostgreSQLErrorCode(err.code)
