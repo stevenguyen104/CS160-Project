@@ -20,13 +20,11 @@ const URL: string = "http://127.0.0.1:5000";
 interface Settings {
     preferFastestRoute: boolean;
     avoidTolls: boolean;
-    darkTheme: boolean;
     units: "miles" | "km";
 }
 const defaultSettings: Settings = {
     preferFastestRoute: false,
     avoidTolls: false,
-    darkTheme: false,
     units: "miles"
 };
 interface Vehicles {
@@ -714,15 +712,6 @@ function HomePage() {
                     checked={settings.avoidTolls}
                     onChange={(e) => {
                         handleCheckboxChange("avoidTolls", e.target.checked)
-                    }}
-                />
-                <br />
-                <Checkbox
-                    value='themeType'
-                    label='Enable dark theme'
-                    checked={settings.darkTheme}
-                    onChange={(e) => {
-                        handleCheckboxChange("darkTheme", e.target.checked);
                     }}
                 />
                 <br />
