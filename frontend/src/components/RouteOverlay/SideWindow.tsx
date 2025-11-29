@@ -27,12 +27,11 @@ export default function SideWindow({ alerts, directions, emissions, units }: Sid
 
     return (
         <>
-            <div style={{ position: "absolute", top: 20, right: 20, zIndex: 20 }}>
+            <div style={{ position: "absolute", top: 20, right: 20, zIndex: 20, display: "flex", flexDirection: "column", alignItems: "flex-end" }}>
                 <Button onClick={() => setShow(!show)}> {show ? "Collapse" : "Expand"} </Button>
-                <br></br>
                 {show && (
                     <>
-                        <Window>
+                        <Window style={{ width: 350 }}>
                             <WindowHeader>
                                 Alerts
                             </WindowHeader>
@@ -42,8 +41,11 @@ export default function SideWindow({ alerts, directions, emissions, units }: Sid
                                     const [r, g, b] = alert.color.map(c => Math.round(c * 255));
                                     const textColor = `rgb(${r}, ${g}, ${b})`;
                                     return (
-                                        <div key={`${alert} ${index}`} style={{ color: textColor, textShadow: "1px 1px 2px black" }}>
-                                            {alert.location}: {alert.category}. AQI: {alert.AQI_display}; Pollutant: {alert.dominant_pollutant}
+                                        <div key={`${alert} ${index}`}>
+                                            <span style={{ color: "black", fontWeight:"bold" }}>{alert.location}: </span>
+                                            <span style={{ color: textColor }}>
+                                                {alert.category}. AQI: {alert.AQI_display}; Pollutant: {alert.dominant_pollutant}
+                                            </span>
                                         </div>
                                     );
                                 })}
@@ -53,7 +55,7 @@ export default function SideWindow({ alerts, directions, emissions, units }: Sid
 
 
                         <br></br>
-                        <Window>
+                        <Window style={{ width: 350 }}>
                             <WindowHeader>
                                 Emissions info
                             </WindowHeader>
