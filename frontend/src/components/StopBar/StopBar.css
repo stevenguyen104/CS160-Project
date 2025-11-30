@@ -1,0 +1,25 @@
+.stopbar {
+    position: absolute;
+    bottom: 0px;
+    left: 0px;
+    right: 0px;
+    height: 155px;
+    background-color: #d0d0d0;
+    border: 2px solid #808080;
+    padding: 5px;
+    box-sizing: border-box;
+    display: flex;
+    align-items: center;
+    z-index: 10;
+}
+
+.stopbarScrollContainer {
+    display: flex;
+    gap: 10px;
+    overflow-x: auto;
+    overflow-y: hidden;
+    flex-wrap: nowrap;
+    flex: 1;
+    min-width: 0;
+    height: 100%;
+}

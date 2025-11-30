@@ -1,0 +1,30 @@
+.placeDiv {
+    flex: 0 0 auto;
+    width: 150px;
+    user-select: none;
+    cursor: grab;
+}
+
+.placeDiv.dragging {
+    opacity: 0.6;
+    transform: scale(1.02);
+}
+
+.stopWindowHeader {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.stopWindowContent {
+    font-size: 0.8em;
+    padding: 5px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.placeDiv:hover {
+    transform: scale(1.02);
+    transition: transform 0.1s ease-in-out;
+}

@@ -1,0 +1,55 @@
+# Python bytecode
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Virtual environment
+venv/
+ENV/
+env/
+.venv/
+
+# Flask
+instance/
+*.sqlite3
+*.db
+
+# env
+../.env
+.env
+.env.local
+.env.*.local
+
+# ide
+.idea/
+*.iml
+*.iws
+.vscode/
+
+# Logs/temp
+*.log
+*.pot
+*.pyc
+*.pyo
+*.swp
+*.swo
+*.bak
+*.tmp
+*.~*
+
+# Testing
+.coverage
+htmlcov/
+.tox/
+.pytest_cache/
+nosetests.xml
+coverage.xml
+
+
+# .supabase/
+
+
+*.DS_Store
+*.egg-info/
+dist/
+build/

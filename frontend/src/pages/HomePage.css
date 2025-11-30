@@ -1,0 +1,184 @@
+/* Global Base */
+:root {
+    --background: transparent;
+}
+
+html, body, #root {
+    height: 100%;
+}
+
+.app-container {
+    display: flex;
+    height: 100vh;
+    width: 100vw;
+    background: transparent;
+}
+
+/* Global overlay */
+.overlay-backdrop {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background: rgba(0,0,0,0.5);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 2000;
+}
+
+.main-column {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    padding: 10px;
+    gap: 10px;
+}
+
+.map-wrapper {
+    position: relative;
+    flex: 1;
+    overflow: hidden;
+}
+
+.map {
+    width: 100%;
+    height: 100%;
+    background-color: #e6e6e6;
+    border: 1px solid black;
+}
+
+/* Search Results Overlay */
+.search-panel-overlay {
+    position: absolute;
+    top: 20px;
+    left: 20px;
+    width: 300px;
+    z-index: 15;
+}
+
+.search-results-panel {
+    position: absolute;
+    top: 42px;
+    left: 0;
+    width: 100%;
+    max-height: 400px;
+    overflow-y: auto;
+    background: white;
+    border: 1px solid #ccc;
+    border-radius: 6px;
+    z-index: 20;
+    padding: 10px;
+}
+.search-results-panel ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+.search-results-panel li {
+    padding: 10px 5px;
+    margin-bottom: 10px;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background 0.2s ease;
+}
+.search-results-panel li:hover {
+    background-color: #e8f4ff;
+}
+
+.start-route-button {
+    position: absolute;
+    bottom: 152.5px;
+    left: 5px;
+    z-index: 21;
+}
+
+.new-trip-button {
+    position: absolute;
+    bottom: 157px;
+    left: 65px; 
+    z-index: 20;
+}
+
+.animated-bg {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 400%;
+    height: 100%;
+    display: flex;
+    z-index: -1;
+    overflow: hidden;
+    animation: scroll 120s linear infinite;
+    will-change: transform;
+}
+
+.bg-layer {
+    flex: 1;
+    background: url('/Summer2.png') center center / cover no-repeat;
+}
+
+.bg-layer.mirrored {
+    transform: scaleX(-1);
+}
+
+@keyframes scroll {
+    0% { transform: translateX(0); }
+    100% { transform: translateX(-50%); }
+}
+
+.volume-slider {
+  appearance: none;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  width: 100%;
+  cursor: none;
+  margin: 0;
+}
+
+.volume-slider::-webkit-slider-runnable-track {
+  width: 100%;
+  height: 8px;
+  background-color: #181818;
+  border-top: 2px solid #f0f0f0;
+  border-right: 4px solid #ffffff;
+  border-bottom: 2px solid #c0c0c0;
+  border-left: 4px solid #ffffff;
+  box-shadow: 0 1px 0 #ffffff;
+}
+
+.volume-slider::-moz-range-track {
+  width: 100%;
+  height: 8px;
+  background-color: #181818;
+  border-top: 2px solid #f0f0f0;
+  border-right: 4px solid #ffffff;
+  border-bottom: 2px solid #c0c0c0;
+  border-left: 4px solid #ffffff;
+  box-shadow: 0 1px 0 #ffffff;
+}
+
+.volume-slider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  width: 20px;
+  height: 32px;
+  background-color: #c0c0c0;
+    border: 2px solid #ffffff;
+    border-right-color: #404040;
+    border-bottom-color: #404040;
+    box-shadow: inset 0 -1px 0 #404040,
+              inset -1px 0 0 #404040,
+              inset 0 1px 0 #c0c0c0,
+              inset 1px 0 0 #c0c0c0;
+  cursor: none;
+  margin-top: -14px;
+}
+
+.volume-slider::-moz-range-thumb {
+  width: 20px;
+  height: 32px;
+  background-color: #c0c0c0;
+  border: 1px solid #ffffff;
+  cursor: none;
+}

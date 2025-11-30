@@ -1,0 +1,32 @@
+.sidebar-react95 {
+    width: 100px;
+    padding: 10px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    height: 100vh;
+    box-sizing: border-box;
+}
+
+.sidebar-panel {
+    width: 100%;
+    height: 100%;
+    padding-bottom: 20px;
+    display: flex;
+    flex-direction: column;
+}
+
+/* inner buttons */
+.sidebar-buttons {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 5px;
+    padding-top: 10px;
+    width: 100%;
+    height: 100%;
+}
+
+.sidebar-spacer {
+    flex: 1;
+}
